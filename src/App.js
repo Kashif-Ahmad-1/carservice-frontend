@@ -1,23 +1,34 @@
-import logo from './logo.svg';
-import './App.css';
+import "../src/dist/styles.css";
+import { Route, Routes } from "react-router-dom";
+import Hero from './components/Hero';
+import AppointmentModal from "./components/AccountPage/AccountAddClient";
+import Navbar from "./components/Navbar";
+import AppointmentDetailsPage from "./components/AccountPage/AccountsDetailsPage";
+import AdminDashboard from "./components/Admin/AdminDashboard";
+import EngineerDetailsPage from "./components/EngineerPage/EngineerDetailsPage";
+import Login from "./components/Authentication/Login";
+import AccountantPage from './components/Admin/AccountantPage'
+import MechanicPage from './components/Admin/MechanicPage'
+import ChecklistPage from "./components/EngineerPage/ChecklistPage";
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div >
+      
+     <Routes>
+        <Route index path="/" element={<Hero />} />
+        <Route path="/account-add-client" element={<AppointmentModal />} />
+    
+        <Route path="/login" element={<Login />} />
+        <Route path="/admin" element={<AdminDashboard />} />
+      
+        <Route path="/accountspage" element={<AppointmentDetailsPage />} />
+        <Route path="/engineer/:employerId" element={<EngineerDetailsPage />} />
+        <Route path="/checklist" element={<ChecklistPage />} />
+
+        <Route path="/accountants" element={<AccountantPage />} />
+        <Route path="/mechanics" element={<MechanicPage />} />
+      </Routes>
     </div>
   );
 }
