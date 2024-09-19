@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -10,6 +10,23 @@ function AppointmentPage() {
   const [installationDate, setInstallationDate] = useState('');
   const [serviceFrequency, setServiceFrequency] = useState('');
   const [expectedServiceDate, setExpectedServiceDate] = useState('');
+  const [engineers, setEngineers] = useState([]);
+
+  useEffect(() => {
+    // Simulate fetching data from an API or database
+    const fetchEngineers = async () => {
+      // Dummy data for now
+      const dummyEngineers = [
+        { id: 'engineer1', name: 'Engineer 1' },
+        { id: 'engineer2', name: 'Engineer 2' },
+        { id: 'engineer3', name: 'Engineer 3' },
+        { id: 'engineer4', name: 'Engineer 4' }
+      ];
+      setEngineers(dummyEngineers);
+    };
+
+    fetchEngineers();
+  }, []);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -21,8 +38,6 @@ function AppointmentPage() {
     });
   
     try {
-      
-      // http://localhost:5000/save-appointment
       const response = await fetch('http://localhost:5000/api/appointments/save-appointment', {
         method: 'POST',
         headers: {
@@ -191,10 +206,11 @@ function AppointmentPage() {
               <label htmlFor="serviceEngineer">Select Service Engineer Name:</label>
               <select id="serviceEngineer" name="serviceEngineer" required>
                 <option value="">Select...</option>
-                <option value="engineer1">Engineer 1</option>
-                <option value="engineer2">Engineer 2</option>
-                <option value="engineer3">Engineer 3</option>
-                {/* Add more options as needed */}
+                {engineers.map(engineer => (
+                  <option key={engineer.id} value={engineer.id}>
+                    {engineer.name}
+                  </option>
+                ))}
               </select>
             </div>
           </div>
@@ -212,6 +228,7 @@ function AppointmentPage() {
 }
 
 export default AppointmentPage;
+
 
 
 

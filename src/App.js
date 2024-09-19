@@ -10,6 +10,7 @@ import Login from "./components/Authentication/Login";
 import AccountantPage from './components/Admin/AccountantPage'
 import MechanicPage from './components/Admin/MechanicPage'
 import ChecklistPage from "./components/EngineerPage/ChecklistPage";
+import PdfGenerator from "./components/PdfGenerator";
 
 function App() {
   return (
@@ -25,6 +26,9 @@ function App() {
         <Route path="/accountspage" element={<AppointmentDetailsPage />} />
         <Route path="/engineer/:employerId" element={<EngineerDetailsPage />} />
         <Route path="/checklist" element={<ChecklistPage />} />
+
+
+        <Route path="/pdfcheck" element={<PdfGenerator />} />
 
         <Route path="/accountants" element={<AccountantPage />} />
         <Route path="/mechanics" element={<MechanicPage />} />

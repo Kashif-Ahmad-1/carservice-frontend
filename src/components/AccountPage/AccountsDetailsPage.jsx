@@ -194,7 +194,7 @@ function AppointmentDetailsPage() {
               <TableCell sx={{ fontSize: '1.1rem', fontWeight: 'bold', maxWidth: '10%' }}>Service Frequency (Days)</TableCell>
               <TableCell sx={{ fontSize: '1.1rem', fontWeight: 'bold', maxWidth: '10%' }}>Expected Service Date</TableCell>
               <TableCell sx={{ fontSize: '1.1rem', fontWeight: 'bold', maxWidth: '10%' }}>Service Engineer</TableCell>
-              <TableCell sx={{ fontSize: '1.1rem', fontWeight: 'bold', maxWidth: '10%' }}>Actions</TableCell>
+              <TableCell sx={{ fontSize: '1.1rem', fontWeight: 'bold', maxWidth: '10%' }}>Upload Document</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -224,7 +224,7 @@ function AppointmentDetailsPage() {
                     color="primary" 
                     onClick={() => handleDownloadPDF(appointment._id)}
                   >
-                    Download PDF
+                    Upload Document
                   </Button>
                 </TableCell>
               </TableRow>
