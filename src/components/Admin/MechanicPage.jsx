@@ -59,7 +59,7 @@ const MechanicPage = () => {
       <MainContent>
         <ToolbarSpacer />
         <Container>
-          <SectionTitle variant="h4">Mechanic List</SectionTitle>
+          <SectionTitle variant="h4">Engineer List</SectionTitle>
           <ButtonContainer>
             <Button variant="contained" color="primary">Add Mechanic</Button>
           </ButtonContainer>
@@ -71,7 +71,8 @@ const MechanicPage = () => {
                   <tr>
                     <th>Name</th>
                     <th>Email</th>
-                    <th>Phone</th>
+                    <th>Mobile Number</th>
+                    <th>Address</th>
                     <th>Actions</th>
                   </tr>
                 </thead>
@@ -80,6 +81,7 @@ const MechanicPage = () => {
                     <tr key={mechanic.id}>
                       <td>{mechanic.name}</td>
                       <td>{mechanic.email}</td>
+                      <td>{mechanic.phone}</td>
                       <td>{mechanic.phone}</td>
                       <td>
                         <Button variant="contained" color="secondary" sx={{ mr: 1 }}>Edit</Button>

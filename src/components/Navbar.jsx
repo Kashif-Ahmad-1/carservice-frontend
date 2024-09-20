@@ -39,11 +39,11 @@ function Navbar() {
             </li> */}
           </ul>
           <div className="navbar__buttons">
-            <Link className="navbar__buttons__sign-in" to="/login">
+            {/* <Link className="navbar__buttons__sign-in" to="/login">
               Sign In
-            </Link>
-            <Link className="navbar__buttons__register" to="/register">
-              Register
+            </Link> */}
+            <Link className="navbar__buttons__register" to="/login">
+              Sign In
             </Link>
           </div>
 

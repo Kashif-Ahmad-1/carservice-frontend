@@ -49,9 +49,9 @@ function Hero() {
               <div className="hero-content__text__btns">
                 <Link
                   className="hero-content__text__btns__book-ride"
-                  to="/accountspage"
+                  to="/login"
                 >
-                  Appointment Book &nbsp;
+                  Sign In &nbsp;
                   <i className="fa-solid fa-circle-check"></i>
                 </Link>
                 <Link

@@ -32,9 +32,9 @@ const Login = () => {
         if (data.role === "admin") {
           navigate("/admin");
         } else if (data.role === "engineer") {
-          navigate("/checklist");
+          navigate("/engineerservice");
         } else if (data.role === "accountant") {
-          navigate("/account-add-client");
+          navigate("/accountspage");
         }
       } else {
         alert(data.message || "Login failed!");

@@ -24,7 +24,7 @@ function App() {
         <Route path="/admin" element={<AdminDashboard />} />
       
         <Route path="/accountspage" element={<AppointmentDetailsPage />} />
-        <Route path="/engineer/:employerId" element={<EngineerDetailsPage />} />
+        <Route path="/engineerservice" element={<EngineerDetailsPage />} />
         <Route path="/checklist" element={<ChecklistPage />} />
 
 
