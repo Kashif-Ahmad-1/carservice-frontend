@@ -1,83 +1,137 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { toast, ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
-import './AccountAddPage.css'; 
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import "./AccountAddPage.css";
 
 function AppointmentPage() {
   const navigate = useNavigate();
 
-  const [installationDate, setInstallationDate] = useState('');
-  const [serviceFrequency, setServiceFrequency] = useState('');
-  const [expectedServiceDate, setExpectedServiceDate] = useState('');
+  const [installationDate, setInstallationDate] = useState("");
+  const [serviceFrequency, setServiceFrequency] = useState("");
+  const [expectedServiceDate, setExpectedServiceDate] = useState("");
   const [engineers, setEngineers] = useState([]);
+  const [machines, setMachines] = useState([]);
+  const [clientName, setClientName] = useState("");
+  const [clientAddress, setClientAddress] = useState("");
+  const [contactPerson, setContactPerson] = useState("");
+  const [mobileNo, setMobileNo] = useState("");
+  const [appointmentDate, setAppointmentDate] = useState("");
+  const [appointmentAmount, setAppointmentAmount] = useState(0);
+  const [machineName, setMachineName] = useState("");
+  const [model, setModel] = useState("");
+  const [partNo, setPartNo] = useState("");
+  const [serialNo, setSerialNo] = useState("");
+  const [engineerId, setEngineerId] = useState("");
 
   useEffect(() => {
-    // Simulate fetching data from an API or database
     const fetchEngineers = async () => {
-      // Dummy data for now
-      const dummyEngineers = [
-        { id: 'engineer1', name: 'Engineer 1' },
-        { id: 'engineer2', name: 'Engineer 2' },
-        { id: 'engineer3', name: 'Engineer 3' },
-        { id: 'engineer4', name: 'Engineer 4' }
-      ];
-      setEngineers(dummyEngineers);
+      try {
+        const response = await fetch(
+          "http://localhost:5000/api/users/engineers",
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+          }
+        );
+        const data = await response.json();
+        if (response.ok) {
+          setEngineers(data);
+        } else {
+          console.error("Failed to fetch engineers:", data.message);
+        }
+      } catch (error) {
+        console.error("Error fetching engineers:", error);
+      }
     };
 
     fetchEngineers();
   }, []);
 
+  useEffect(() => {
+    const fetchMachines = async () => {
+      try {
+        const response = await fetch("http://localhost:5000/api/machines", {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        });
+        const data = await response.json();
+        setMachines(data);
+      } catch (error) {
+        console.error("Error fetching machines:", error);
+      }
+    };
+
+    fetchMachines();
+  }, []);
+
   const handleSubmit = async (event) => {
     event.preventDefault();
-    
-    const formData = new FormData(event.target);
-    const data = {};
-    formData.forEach((value, key) => {
-      data[key] = value;
-    });
-  
+
+    const appointmentData = {
+      clientName,
+      clientAddress,
+      contactPerson,
+      mobileNo,
+      appointmentDate,
+      appointmentAmount,
+      machineName,
+      model,
+      partNo,
+      serialNo,
+      installationDate,
+      serviceFrequency,
+      expectedServiceDate,
+      engineer: engineerId,
+      createdBy: localStorage.getItem("userId"), // Assuming user ID is stored in localStorage
+    };
+
     try {
-      const response = await fetch('http://localhost:5000/api/appointments/save-appointment', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(data) // Convert form data to JSON
-      });
-  
+      const token = localStorage.getItem('token');
+      const response = await fetch(
+        "http://localhost:5000/api/appointments/",
+        {
+          method: "POST",
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(appointmentData),
+        }
+      );
+
       if (!response.ok) {
-        throw new Error('Network response was not ok');
+        throw new Error("Network response was not ok");
       }
-  
-      toast.success('Appointment booked successfully!', {
+
+      toast.success("Appointment booked successfully!", {
         position: "top-right",
         autoClose: 5000,
         hideProgressBar: false,
         closeOnClick: true,
         pauseOnHover: true,
         draggable: true,
-        progress: undefined,
       });
-  
+
       setTimeout(() => {
-        navigate('/accountspage');
+        navigate("/accountspage");
       }, 3000);
     } catch (error) {
-      toast.error('Failed to save appointment data.', {
+      toast.error("Failed to save appointment data.", {
         position: "top-right",
         autoClose: 5000,
         hideProgressBar: false,
         closeOnClick: true,
         pauseOnHover: true,
         draggable: true,
-        progress: undefined,
       });
     }
   };
 
   const handleBackClick = () => {
-    navigate('/accountspage'); 
+    navigate("/accountspage");
   };
 
   const handleDateChange = (e) => {
@@ -94,26 +148,10 @@ function AppointmentPage() {
     if (installationDate && serviceFrequency) {
       const installDate = new Date(installationDate);
       installDate.setDate(installDate.getDate() + parseInt(serviceFrequency, 10));
-      const expectedDate = installDate.toISOString().split('T')[0]; // Format as yyyy-mm-dd
+      const expectedDate = installDate.toISOString().split("T")[0];
       setExpectedServiceDate(expectedDate);
     }
   };
-
-  // List of all compressor machine names
-  const compressorList = [
-    "Rotary Screw Compressor",
-    "Reciprocating Compressor",
-    "Scroll Compressor",
-    "Centrifugal Compressor",
-    "Axial Compressor",
-    "Diaphragm Compressor",
-    "Turbo Compressor",
-    "Rotary Vane Compressor",
-    "Liquid Ring Compressor",
-    "Oil-Free Compressor",
-    "Magnetic Bearing Compressor",
-    "Helical Lobe Compressor"
-  ];
 
   return (
     <div className="appointment-page">
@@ -123,91 +161,110 @@ function AppointmentPage() {
           <div className="form-row">
             <div className="form-group">
               <label htmlFor="clientName">Enter Client Name:</label>
-              <input type="text" id="clientName" name="clientName" required />
+              <input type="text" id="clientName" value={clientName} onChange={(e) => setClientName(e.target.value)} required />
             </div>
             <div className="form-group">
               <label htmlFor="clientAddress">Client Address:</label>
-              <input type="text" id="clientAddress" name="clientAddress" required />
+              <input
+                type="text"
+                id="clientAddress"
+                value={clientAddress}
+                onChange={(e) => setClientAddress(e.target.value)}
+                required
+              />
             </div>
             <div className="form-group">
               <label htmlFor="contactPerson">Contact Person Name:</label>
-              <input type="text" id="contactPerson" name="contactPerson" required />
+              <input
+                type="text"
+                id="contactPerson"
+                value={contactPerson}
+                onChange={(e) => setContactPerson(e.target.value)}
+                required
+              />
             </div>
             <div className="form-group">
               <label htmlFor="mobileNo">Mobile No.:</label>
-              <input type="tel" id="mobileNo" name="mobileNo" required />
+              <input type="tel" id="mobileNo" value={mobileNo} onChange={(e) => setMobileNo(e.target.value)} required />
             </div>
           </div>
           <div className="form-row">
             <div className="form-group">
-              <label htmlFor="invoiceDate">Invoice Date:</label>
-              <input type="date" id="invoiceDate" name="invoiceDate" required />
+              <label htmlFor="appointmentDate">Appointment Date:</label>
+              <input type="date" id="appointmentDate" value={appointmentDate} onChange={(e) => setAppointmentDate(e.target.value)} required />
             </div>
             <div className="form-group">
-              <label htmlFor="invoiceAmount">Invoice Amount:</label>
-              <input type="number" id="invoiceAmount" name="invoiceAmount" required />
+              <label htmlFor="appointmentAmount">Appointment Amount:</label>
+              <input
+                type="number"
+                id="appointmentAmount"
+                value={appointmentAmount}
+                onChange={(e) => setAppointmentAmount(Number(e.target.value))}
+                required
+              />
             </div>
             <div className="form-group">
               <label htmlFor="machineName">Machine Name:</label>
-              <select id="machineName" name="machineName" required>
+              <select id="machineName" value={machineName} onChange={(e) => setMachineName(e.target.value)} required>
                 <option value="">Select a Machine</option>
-                {compressorList.map((machine, index) => (
-                  <option key={index} value={machine}>{machine}</option>
+                {machines.map((machine) => (
+                  <option key={machine._id} value={machine.name}>
+                    {machine.name} 
+                  </option>
                 ))}
               </select>
             </div>
             <div className="form-group">
               <label htmlFor="model">Model:</label>
-              <input type="text" id="model" name="model" required />
+              <input type="text" id="model" value={model} onChange={(e) => setModel(e.target.value)} required />
             </div>
           </div>
           <div className="form-row">
             <div className="form-group">
               <label htmlFor="partNo">Part No.:</label>
-              <input type="text" id="partNo" name="partNo" required />
+              <input type="text" id="partNo" value={partNo} onChange={(e) => setPartNo(e.target.value)} required />
             </div>
             <div className="form-group">
               <label htmlFor="serialNo">Serial No.:</label>
-              <input type="text" id="serialNo" name="serialNo" required />
+              <input type="text" id="serialNo" value={serialNo} onChange={(e) => setSerialNo(e.target.value)} required />
             </div>
             <div className="form-group">
               <label htmlFor="installationDate">Installation Date:</label>
-              <input 
-                type="date" 
-                id="installationDate" 
-                name="installationDate" 
-                required 
-                onChange={handleDateChange} 
+              <input
+                type="date"
+                id="installationDate"
+                value={installationDate}
+                onChange={handleDateChange}
+                required
               />
             </div>
             <div className="form-group">
               <label htmlFor="serviceFrequency">Service Frequency (Days):</label>
-              <input 
-                type="number" 
-                id="serviceFrequency" 
-                name="serviceFrequency" 
-                required 
-                onChange={handleFrequencyChange} 
+              <input
+                type="number"
+                id="serviceFrequency"
+                value={serviceFrequency}
+                onChange={handleFrequencyChange}
+                required
               />
             </div>
           </div>
           <div className="form-row">
             <div className="form-group">
               <label htmlFor="expectedServiceDate">Expected Service Date:</label>
-              <input 
-                type="date" 
-                id="expectedServiceDate" 
-                name="expectedServiceDate" 
-                value={expectedServiceDate} 
-                readOnly 
+              <input
+                type="date"
+                id="expectedServiceDate"
+                value={expectedServiceDate}
+                readOnly
               />
             </div>
             <div className="form-group">
               <label htmlFor="serviceEngineer">Select Service Engineer Name:</label>
-              <select id="serviceEngineer" name="serviceEngineer" required>
+              <select id="serviceEngineer" value={engineerId} onChange={(e) => setEngineerId(e.target.value)} required>
                 <option value="">Select...</option>
-                {engineers.map(engineer => (
-                  <option key={engineer.id} value={engineer.id}>
+                {engineers.map((engineer) => (
+                  <option key={engineer._id} value={engineer._id}>
                     {engineer.name}
                   </option>
                 ))}
@@ -216,200 +273,19 @@ function AppointmentPage() {
           </div>
           <div className="form-actions">
             <button type="submit">Submit</button>
-            <button type="button" className="back-button" onClick={handleBackClick}>
+            <button
+              type="button"
+              className="back-button"
+              onClick={handleBackClick}
+            >
               Back To Home
             </button>
           </div>
         </form>
       </div>
-      <ToastContainer /> 
+      <ToastContainer />
     </div>
   );
 }
 
 export default AppointmentPage;
-
-
-
-
-
-// import React, { useState } from 'react';
-// import { useNavigate } from 'react-router-dom';
-// import { toast, ToastContainer } from 'react-toastify';
-// import 'react-toastify/dist/ReactToastify.css';
-// import { ExpandMore, ExpandLess } from '@mui/icons-material';
-// import './AccountAddPage.css';
-
-// function AppointmentPage() {
-//   const [dropdownOpen, setDropdownOpen] = useState(false);
-//   const navigate = useNavigate();
-
-//   const handleSubmit = async (event) => {
-//     event.preventDefault();
-    
-//     const formData = new FormData(event.target);
-//     const data = {};
-//     formData.forEach((value, key) => {
-//       data[key] = value;
-//     });
-  
-//     try {
-//       const response = await fetch('http://localhost:5000/save-appointment', {
-//         method: 'POST',
-//         headers: {
-//           'Content-Type': 'application/json'
-//         },
-//         body: JSON.stringify(data) // Convert form data to JSON
-//       });
-  
-//       if (!response.ok) {
-//         throw new Error('Network response was not ok');
-//       }
-  
-//       toast.success('Appointment booked successfully!', {
-//         position: "top-right",
-//         autoClose: 5000,
-//         hideProgressBar: false,
-//         closeOnClick: true,
-//         pauseOnHover: true,
-//         draggable: true,
-//         progress: undefined,
-//       });
-  
-//       setTimeout(() => {
-//         navigate('/appointment-details');
-//       }, 3000);
-//     } catch (error) {
-//       toast.error('Failed to save appointment data.', {
-//         position: "top-right",
-//         autoClose: 5000,
-//         hideProgressBar: false,
-//         closeOnClick: true,
-//         pauseOnHover: true,
-//         draggable: true,
-//         progress: undefined,
-//       });
-//     }
-//   };
-
-//   const handleBackClick = () => {
-//     navigate('/accountspage'); 
-//   };
-
-//   const toggleDropdown = () => {
-//     setDropdownOpen(!dropdownOpen);
-//   };
-
-//   return (
-//     <div className="appointment-page">
-//       <div className="appointment-container">
-//         <h2>Book Your Appointment</h2>
-//         <form className="appointment-form" onSubmit={handleSubmit}>
-//           <div className="form-row">
-//             <div className="form-group">
-//               <label htmlFor="clientName">
-//                 Enter Client Name:
-//                 <span onClick={toggleDropdown} className="dropdown-toggle">
-//                   {dropdownOpen ? <ExpandLess /> : <ExpandMore />}
-//                 </span>
-//               </label>
-//               <input type="text" id="clientName" name="clientName" required />
-//               {dropdownOpen && (
-//                 <div className="dropdown-content">
-//                   {/* Additional fields for dropdown */}
-//                   <div className="dropdown-item">
-//                     <label htmlFor="additionalField1">Additional Field 1:</label>
-//                     <input type="text" id="additionalField1" name="additionalField1" />
-//                   </div>
-//                   <div className="dropdown-item">
-//                     <label htmlFor="additionalField2">Additional Field 2:</label>
-//                     <input type="text" id="additionalField2" name="additionalField2" />
-//                   </div>
-//                 </div>
-//               )}
-//             </div>
-//           </div>
-//           <div className="form-row">
-//             <div className="form-group">
-//               <label htmlFor="clientAddress">Client Address:</label>
-//               <input type="text" id="clientAddress" name="clientAddress" required />
-//             </div>
-//             <div className="form-group">
-//               <label htmlFor="contactPerson">Contact Person Name:</label>
-//               <input type="text" id="contactPerson" name="contactPerson" required />
-//             </div>
-//             <div className="form-group">
-//               <label htmlFor="mobileNo">Mobile No.:</label>
-//               <input type="tel" id="mobileNo" name="mobileNo" required />
-//             </div>
-//           </div>
-//           <div className="form-row">
-//             <div className="form-group">
-//               <label htmlFor="invoiceDate">Invoice Date:</label>
-//               <input type="date" id="invoiceDate" name="invoiceDate" required />
-//             </div>
-//             <div className="form-group">
-//               <label htmlFor="invoiceAmount">Invoice Amount:</label>
-//               <input type="number" id="invoiceAmount" name="invoiceAmount" required />
-//             </div>
-//             <div className="form-group">
-//               <label htmlFor="machineName">Machine Name:</label>
-//               <input type="text" id="machineName" name="machineName" required />
-//             </div>
-//             <div className="form-group">
-//               <label htmlFor="model">Model:</label>
-//               <input type="text" id="model" name="model" required />
-//             </div>
-//           </div>
-//           <div className="form-row">
-//             <div className="form-group">
-//               <label htmlFor="partNo">Part No.:</label>
-//               <input type="text" id="partNo" name="partNo" required />
-//             </div>
-//             <div className="form-group">
-//               <label htmlFor="serialNo">Serial No.:</label>
-//               <input type="text" id="serialNo" name="serialNo" required />
-//             </div>
-//             <div className="form-group">
-//               <label htmlFor="installationDate">Installation Date:</label>
-//               <input type="date" id="installationDate" name="installationDate" required />
-//             </div>
-//             <div className="form-group">
-//               <label htmlFor="serviceFrequency">Service Frequency (Days):</label>
-//               <input type="number" id="serviceFrequency" name="serviceFrequency" required />
-//             </div>
-//           </div>
-//           <div className="form-row">
-//             <div className="form-group">
-//               <label htmlFor="expectedServiceDate">Expected Service Date:</label>
-//               <input type="date" id="expectedServiceDate" name="expectedServiceDate" required />
-//             </div>
-//             <div className="form-group">
-//               <label htmlFor="serviceEngineer">Select Service Engineer Name:</label>
-//               <select id="serviceEngineer" name="serviceEngineer" required>
-//                 <option value="">Select...</option>
-//                 <option value="engineer1">Engineer 1</option>
-//                 <option value="engineer2">Engineer 2</option>
-//                 <option value="engineer3">Engineer 3</option>
-//                 {/* Add more options as needed */}
-//               </select>
-//             </div>
-//           </div>
-//           <div className="form-actions">
-//             <button type="submit">Submit</button>
-//             <button type="button" className="back-button" onClick={handleBackClick}>
-//               Back To Home
-//             </button>
-//           </div>
-//         </form>
-//       </div>
-//       <ToastContainer />
-//     </div>
-//   );
-// }
-
-// export default AppointmentPage;
-
-
-
-
