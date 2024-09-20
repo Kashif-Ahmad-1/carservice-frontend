@@ -1,3 +1,360 @@
+// import React, { useState, useEffect } from "react";
+// import { useNavigate } from "react-router-dom";
+// import { toast, ToastContainer } from "react-toastify";
+// import "react-toastify/dist/ReactToastify.css";
+// import "./AccountAddPage.css";
+
+// function AppointmentPage() {
+//   const navigate = useNavigate();
+
+//   // State variables
+//   const [clientName, setClientName] = useState("");
+//   const [clientSuggestions, setClientSuggestions] = useState([]);
+//   const [installationDate, setInstallationDate] = useState("");
+//   const [serviceFrequency, setServiceFrequency] = useState("");
+//   const [expectedServiceDate, setExpectedServiceDate] = useState("");
+//   const [engineers, setEngineers] = useState([]);
+//   const [machines, setMachines] = useState([]);
+//   const [contactPerson, setContactPerson] = useState("");
+//   const [mobileNo, setMobileNo] = useState("");
+//   const [appointmentDate, setAppointmentDate] = useState("");
+//   const [appointmentAmount, setAppointmentAmount] = useState(0);
+//   const [machineName, setMachineName] = useState("");
+//   const [model, setModel] = useState("");
+//   const [partNo, setPartNo] = useState("");
+//   const [serialNo, setSerialNo] = useState("");
+//   const [engineerId, setEngineerId] = useState("");
+  
+//   const [companySuggestions, setCompanySuggestions] = useState([]);
+//   // Fetch engineers and machines
+//   useEffect(() => {
+//     const fetchEngineers = async () => {
+//       try {
+//         const response = await fetch("http://localhost:5000/api/users/engineers", {
+//           headers: {
+//             Authorization: `Bearer ${localStorage.getItem("token")}`,
+//           },
+//         });
+//         const data = await response.json();
+//         if (response.ok) {
+//           setEngineers(data);
+//         } else {
+//           console.error("Failed to fetch engineers:", data.message);
+//         }
+//       } catch (error) {
+//         console.error("Error fetching engineers:", error);
+//       }
+//     };
+
+//     fetchEngineers();
+//   }, []);
+
+//   useEffect(() => {
+//     const fetchMachines = async () => {
+//       try {
+//         const response = await fetch("http://localhost:5000/api/machines", {
+//           headers: {
+//             Authorization: `Bearer ${localStorage.getItem("token")}`,
+//           },
+//         });
+//         const data = await response.json();
+        
+//         if (Array.isArray(data)) { // Check if data is an array
+//           setMachines(data);
+//         } else {
+//           console.error("Fetched data is not an array:", data);
+//         }
+//       } catch (error) {
+//         console.error("Error fetching machines:", error);
+//       }
+//     };
+  
+//     fetchMachines();
+//   }, []);
+
+//   // Fetch client suggestions
+//   const fetchClientSuggestions = async (name) => {
+//     if (name) {
+//       try {
+//         const response = await fetch(`http://localhost:5000/api/companies/search?name=${name}`, {
+//           headers: {
+//             Authorization: `Bearer ${localStorage.getItem("token")}`,
+//           },
+//         });
+//         const data = await response.json();
+//         if (response.ok) {
+//           setCompanySuggestions(data);
+//         } else {
+//           console.error("Failed to fetch company suggestions:", data.message);
+//         }
+//       } catch (error) {
+//         console.error("Error fetching company suggestions:", error);
+//       }
+//     } else {
+//       setCompanySuggestions([]);
+//     }
+//   };
+
+//   const handleClientNameChange = (e) => {
+//     const name = e.target.value;
+//     setClientName(name);
+//     fetchClientSuggestions(name); // Fetch suggestions as the user types
+//   };
+
+//   // Handle selection of a suggestion
+//   const handleSuggestionClick = (name) => {
+//     setClientName(name);
+//     setClientSuggestions([]); // Clear suggestions after selection
+//   };
+
+//   const handleSubmit = async (event) => {
+//     event.preventDefault();
+
+//     const appointmentData = {
+//       clientName,
+//       contactPerson,
+//       mobileNo,
+//       clientAddress: "", // Add logic to capture client address if needed
+//       appointmentDate,
+//       appointmentAmount,
+//       machineName,
+//       model,
+//       partNo,
+//       serialNo,
+//       installationDate,
+//       serviceFrequency,
+//       expectedServiceDate,
+//       engineer: engineerId,
+//       createdBy: localStorage.getItem("userId"),
+//     };
+
+//     try {
+//       const token = localStorage.getItem('token');
+//       const response = await fetch("http://localhost:5000/api/appointments/", {
+//         method: "POST",
+//         headers: {
+//           'Authorization': `Bearer ${token}`,
+//           'Content-Type': 'application/json',
+//         },
+//         body: JSON.stringify(appointmentData),
+//       });
+
+//       if (!response.ok) {
+//         throw new Error("Network response was not ok");
+//       }
+
+//       toast.success("Appointment booked successfully!", {
+//         position: "top-right",
+//         autoClose: 5000,
+//         hideProgressBar: false,
+//         closeOnClick: true,
+//         pauseOnHover: true,
+//         draggable: true,
+//       });
+
+//       setTimeout(() => {
+//         navigate("/accountspage");
+//       }, 3000);
+//     } catch (error) {
+//       toast.error("Failed to save appointment data.", {
+//         position: "top-right",
+//         autoClose: 5000,
+//         hideProgressBar: false,
+//         closeOnClick: true,
+//         pauseOnHover: true,
+//         draggable: true,
+//       });
+//     }
+//   };
+
+//   const handleBackClick = () => {
+//     navigate("/accountspage");
+//   };
+
+//   return (
+//     <div className="appointment-page">
+//       <div className="appointment-container">
+//         <h2>Book Your Appointment</h2>
+//         <form className="appointment-form" onSubmit={handleSubmit}>
+//           <div className="form-row">
+//             <div className="form-group">
+//               <label htmlFor="clientName">Enter Client Name:</label>
+//               <input
+//                 type="text"
+//                 id="clientName"
+//                 value={clientName}
+//                 onChange={handleClientNameChange}
+//                 required
+//               />
+//               {clientSuggestions.length > 0 && (
+//                 <ul className="suggestions-list">
+//                   {clientSuggestions.map((client) => (
+//                     <li key={client._id} onClick={() => handleSuggestionClick(client.clientName)}>
+//                       {client.clientName}
+//                     </li>
+//                   ))}
+//                 </ul>
+//               )}
+//             </div>
+//             <div className="form-group">
+//               <label htmlFor="contactPerson">Contact Person Name:</label>
+//               <input
+//                 type="text"
+//                 id="contactPerson"
+//                 value={contactPerson}
+//                 onChange={(e) => setContactPerson(e.target.value)}
+//                 required
+//               />
+//             </div>
+//             <div className="form-group">
+//               <label htmlFor="mobileNo">Mobile No.:</label>
+//               <input
+//                 type="tel"
+//                 id="mobileNo"
+//                 value={mobileNo}
+//                 onChange={(e) => setMobileNo(e.target.value)}
+//                 required
+//               />
+//             </div>
+//           </div>
+//           <div className="form-row">
+//             <div className="form-group">
+//               <label htmlFor="appointmentDate">Appointment Date:</label>
+//               <input
+//                 type="date"
+//                 id="appointmentDate"
+//                 value={appointmentDate}
+//                 onChange={(e) => setAppointmentDate(e.target.value)}
+//                 required
+//               />
+//             </div>
+//             <div className="form-group">
+//               <label htmlFor="appointmentAmount">Appointment Amount:</label>
+//               <input
+//                 type="number"
+//                 id="appointmentAmount"
+//                 value={appointmentAmount}
+//                 onChange={(e) => setAppointmentAmount(Number(e.target.value))}
+//                 required
+//               />
+//             </div>
+//             <div className="form-group">
+//               <label htmlFor="machineName">Machine Name:</label>
+//               <select
+//                 id="machineName"
+//                 value={machineName}
+//                 onChange={(e) => setMachineName(e.target.value)}
+//                 required
+//               >
+//                 <option value="">Select a Machine</option>
+//                 {machines.map((machine) => (
+//                   <option key={machine._id} value={machine.name}>
+//                     {machine.name}
+//                   </option>
+//                 ))}
+//               </select>
+//             </div>
+//             <div className="form-group">
+//               <label htmlFor="model">Model:</label>
+//               <input
+//                 type="text"
+//                 id="model"
+//                 value={model}
+//                 onChange={(e) => setModel(e.target.value)}
+//                 required
+//               />
+//             </div>
+//           </div>
+//           <div className="form-row">
+//             <div className="form-group">
+//               <label htmlFor="partNo">Part No.:</label>
+//               <input
+//                 type="text"
+//                 id="partNo"
+//                 value={partNo}
+//                 onChange={(e) => setPartNo(e.target.value)}
+//                 required
+//               />
+//             </div>
+//             <div className="form-group">
+//               <label htmlFor="serialNo">Serial No.:</label>
+//               <input
+//                 type="text"
+//                 id="serialNo"
+//                 value={serialNo}
+//                 onChange={(e) => setSerialNo(e.target.value)}
+//                 required
+//               />
+//             </div>
+//             <div className="form-group">
+//               <label htmlFor="installationDate">Installation Date:</label>
+//               <input
+//                 type="date"
+//                 id="installationDate"
+//                 value={installationDate}
+//                 onChange={(e) => setInstallationDate(e.target.value)}
+//                 required
+//               />
+//             </div>
+//             <div className="form-group">
+//               <label htmlFor="serviceFrequency">Service Frequency (Days):</label>
+//               <input
+//                 type="number"
+//                 id="serviceFrequency"
+//                 value={serviceFrequency}
+//                 onChange={(e) => setServiceFrequency(e.target.value)}
+//                 required
+//               />
+//             </div>
+//           </div>
+//           <div className="form-row">
+//             <div className="form-group">
+//               <label htmlFor="expectedServiceDate">Expected Service Date:</label>
+//               <input
+//                 type="date"
+//                 id="expectedServiceDate"
+//                 value={expectedServiceDate}
+//                 readOnly
+//               />
+//             </div>
+//             <div className="form-group">
+//               <label htmlFor="serviceEngineer">Select Service Engineer Name:</label>
+//               <select
+//                 id="serviceEngineer"
+//                 value={engineerId}
+//                 onChange={(e) => setEngineerId(e.target.value)}
+//                 required
+//               >
+//                 <option value="">Select...</option>
+//                 {engineers.map((engineer) => (
+//                   <option key={engineer._id} value={engineer._id}>
+//                     {engineer.name}
+//                   </option>
+//                 ))}
+//               </select>
+//             </div>
+//           </div>
+//           <div className="form-actions">
+//             <button type="submit">Submit</button>
+//             <button
+//               type="button"
+//               className="back-button"
+//               onClick={handleBackClick}
+//             >
+//               Back To Home
+//             </button>
+//           </div>
+//         </form>
+//       </div>
+//       <ToastContainer />
+//     </div>
+//   );
+// }
+
+// export default AppointmentPage;
+
+
+
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
@@ -23,6 +380,7 @@ function AppointmentPage() {
   const [partNo, setPartNo] = useState("");
   const [serialNo, setSerialNo] = useState("");
   const [engineerId, setEngineerId] = useState("");
+
 
   useEffect(() => {
     const fetchEngineers = async () => {
@@ -130,6 +488,8 @@ function AppointmentPage() {
     }
   };
 
+
+
   const handleBackClick = () => {
     navigate("/accountspage");
   };
@@ -165,6 +525,7 @@ function AppointmentPage() {
             <div className="form-group">
               <label htmlFor="clientName">Enter Client Name:</label>
               <input type="text" id="clientName" value={clientName} onChange={(e) => setClientName(e.target.value)} required />
+              
             </div>
             <div className="form-group">
               <label htmlFor="clientAddress">Client Address:</label>
