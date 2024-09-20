@@ -8,11 +8,12 @@ import AdminDashboard from "./components/Admin/AdminDashboard";
 import EngineerDetailsPage from "./components/EngineerPage/EngineerDetailsPage";
 import Login from "./components/Authentication/Login";
 import AccountantPage from './components/Admin/AccountantPage';
-import MechanicPage from './components/Admin/MechanicPage';
+import EngineerPage from './components/Admin/EngineerPage';
 import ChecklistPage from "./components/EngineerPage/ChecklistPage";
 import PdfGenerator from "./components/Pdf Generator/PdfGenerator";
 import { AuthProvider } from "./Store/AuthContext";
 import PrivateRoute from "./PrivateRoute"; // Import PrivateRoute component
+import ServiceRequestPage from "./components/Admin/ServiceRequest";
 
 function App() {
   const role = localStorage.getItem("role");
@@ -25,14 +26,36 @@ function App() {
           <Route path="/login" element={<Login />} />
 
           {/* Protected routes */}
+
+          {/* Admin */}
           <Route
             path="/admin"
             element={<PrivateRoute element={AdminDashboard} roles={["admin"]} />}
           />
+            <Route
+            path="/accountants"
+            element={<PrivateRoute element={AccountantPage} roles={["admin"]} />}
+          />
+          <Route
+            path="/engineer-list"
+            element={<PrivateRoute element={EngineerPage} roles={["admin"]} />}
+          />
+          <Route
+            path="/service-request"
+            element={<PrivateRoute element={ServiceRequestPage} roles={["admin"]} />}
+          />
+
+          {/* Accountant */}
           <Route
             path="/accountspage"
             element={<PrivateRoute element={AppointmentDetailsPage} roles={["accountant"]} />}
           />
+          <Route
+            path="/account-add-client"
+            element={<PrivateRoute element={AppointmentModal} roles={["accountant"]} />}
+          />
+
+          {/* Engineer */}
           <Route
             path="/engineerservice"
             element={<PrivateRoute element={EngineerDetailsPage} roles={["engineer"]} />}
@@ -41,18 +64,8 @@ function App() {
             path="/checklist"
             element={<PrivateRoute element={ChecklistPage} roles={["engineer"]} />}
           />
-          <Route
-            path="/account-add-client"
-            element={<PrivateRoute element={AppointmentModal} roles={["accountant"]} />}
-          />
-          <Route
-            path="/accountants"
-            element={<PrivateRoute element={AccountantPage} roles={["admin"]} />}
-          />
-          <Route
-            path="/mechanics"
-            element={<PrivateRoute element={MechanicPage} roles={["admin"]} />}
-          />
+          
+        
 
           {/* PDF generation route, assuming anyone can access */}
           <Route path="/pdfcheck" element={<PdfGenerator />} />

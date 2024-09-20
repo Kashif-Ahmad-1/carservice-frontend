@@ -1,4 +1,4 @@
-// Sidebar.js
+
 import React from 'react';
 import { List, ListItem, ListItemText, Divider, Drawer } from '@mui/material';
 import { styled } from '@mui/material/styles';
@@ -25,22 +25,22 @@ const Sidebar = () => {
     <DrawerStyled variant="permanent">
       <ToolbarSpacer />
       <List>
-        <ListItem button component={Link} to="/mechanics">
-          <ListItemText primary="Mechanic List" />
+        <ListItem button component={Link} to="/engineer-list">
+          <ListItemText primary="Engineer List" />
         </ListItem>
         <ListItem button component={Link} to="/accountants">
           <ListItemText primary="Accountant List" />
         </ListItem>
       </List>
       <Divider />
-      <List>
-        <ListItem button>
+      
+        <ListItem button component={Link} to="/service-request">
           <ListItemText primary="Service Requests" />
         </ListItem>
         <ListItem button>
           <ListItemText primary="Reports" />
         </ListItem>
-      </List>
+    
     </DrawerStyled>
   );
 };

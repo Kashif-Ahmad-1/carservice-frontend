@@ -60,21 +60,22 @@ const SmallCard = styled(Card)(({ theme }) => ({
   borderRadius: theme.shape.borderRadius, // Keep rounded corners
 }));
 
-const AccountantPage = () => {
-  const [accountants, setAccountants] = useState([]);
+const EngineerPage = () => {
+  const [engineer, setEngineer] = useState([]);
   const [showForm, setShowForm] = useState(false);
-  const [newAccountant, setNewAccountant] = useState({ 
+  
+  const [newEngineer, setNewEngineer] = useState({ 
     name: '', 
     email: '', 
     password: '',
     mobileNumber: '', 
-    address: '',
+    address: ''
   });
   const token = localStorage.getItem('token');
 
-  const fetchAccountants = async () => {
+  const fetchEngineer = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/users/accountants', {
+      const response = await fetch('http://localhost:5000/api/users/engineers', {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -83,23 +84,23 @@ const AccountantPage = () => {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to fetch accountants');
+        throw new Error('Failed to fetch engineer');
       }
 
       const data = await response.json();
-      setAccountants(data);
+      setEngineer(data);
     } catch (error) {
       console.error(error);
     }
   };
 
   useEffect(() => {
-    fetchAccountants();
+    fetchEngineer();
   }, [token]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setNewAccountant((prev) => ({ ...prev, [name]: value }));
+    setNewEngineer((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e) => {
@@ -111,18 +112,18 @@ const AccountantPage = () => {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`,
         },
-        body: JSON.stringify({ ...newAccountant, role: 'accountant' }), // Add role here
+        body: JSON.stringify({ ...newEngineer, role: 'engineer' }), // Add role here
       });
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to add accountant');
+        throw new Error(errorData.message || 'Failed to add engineer');
       }
 
-      await fetchAccountants();
-      toast.success('Accountant added successfully!'); // Show success message
+      await fetchEngineer(); // Refresh the list
+      toast.success('Engineer added successfully!'); // Show success message
       setShowForm(false);
-      setNewAccountant({ name: '', email: '', password: '', mobileNumber: '', address: '' });
+      setNewEngineer({ name: '', email: '', password: '', mobileNumber: '', address: '' }); // Reset the form
     } catch (error) {
       console.error(error);
       toast.error(error.message); // Show error message
@@ -137,21 +138,21 @@ const AccountantPage = () => {
       <MainContent>
         <ToolbarSpacer />
         <Container>
-          <SectionTitle variant="h4">Accountant List</SectionTitle>
+          <SectionTitle variant="h4">Engineer List</SectionTitle>
           <ButtonContainer>
             <Button variant="contained" color="primary" onClick={() => setShowForm(!showForm)}>
-              {showForm ? 'Cancel' : 'Add Accountant'}
+              {showForm ? 'Cancel' : 'Add Engineer'}
             </Button>
           </ButtonContainer>
 
           {showForm && (
             <SmallCard sx={{ mb: 2 }}>
-              <Typography variant="h6" align="center">Add New Accountant</Typography>
+              <Typography variant="h6" align="center">Add New Engineer</Typography>
               <form onSubmit={handleSubmit}>
                 <TextField
                   label="Name"
                   name="name"
-                  value={newAccountant.name}
+                  value={newEngineer.name}
                   onChange={handleChange}
                   sx={{ mb: 1, width: '90%' }} // Custom width and margin
                   required
@@ -159,7 +160,7 @@ const AccountantPage = () => {
                 <TextField
                   label="Email"
                   name="email"
-                  value={newAccountant.email}
+                  value={newEngineer.email}
                   onChange={handleChange}
                   sx={{ mb: 1, width: '90%' }}
                   required
@@ -168,7 +169,7 @@ const AccountantPage = () => {
                   label="Password"
                   name="password"
                   type="password"
-                  value={newAccountant.password}
+                  value={newEngineer.password}
                   onChange={handleChange}
                   sx={{ mb: 1, width: '90%' }}
                   required
@@ -176,7 +177,7 @@ const AccountantPage = () => {
                 <TextField
                   label="Mobile Number"
                   name="mobileNumber"
-                  value={newAccountant.mobileNumber}
+                  value={newEngineer.mobileNumber}
                   onChange={handleChange}
                   sx={{ mb: 1, width: '90%' }}
                   required
@@ -184,20 +185,20 @@ const AccountantPage = () => {
                 <TextField
                   label="Address"
                   name="address"
-                  value={newAccountant.address}
+                  value={newEngineer.address}
                   onChange={handleChange}
                   sx={{ mb: 1, width: '90%' }}
                   required
                 />
                 <Button type="submit" variant="contained" color="primary" sx={{ width: '90%' }}>
-                  Add Accountant
+                  Add Engineer
                 </Button>
               </form>
             </SmallCard>
           )}
 
           <Card>
-            <Typography variant="h6">Accountants</Typography>
+            <Typography variant="h6">Engineers</Typography>
             <Paper sx={{ overflowX: 'auto', mt: 2 }}>
               <Table>
                 <thead>
@@ -210,12 +211,12 @@ const AccountantPage = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {accountants.map(accountant => (
-                    <tr key={accountant._id}>
-                      <td>{accountant.name}</td>
-                      <td>{accountant.email}</td>
-                      <td>{accountant.mobileNumber}</td>
-                      <td>{accountant.address}</td>
+                  {engineer.map(engineer => (
+                    <tr key={engineer._id}>
+                      <td>{engineer.name}</td>
+                      <td>{engineer.email}</td>
+                      <td>{engineer.mobileNumber}</td>
+                      <td>{engineer.address}</td>
                       <td>
                         <Button variant="contained" color="secondary" sx={{ mr: 1 }}>Edit</Button>
                         <Button variant="outlined" color="error">Delete</Button>
@@ -233,4 +234,4 @@ const AccountantPage = () => {
   );
 };
 
-export default AccountantPage;
+export default EngineerPage;
