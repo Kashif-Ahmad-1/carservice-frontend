@@ -1,4 +1,4 @@
-import "../src/dist/styles.css";
+// import "../src/dist/styles.css";
 import { Route, Routes } from "react-router-dom";
 import Hero from './components/Hero';
 import AppointmentModal from "./components/AccountPage/AccountAddClient";
@@ -10,7 +10,7 @@ import Login from "./components/Authentication/Login";
 import AccountantPage from './components/Admin/AccountantPage'
 import MechanicPage from './components/Admin/MechanicPage'
 import ChecklistPage from "./components/EngineerPage/ChecklistPage";
-import PdfGenerator from "./components/PdfGenerator";
+import PdfGenerator from "./components/Pdf Generator/PdfGenerator";
 
 function App() {
   return (

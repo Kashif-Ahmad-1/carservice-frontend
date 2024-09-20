@@ -1,5 +1,5 @@
 
-
+import "./../dist/styles.css";
 import { Link } from "react-router-dom";
 import BgShape from "../images/hero/hero-bg.png";
 import HeroCar from "../images/hero/main-car.png";

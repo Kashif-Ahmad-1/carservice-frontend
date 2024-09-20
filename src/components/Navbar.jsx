@@ -1,5 +1,5 @@
 // src/components/Navbar.js
-
+import "./../dist/styles.css";
 import { Link } from "react-router-dom";
 import Logo from "../images/logo/logo.png";
 import { useState } from "react";

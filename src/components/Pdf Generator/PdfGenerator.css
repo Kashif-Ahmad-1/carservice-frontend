@@ -1,10 +1,15 @@
-.container {
-    max-width: 600px;
-    margin: 0 auto;
-    padding: 10px;
+
+
+
+
+.container-pdf {
+  
     border: 1px solid #ccc;
     border-radius: 8px;
     background-color: #f9f9f9;
+    max-width: 100rem !important;
+    margin: 14px auto !important;
+    padding: 16px 2.5rem !important;
   }
   
   .form-box {
@@ -50,9 +55,17 @@
     border-radius: 4px;
     cursor: pointer;
     font-size: 14px;
-    margin-top: 10px;
+    margin-top: 22px;
+
+    width: 108px;
+    height: 38px;
+    
   }
-  
+  .gen-pdf-btn{
+    justify-content: center;
+    align-items: center;
+  }
+
   button:hover {
     background-color: #218838;
   }
@@ -64,7 +77,17 @@
     padding: 5px 0;
   }
 
-  
+  .button-container {
+    display: flex;
+    justify-content: center; /* Center the button horizontally */
+    margin-top: -15px; /* Add some spacing above the button */
+  }
+
+  @media print {
+    button {
+      display: none !important; /* Hide all buttons when printing */
+    }
+  } 
 
 
 

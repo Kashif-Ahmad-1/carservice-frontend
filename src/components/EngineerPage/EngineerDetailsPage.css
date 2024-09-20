@@ -108,3 +108,9 @@ html, body {
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
   }
   
+
+  @media print {
+    button {
+      display: none !important; /* Hide all buttons when printing */
+    }
+  } 
