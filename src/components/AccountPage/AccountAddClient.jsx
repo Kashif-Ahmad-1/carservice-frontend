@@ -153,8 +153,11 @@ function AppointmentPage() {
     }
   };
 
+
+
   return (
     <div className="appointment-page">
+    
       <div className="appointment-container">
         <h2>Book Your Appointment</h2>
         <form className="appointment-form" onSubmit={handleSubmit}>
