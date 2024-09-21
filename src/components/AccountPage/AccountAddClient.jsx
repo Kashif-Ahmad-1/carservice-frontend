@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
@@ -25,18 +24,15 @@ function AppointmentPage() {
   const [serialNo, setSerialNo] = useState("");
   const [engineerId, setEngineerId] = useState("");
 
-
   useEffect(() => {
+    // Fetch engineers
     const fetchEngineers = async () => {
       try {
-        const response = await fetch(
-          "http://localhost:5000/api/users/engineers",
-          {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("token")}`,
-            },
-          }
-        );
+        const response = await fetch("http://localhost:5000/api/users/engineers", {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        });
         const data = await response.json();
         if (response.ok) {
           setEngineers(data);
@@ -52,6 +48,7 @@ function AppointmentPage() {
   }, []);
 
   useEffect(() => {
+    // Fetch machines
     const fetchMachines = async () => {
       try {
         const response = await fetch("http://localhost:5000/api/machines", {
@@ -67,6 +64,27 @@ function AppointmentPage() {
     };
 
     fetchMachines();
+  }, []);
+
+  // Load draft data from localStorage
+  useEffect(() => {
+    const draftData = JSON.parse(localStorage.getItem("appointmentDraft"));
+    if (draftData) {
+      setClientName(draftData.clientName);
+      setClientAddress(draftData.clientAddress);
+      setContactPerson(draftData.contactPerson);
+      setMobileNo(draftData.mobileNo);
+      setAppointmentDate(draftData.appointmentDate);
+      setAppointmentAmount(draftData.appointmentAmount);
+      setMachineName(draftData.machineName);
+      setModel(draftData.model);
+      setPartNo(draftData.partNo);
+      setSerialNo(draftData.serialNo);
+      setInstallationDate(draftData.installationDate);
+      setServiceFrequency(draftData.serviceFrequency);
+      setExpectedServiceDate(draftData.expectedServiceDate);
+      setEngineerId(draftData.engineer);
+    }
   }, []);
 
   const handleSubmit = async (event) => {
@@ -92,21 +110,21 @@ function AppointmentPage() {
 
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(
-        "http://localhost:5000/api/appointments/",
-        {
-          method: "POST",
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(appointmentData),
-        }
-      );
+      const response = await fetch("http://localhost:5000/api/appointments/", {
+        method: "POST",
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(appointmentData),
+      });
 
       if (!response.ok) {
         throw new Error("Network response was not ok");
       }
+
+      // Remove draft from local storage after successful submission
+      localStorage.removeItem("appointmentDraft");
 
       toast.success("Appointment booked successfully!", {
         position: "top-right",
@@ -132,7 +150,33 @@ function AppointmentPage() {
     }
   };
 
-
+  const handleDraftSave = () => {
+    const draftData = {
+      clientName,
+      clientAddress,
+      contactPerson,
+      mobileNo,
+      appointmentDate,
+      appointmentAmount,
+      machineName,
+      model,
+      partNo,
+      serialNo,
+      installationDate,
+      serviceFrequency,
+      expectedServiceDate,
+      engineer: engineerId,
+    };
+    localStorage.setItem("appointmentDraft", JSON.stringify(draftData));
+    toast.success("Draft saved successfully!", {
+      position: "top-right",
+      autoClose: 3000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+    });
+  };
 
   const handleBackClick = () => {
     navigate("/accountspage");
@@ -157,39 +201,23 @@ function AppointmentPage() {
     }
   };
 
-
-
   return (
     <div className="appointment-page">
-    
       <div className="appointment-container">
-        <h2>Book Your Appointment</h2>
+        <h2>Register Invoice / Assign Engineer</h2>
         <form className="appointment-form" onSubmit={handleSubmit}>
           <div className="form-row">
             <div className="form-group">
               <label htmlFor="clientName">Enter Client Name:</label>
               <input type="text" id="clientName" value={clientName} onChange={(e) => setClientName(e.target.value)} required />
-              
             </div>
             <div className="form-group">
               <label htmlFor="clientAddress">Client Address:</label>
-              <input
-                type="text"
-                id="clientAddress"
-                value={clientAddress}
-                onChange={(e) => setClientAddress(e.target.value)}
-                required
-              />
+              <input type="text" id="clientAddress" value={clientAddress} onChange={(e) => setClientAddress(e.target.value)} required />
             </div>
             <div className="form-group">
               <label htmlFor="contactPerson">Contact Person Name:</label>
-              <input
-                type="text"
-                id="contactPerson"
-                value={contactPerson}
-                onChange={(e) => setContactPerson(e.target.value)}
-                required
-              />
+              <input type="text" id="contactPerson" value={contactPerson} onChange={(e) => setContactPerson(e.target.value)} required />
             </div>
             <div className="form-group">
               <label htmlFor="mobileNo">Mobile No.:</label>
@@ -217,7 +245,7 @@ function AppointmentPage() {
                 <option value="">Select a Machine</option>
                 {machines.map((machine) => (
                   <option key={machine._id} value={machine.name}>
-                    {machine.name} 
+                    {machine.name}
                   </option>
                 ))}
               </select>
@@ -230,47 +258,30 @@ function AppointmentPage() {
           <div className="form-row">
             <div className="form-group">
               <label htmlFor="partNo">Part No.:</label>
-              <input type="text" id="partNo" value={partNo} onChange={(e) => setPartNo(e.target.value)} required />
+              <input type="text" id="partNo" value={partNo} onChange={(e) => setPartNo(e.target.value)} />
             </div>
             <div className="form-group">
               <label htmlFor="serialNo">Serial No.:</label>
-              <input type="text" id="serialNo" value={serialNo} onChange={(e) => setSerialNo(e.target.value)} required />
+              <input type="text" id="serialNo" value={serialNo} onChange={(e) => setSerialNo(e.target.value)} />
             </div>
             <div className="form-group">
               <label htmlFor="installationDate">Installation Date:</label>
-              <input
-                type="date"
-                id="installationDate"
-                value={installationDate}
-                onChange={handleDateChange}
-                required
-              />
+              <input type="date" id="installationDate" value={installationDate} onChange={handleDateChange} required />
             </div>
             <div className="form-group">
-              <label htmlFor="serviceFrequency">Service Frequency (Days):</label>
-              <input
-                type="number"
-                id="serviceFrequency"
-                value={serviceFrequency}
-                onChange={handleFrequencyChange}
-                required
-              />
+              <label htmlFor="serviceFrequency">Service Frequency (days):</label>
+              <input type="number" id="serviceFrequency" value={serviceFrequency} onChange={handleFrequencyChange} required />
             </div>
           </div>
           <div className="form-row">
             <div className="form-group">
               <label htmlFor="expectedServiceDate">Expected Service Date:</label>
-              <input
-                type="date"
-                id="expectedServiceDate"
-                value={expectedServiceDate}
-                readOnly
-              />
+              <input type="date" id="expectedServiceDate" value={expectedServiceDate} readOnly />
             </div>
             <div className="form-group">
-              <label htmlFor="serviceEngineer">Select Service Engineer Name:</label>
-              <select id="serviceEngineer" value={engineerId} onChange={(e) => setEngineerId(e.target.value)} required>
-                <option value="">Select...</option>
+              <label htmlFor="engineerId">Assign Engineer:</label>
+              <select id="engineerId" value={engineerId} onChange={(e) => setEngineerId(e.target.value)} required>
+                <option value="">Select an Engineer</option>
                 {engineers.map((engineer) => (
                   <option key={engineer._id} value={engineer._id}>
                     {engineer.name}
@@ -281,11 +292,10 @@ function AppointmentPage() {
           </div>
           <div className="form-actions">
             <button type="submit">Submit</button>
-            <button
-              type="button"
-              className="back-button"
-              onClick={handleBackClick}
-            >
+            <button type="button" className="draft-button" onClick={handleDraftSave}>
+              Save Draft
+            </button>
+            <button type="button" className="back-button" onClick={handleBackClick}>
               Back To Home
             </button>
           </div>

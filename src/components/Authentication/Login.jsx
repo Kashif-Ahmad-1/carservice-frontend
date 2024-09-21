@@ -91,9 +91,9 @@ const Login = () => {
               </div>
             </form>
           </div>
-          <p className={styles.loginBottomP}>
+          {/* <p className={styles.loginBottomP}>
             Don't have an account? <a href="#">Sign Up</a>
-          </p>
+          </p> */}
         </div>
       </div>
     </div>

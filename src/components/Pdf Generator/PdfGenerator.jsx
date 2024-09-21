@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { jsPDF } from 'jspdf';
 import 'jspdf-autotable';
 import './PdfGenerator.css';
-import html2canvas from 'html2canvas';
+
 
 const PdfGenerator = () => {
   const formRef = useRef(); // Create a ref for the form
