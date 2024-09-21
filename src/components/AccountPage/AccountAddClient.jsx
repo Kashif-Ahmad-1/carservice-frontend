@@ -23,9 +23,10 @@ function AppointmentPage() {
   const [partNo, setPartNo] = useState("");
   const [serialNo, setSerialNo] = useState("");
   const [engineerId, setEngineerId] = useState("");
+  const [suggestions, setSuggestions] = useState([]);
+  const [document, setDocument] = useState(null);
 
   useEffect(() => {
-    // Fetch engineers
     const fetchEngineers = async () => {
       try {
         const response = await fetch("http://localhost:5000/api/users/engineers", {
@@ -48,7 +49,6 @@ function AppointmentPage() {
   }, []);
 
   useEffect(() => {
-    // Fetch machines
     const fetchMachines = async () => {
       try {
         const response = await fetch("http://localhost:5000/api/machines", {
@@ -66,7 +66,6 @@ function AppointmentPage() {
     fetchMachines();
   }, []);
 
-  // Load draft data from localStorage
   useEffect(() => {
     const draftData = JSON.parse(localStorage.getItem("appointmentDraft"));
     if (draftData) {
@@ -87,26 +86,47 @@ function AppointmentPage() {
     }
   }, []);
 
+  const handleClientNameChange = async (e) => {
+    const value = e.target.value;
+    setClientName(value);
+  
+    if (value.length >= 2) {
+      try {
+        const response = await fetch(`http://localhost:5000/api/companies/search?name=${encodeURIComponent(value)}`, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        });
+  
+        const data = await response.json();
+        setSuggestions(data);
+      } catch (error) {
+        console.error("Error fetching company suggestions:", error);
+      }
+    } else {
+      setSuggestions([]);
+    }
+  };
+
   const handleSubmit = async (event) => {
     event.preventDefault();
 
-    const appointmentData = {
-      clientName,
-      clientAddress,
-      contactPerson,
-      mobileNo,
-      appointmentDate,
-      appointmentAmount,
-      machineName,
-      model,
-      partNo,
-      serialNo,
-      installationDate,
-      serviceFrequency,
-      expectedServiceDate,
-      engineer: engineerId,
-      createdBy: localStorage.getItem("userId"), // Assuming user ID is stored in localStorage
-    };
+    const appointmentData = new FormData();
+    appointmentData.append("clientName", clientName);
+    appointmentData.append("clientAddress", clientAddress);
+    appointmentData.append("contactPerson", contactPerson);
+    appointmentData.append("mobileNo", mobileNo);
+    appointmentData.append("appointmentDate", appointmentDate);
+    appointmentData.append("appointmentAmount", appointmentAmount);
+    appointmentData.append("machineName", machineName);
+    appointmentData.append("model", model);
+    appointmentData.append("partNo", partNo);
+    appointmentData.append("serialNo", serialNo);
+    appointmentData.append("installationDate", installationDate);
+    appointmentData.append("serviceFrequency", serviceFrequency);
+    appointmentData.append("expectedServiceDate", expectedServiceDate);
+    appointmentData.append("engineer", engineerId);
+    appointmentData.append("document", document);
 
     try {
       const token = localStorage.getItem('token');
@@ -114,16 +134,14 @@ function AppointmentPage() {
         method: "POST",
         headers: {
           'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
         },
-        body: JSON.stringify(appointmentData),
+        body: appointmentData,
       });
 
       if (!response.ok) {
         throw new Error("Network response was not ok");
       }
 
-      // Remove draft from local storage after successful submission
       localStorage.removeItem("appointmentDraft");
 
       toast.success("Appointment booked successfully!", {
@@ -209,85 +227,172 @@ function AppointmentPage() {
           <div className="form-row">
             <div className="form-group">
               <label htmlFor="clientName">Enter Client Name:</label>
-              <input type="text" id="clientName" value={clientName} onChange={(e) => setClientName(e.target.value)} required />
+              <input 
+                type="text" 
+                id="clientName" 
+                value={clientName} 
+                onChange={handleClientNameChange} 
+                required 
+              />
+              {suggestions.length > 0 && (
+                <ul className="suggestions-list">
+                  {suggestions.map((suggestion) => (
+                    <li key={suggestion._id} onClick={() => {
+                      setClientName(suggestion.clientName);
+                      setClientAddress(suggestion.clientAddress);
+                      setContactPerson(suggestion.contactPerson);
+                      setMobileNo(suggestion.mobileNo);
+                      setSuggestions([]);
+                    }}>
+                      {suggestion.clientName}
+                    </li>
+                  ))}
+                </ul>
+              )}
             </div>
             <div className="form-group">
               <label htmlFor="clientAddress">Client Address:</label>
-              <input type="text" id="clientAddress" value={clientAddress} onChange={(e) => setClientAddress(e.target.value)} required />
+              <input 
+                type="text" 
+                id="clientAddress" 
+                value={clientAddress} 
+                onChange={(e) => setClientAddress(e.target.value)} 
+                required 
+              />
             </div>
             <div className="form-group">
               <label htmlFor="contactPerson">Contact Person Name:</label>
-              <input type="text" id="contactPerson" value={contactPerson} onChange={(e) => setContactPerson(e.target.value)} required />
+              <input 
+                type="text" 
+                id="contactPerson" 
+                value={contactPerson} 
+                onChange={(e) => setContactPerson(e.target.value)} 
+                required 
+              />
             </div>
             <div className="form-group">
               <label htmlFor="mobileNo">Mobile No.:</label>
-              <input type="tel" id="mobileNo" value={mobileNo} onChange={(e) => setMobileNo(e.target.value)} required />
+              <input 
+                type="tel" 
+                id="mobileNo" 
+                value={mobileNo} 
+                onChange={(e) => setMobileNo(e.target.value)} 
+                required 
+              />
             </div>
-          </div>
-          <div className="form-row">
             <div className="form-group">
               <label htmlFor="appointmentDate">Appointment Date:</label>
-              <input type="date" id="appointmentDate" value={appointmentDate} onChange={(e) => setAppointmentDate(e.target.value)} required />
+              <input 
+                type="date" 
+                id="appointmentDate" 
+                value={appointmentDate} 
+                onChange={(e) => setAppointmentDate(e.target.value)} 
+                required 
+              />
             </div>
             <div className="form-group">
               <label htmlFor="appointmentAmount">Appointment Amount:</label>
-              <input
-                type="number"
-                id="appointmentAmount"
-                value={appointmentAmount}
-                onChange={(e) => setAppointmentAmount(Number(e.target.value))}
-                required
+              <input 
+                type="number" 
+                id="appointmentAmount" 
+                value={appointmentAmount} 
+                onChange={(e) => setAppointmentAmount(e.target.value)} 
+                required 
               />
             </div>
             <div className="form-group">
               <label htmlFor="machineName">Machine Name:</label>
-              <select id="machineName" value={machineName} onChange={(e) => setMachineName(e.target.value)} required>
-                <option value="">Select a Machine</option>
-                {machines.map((machine) => (
-                  <option key={machine._id} value={machine.name}>
-                    {machine.name}
-                  </option>
-                ))}
-              </select>
+              <input 
+                type="text" 
+                id="machineName" 
+                value={machineName} 
+                onChange={(e) => setMachineName(e.target.value)} 
+                required 
+              />
             </div>
             <div className="form-group">
               <label htmlFor="model">Model:</label>
-              <input type="text" id="model" value={model} onChange={(e) => setModel(e.target.value)} required />
+              <input 
+                type="text" 
+                id="model" 
+                value={model} 
+                onChange={(e) => setModel(e.target.value)} 
+                required 
+              />
             </div>
-          </div>
-          <div className="form-row">
             <div className="form-group">
               <label htmlFor="partNo">Part No.:</label>
-              <input type="text" id="partNo" value={partNo} onChange={(e) => setPartNo(e.target.value)} />
+              <input 
+                type="text" 
+                id="partNo" 
+                value={partNo} 
+                onChange={(e) => setPartNo(e.target.value)} 
+                required 
+              />
             </div>
             <div className="form-group">
               <label htmlFor="serialNo">Serial No.:</label>
-              <input type="text" id="serialNo" value={serialNo} onChange={(e) => setSerialNo(e.target.value)} />
+              <input 
+                type="text" 
+                id="serialNo" 
+                value={serialNo} 
+                onChange={(e) => setSerialNo(e.target.value)} 
+                required 
+              />
             </div>
             <div className="form-group">
               <label htmlFor="installationDate">Installation Date:</label>
-              <input type="date" id="installationDate" value={installationDate} onChange={handleDateChange} required />
+              <input 
+                type="date" 
+                id="installationDate" 
+                value={installationDate} 
+                onChange={handleDateChange} 
+                required 
+              />
             </div>
             <div className="form-group">
-              <label htmlFor="serviceFrequency">Service Frequency (days):</label>
-              <input type="number" id="serviceFrequency" value={serviceFrequency} onChange={handleFrequencyChange} required />
+              <label htmlFor="serviceFrequency">Service Frequency (Days):</label>
+              <input 
+                type="number" 
+                id="serviceFrequency" 
+                value={serviceFrequency} 
+                onChange={handleFrequencyChange} 
+                required 
+              />
             </div>
-          </div>
-          <div className="form-row">
             <div className="form-group">
               <label htmlFor="expectedServiceDate">Expected Service Date:</label>
-              <input type="date" id="expectedServiceDate" value={expectedServiceDate} readOnly />
+              <input 
+                type="date" 
+                id="expectedServiceDate" 
+                value={expectedServiceDate} 
+                readOnly 
+              />
             </div>
             <div className="form-group">
-              <label htmlFor="engineerId">Assign Engineer:</label>
-              <select id="engineerId" value={engineerId} onChange={(e) => setEngineerId(e.target.value)} required>
-                <option value="">Select an Engineer</option>
+              <label htmlFor="engineer">Assign Engineer:</label>
+              <select 
+                id="engineer" 
+                value={engineerId} 
+                onChange={(e) => setEngineerId(e.target.value)} 
+                required 
+              >
+                <option value="">Select Engineer</option>
                 {engineers.map((engineer) => (
                   <option key={engineer._id} value={engineer._id}>
                     {engineer.name}
                   </option>
                 ))}
               </select>
+            </div>
+            <div className="form-group">
+              <label htmlFor="document">Upload Document:</label>
+              <input 
+                type="file" 
+                id="document" 
+                accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" 
+                onChange={(e) => setDocument(e.target.files[0])} 
+              />
             </div>
           </div>
           <div className="form-actions">

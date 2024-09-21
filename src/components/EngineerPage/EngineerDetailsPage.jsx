@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { AppBar, Toolbar, Typography, Box, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Container, Button, Divider } from '@mui/material';
 import axios from 'axios';
 import Sidebar from './Sidebar'; // Adjust path if necessary
-
+import { Add, Download } from '@mui/icons-material';
 // Header Component
 const Header = () => (
   <AppBar position="static">
@@ -30,35 +30,22 @@ function EngineerDetailsPage() {
     const fetchAppointmentData = async () => {
       try {
         const token = localStorage.getItem('token');
-        const response = await axios.get('http://localhost:5000/api/appointments/', {
+        const response = await fetch('http://localhost:5000/api/appointments/', {
+          method: 'GET',
           headers: {
             Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
           },
         });
-
-        const allAppointments = response.data;
-        const engineerAppointments = allAppointments.filter(appointment => appointment.engineer._id === engineerId);
-        
-        const filteredAppointments = engineerAppointments.map(appointment => ({
-          clientName: appointment.clientName,
-          clientAddress: appointment.clientAddress,
-          contactPerson: appointment.contactPerson,
-          mobileNo: appointment.mobileNo,
-          invoiceDate: appointment.appointmentDate,
-          invoiceAmount: appointment.appointmentAmount,
-          machineName: appointment.machineName,
-          model: appointment.model,
-          partNo: appointment.partNo,
-          serialNo: appointment.serialNo,
-          installationDate: appointment.installationDate,
-          serviceFrequency: appointment.serviceFrequency,
-          expectedServiceDate: appointment.expectedServiceDate,
-        }));
-
-        setAppointments(filteredAppointments);
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        const data = await response.json();
+        // Sort appointments by creation date descending
+        data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+        setAppointments(data);
       } catch (error) {
         console.error('Failed to fetch appointment data', error);
-        setError('Failed to fetch appointment data');
       }
     };
 
@@ -76,6 +63,15 @@ function EngineerDetailsPage() {
   const handleEditClick = () => {
     navigate(`/checklist`);
   };
+  const handleDownloadPDF = (appointment) => {
+    const documentPath = appointment.document; // Get the file path
+    const link = document.createElement('a');
+    link.href = `http://localhost:5000/${documentPath}`; // Point to your server path
+    link.setAttribute('download', documentPath.split('/').pop()); // Use the file name for downloading
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+};
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'row', minHeight: '100vh' }}>
@@ -95,7 +91,7 @@ function EngineerDetailsPage() {
               <TableHead>
                 <TableRow>
                   {/* Table Headers */}
-                  {["Client Name", "Client Address", "Contact Person", "Mobile No.", "Invoice Date", "Invoice Amount", "Machine Name", "Model", "Part No.", "Serial No.", "Installation Date", "Service Frequency (Days)", "Expected Service Date", "Actions"].map(header => (
+                  {["Client Name", "Client Address", "Contact Person", "Mobile No.", "Invoice Date", "Invoice Amount", "Machine Name", "Model", "Part No.", "Serial No.", "Installation Date", "Service Frequency (Days)", "Expected Service Date", "Document","Checklist"].map(header => (
                     <TableCell key={header} sx={{ fontSize: '1.1rem' }}>{header}</TableCell>
                   ))}
                 </TableRow>
@@ -108,7 +104,7 @@ function EngineerDetailsPage() {
                     <TableCell>{appointment.contactPerson}</TableCell>
                     <TableCell>{appointment.mobileNo}</TableCell>
                     <TableCell>{new Date(appointment.invoiceDate).toLocaleDateString()}</TableCell>
-                    <TableCell>${appointment.invoiceAmount.toFixed(2)}</TableCell>
+                    <TableCell>{typeof appointment.appointmentAmount === 'number' ? `$${appointment.appointmentAmount.toFixed(2)}` : 'N/A'}</TableCell>
                     <TableCell>{appointment.machineName}</TableCell>
                     <TableCell>{appointment.model}</TableCell>
                     <TableCell>{appointment.partNo}</TableCell>
@@ -116,11 +112,20 @@ function EngineerDetailsPage() {
                     <TableCell>{new Date(appointment.installationDate).toLocaleDateString()}</TableCell>
                     <TableCell>{appointment.serviceFrequency}</TableCell>
                     <TableCell>{new Date(appointment.expectedServiceDate).toLocaleDateString()}</TableCell>
+                    <TableCell>
+                      {appointment.document ? (
+                          <Button variant="outlined" color="primary" onClick={() => handleDownloadPDF(appointment)}>
+                          <Download /> 
+                      </Button>
+                      ) : (
+                        <Typography variant="body2" color="textSecondary">No Document</Typography>
+                      )}
+                    </TableCell>
                     <TableCell sx={{ display: 'flex', justifyContent: 'space-around' }}>
                       <Button variant="contained" color="primary" sx={{ marginRight: 1 }} onClick={handleEditClick}>
                         Checklist
                       </Button>
-                      <Button variant="outlined" color="secondary">Delete</Button>
+                      {/* <Button variant="outlined" color="secondary">Delete</Button> */}
                     </TableCell>
                   </TableRow>
                 ))}

@@ -16,7 +16,7 @@ import {
   Box,
   AppBar,
   Toolbar,
-  TablePagination
+  TablePagination,
 } from '@mui/material';
 import { Add, Download } from '@mui/icons-material';
 import AppointmentSidebar from './AppointmentSidebar';
@@ -30,9 +30,11 @@ function AppointmentDetailsPage() {
   const [showAddMachineField, setShowAddMachineField] = useState(false);
   const [clientData, setClientData] = useState({ name: '', address: '', contact: '', mobileNo: '' });
   const [machineData, setMachineData] = useState({ name: '' });
+  const [expandedRows, setExpandedRows] = useState([]);
   const navigate = useNavigate();
   const [page, setPage] = useState(0);
   const [rowsPerPage] = useState(5);
+  const [sidebarOpen, setSidebarOpen] = useState(false); // Sidebar state
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
@@ -136,30 +138,32 @@ function AppointmentDetailsPage() {
     }
   };
 
-  const handleDownloadPDF = async (id) => {
-    try {
-      const response = await fetch(`http://localhost:5000/download-pdf/${id}`);
-      if (response.ok) {
-        const blob = await response.blob();
-        const url = window.URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.setAttribute('download', `Appointment_${id}.pdf`);
-        document.body.appendChild(link);
-        link.click();
-        link.remove();
-        window.URL.revokeObjectURL(url);
+  const handleDownloadPDF = (appointment) => {
+    const documentPath = appointment.document; // Get the file path
+    const link = document.createElement('a');
+    link.href = `http://localhost:5000/${documentPath}`; // Point to your server path
+    link.setAttribute('download', documentPath.split('/').pop()); // Use the file name for downloading
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+};
+  const toggleRow = (index) => {
+    setExpandedRows((prev) => {
+      if (prev.includes(index)) {
+        return prev.filter((i) => i !== index);
       } else {
-        console.error('Error fetching PDF:', await response.text());
+        return [...prev, index];
       }
-    } catch (error) {
-      console.error('Network error:', error);
-    }
+    });
   };
 
   if (appointments.length === 0) {
     return <Typography variant="h6">Loading...</Typography>;
   }
+
+  const toggleSidebar = () => {
+    setSidebarOpen(!sidebarOpen); // Toggle sidebar visibility
+  };
 
   const Header = () => (
     <AppBar position="static" sx={{ backgroundColor: "#ff4d30" }}>
@@ -187,7 +191,7 @@ function AppointmentDetailsPage() {
 
   return (
     <div style={{ display: 'flex' }}>
-      <AppointmentSidebar />
+      <AppointmentSidebar open={sidebarOpen} toggleSidebar={toggleSidebar} />
       <Container sx={{ padding: 0, width: '100%', overflowX: 'auto', display: 'flex', flexDirection: 'column', minHeight: '100vh' }} maxWidth="xl">
         <Header />
         <ToastContainer />
@@ -226,35 +230,63 @@ function AppointmentDetailsPage() {
             <TableHead>
               <TableRow>
                 <TableCell sx={{ fontWeight: 'bold', fontSize: '1.1rem' }}>SR. No.</TableCell>
-                {['Client Name', 'Client Address', 'Contact Person', 'Mobile No.', 'Appointment Date', 'Appointment Amount', 'Machine Name', 'Model', 'Part No.', 'Serial No.', 'Installation Date', 'Service Frequency', 'Expected Service Date', 'Service Engineer', 'Upload Document'].map((header) => (
+                {['Client Name', 'Client Address', 'Contact Person', 'Mobile No.', 'Appointment Date', 'Appointment Amount', 'Machine Name', 'Model', 'Part No.', 'Serial No.', 'Installation Date', 'Service Frequency', 'Expected Service Date', 'Service Engineer', 'Document'].map((header) => (
                   <TableCell key={header} sx={{ fontWeight: 'bold', fontSize: '1.1rem' }}>{header}</TableCell>
                 ))}
+                {/* <TableCell sx={{ fontWeight: 'bold', fontSize: '1.1rem' }}>Details</TableCell> */}
               </TableRow>
             </TableHead>
             <TableBody>
               {appointments.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((appointment, index) => (
-                <TableRow key={appointment._id} sx={{ cursor: 'pointer', '&:hover': { backgroundColor: '#f5f5f5' } }}>
-                  <TableCell>{page * rowsPerPage + index + 1}</TableCell>
-                  <TableCell>{appointment.clientName}</TableCell>
-                  <TableCell>{appointment.clientAddress}</TableCell>
-                  <TableCell>{appointment.contactPerson}</TableCell>
-                  <TableCell>{appointment.mobileNo}</TableCell>
-                  <TableCell>{new Date(appointment.appointmentDate).toLocaleDateString()}</TableCell>
-                  <TableCell>{typeof appointment.appointmentAmount === 'number' ? `$${appointment.appointmentAmount.toFixed(2)}` : 'N/A'}</TableCell>
-                  <TableCell>{appointment.machineName}</TableCell>
-                  <TableCell>{appointment.model}</TableCell>
-                  <TableCell>{appointment.partNo}</TableCell>
-                  <TableCell>{appointment.serialNo}</TableCell>
-                  <TableCell>{new Date(appointment.installationDate).toLocaleDateString()}</TableCell>
-                  <TableCell>{appointment.serviceFrequency}</TableCell>
-                  <TableCell>{new Date(appointment.expectedServiceDate).toLocaleDateString()}</TableCell>
-                  <TableCell>{appointment.engineer.name}</TableCell>
-                  <TableCell>
-                    <Button variant="outlined" color="primary" onClick={() => handleDownloadPDF(appointment._id)}>
-                      <Download /> Upload Document
-                    </Button>
-                  </TableCell>
-                </TableRow>
+                <React.Fragment key={appointment._id}>
+                  <TableRow onClick={() => toggleRow(index)} sx={{ cursor: 'pointer', '&:hover': { backgroundColor: '#f5f5f5' } }}>
+                    <TableCell>{page * rowsPerPage + index + 1}</TableCell>
+                    <TableCell>{appointment.clientName}</TableCell>
+                    <TableCell>{appointment.clientAddress}</TableCell>
+                    <TableCell>{appointment.contactPerson}</TableCell>
+                    <TableCell>{appointment.mobileNo}</TableCell>
+                    <TableCell>{new Date(appointment.appointmentDate).toLocaleDateString()}</TableCell>
+                    <TableCell>{typeof appointment.appointmentAmount === 'number' ? `$${appointment.appointmentAmount.toFixed(2)}` : 'N/A'}</TableCell>
+                    <TableCell>{appointment.machineName}</TableCell>
+                    <TableCell>{appointment.model}</TableCell>
+                    <TableCell>{appointment.partNo}</TableCell>
+                    <TableCell>{appointment.serialNo}</TableCell>
+                    <TableCell>{new Date(appointment.installationDate).toLocaleDateString()}</TableCell>
+                    <TableCell>{appointment.serviceFrequency}</TableCell>
+                    <TableCell>{new Date(appointment.expectedServiceDate).toLocaleDateString()}</TableCell>
+                    <TableCell>{appointment.engineer.name}</TableCell>
+                    <TableCell>
+                      {appointment.document ? (
+                          <Button variant="outlined" color="primary" onClick={() => handleDownloadPDF(appointment)}>
+                          <Download /> 
+                      </Button>
+                      ) : (
+                        <Typography variant="body2" color="textSecondary">No Document</Typography>
+                      )}
+                    </TableCell>
+                    {/* <TableCell>
+                      <Button onClick={() => toggleRow(index)}>
+                        {expandedRows.includes(index) ? 'Hide Details' : 'Show Details'}
+                      </Button>
+                    </TableCell> */}
+                  </TableRow>
+                  {expandedRows.includes(index) && (
+                    <TableRow>
+                      <TableCell colSpan={15} sx={{ backgroundColor: '#f5f5f5' }}>
+                        <Box sx={{ padding: 2 }}>
+                          <Typography>Machine Name: {appointment.machineName}</Typography>
+                          <Typography>Model: {appointment.model}</Typography>
+                          <Typography>Part No: {appointment.partNo}</Typography>
+                          <Typography>Serial No: {appointment.serialNo}</Typography>
+                          <Typography>Installation Date: {new Date(appointment.installationDate).toLocaleDateString()}</Typography>
+                          <Typography>Service Frequency: {appointment.serviceFrequency}</Typography>
+                          <Typography>Expected Service Date: {new Date(appointment.expectedServiceDate).toLocaleDateString()}</Typography>
+                          <Typography>Service Engineer: {appointment.engineer.name}</Typography>
+                        </Box>
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </React.Fragment>
               ))}
             </TableBody>
           </Table>

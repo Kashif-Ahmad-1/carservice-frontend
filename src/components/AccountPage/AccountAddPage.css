@@ -5,13 +5,11 @@
 /* In AccountAddPage.css */
 .suggestions-list {
   border: 1px solid #ccc;
-  border-radius: 4px;
   max-height: 150px;
   overflow-y: auto;
-  position: absolute; /* Make it overlap the form */
-  background: white;
-  width: 100%;
-  z-index: 1000;
+  position: absolute; /* Position it below the input */
+  z-index: 10; /* Ensure it's above other content */
+  background: #28a745; /* White background for visibility */
 }
 
 .suggestions-list li {
@@ -20,8 +18,9 @@
 }
 
 .suggestions-list li:hover {
-  background-color: #f0f0f0;
+  background-color: #f0f0f0; /* Highlight on hover */
 }
+
 
 
 
