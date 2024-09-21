@@ -1,5 +1,17 @@
-import React from 'react';
-import { Box, CssBaseline, Container, Paper, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material';
+import React, { useEffect, useState } from 'react';
+import {
+  Box,
+  CssBaseline,
+  Container,
+  Paper,
+  Typography,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+} from '@mui/material';
 import { styled } from '@mui/material/styles';
 import Navbar from './Navbar';
 import Sidebar from './Sidebar';
@@ -43,45 +55,41 @@ const StyledTable = styled('table')(({ theme }) => ({
 }));
 
 const ServiceRequestPage = () => {
-  const [drawerOpen, setDrawerOpen] = React.useState(true);
+  const [drawerOpen, setDrawerOpen] = useState(true);
+  const [serviceRequests, setServiceRequests] = useState([]);
+  const token = localStorage.getItem('token');
 
   const handleDrawerToggle = () => {
     setDrawerOpen(!drawerOpen);
   };
 
-  // Dummy data
-  const serviceRequests = [
-    {
-      clientName: "John Doe",
-      contactPerson: "Jane Doe",
-      email: "jane.doe@example.com",
-      phone: "123-456-7890",
-      accountant: "Accountant 1",
-      engineer: "Engineer 1",
-      status: "Pending",
-      payment: "Pending",
-    },
-    {
-      clientName: "Alice Smith",
-      contactPerson: "Bob Smith",
-      email: "bob.smith@example.com",
-      phone: "987-654-3210",
-      accountant: "Accountant 2",
-      engineer: "Engineer 2",
-      status: "Completed",
-      payment: "Paid",
-    },
-    {
-      clientName: "Charlie Brown",
-      contactPerson: "Lucy Brown",
-      email: "lucy.brown@example.com",
-      phone: "555-555-5555",
-      accountant: "Accountant 3",
-      engineer: "Engineer 3",
-      status: "In Progress",
-      payment: "Pending",
-    },
-  ];
+  const fetchServiceRequests = async () => {
+    try {
+      const response = await fetch('http://localhost:5000/api/appointments/', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch service requests');
+      }
+
+      const data = await response.json();
+      // Sort by createdAt date, latest first
+      const sortedData = data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+      setServiceRequests(sortedData);
+    } catch (error) {
+      console.error("Fetch Error:", error);
+      toast.error("Failed to fetch service requests.");
+    }
+  };
+
+  useEffect(() => {
+    fetchServiceRequests();
+  }, [token]);
 
   return (
     <Box sx={{ display: 'flex' }}>
@@ -101,25 +109,33 @@ const ServiceRequestPage = () => {
                     <TableCell>Contact Person</TableCell>
                     <TableCell>Email</TableCell>
                     <TableCell>Phone</TableCell>
-                    <TableCell>Accountant</TableCell>
-                    <TableCell>Engineer</TableCell>
+                    <TableCell>Accountant Name</TableCell>
+                    <TableCell>Engineer Assigned</TableCell>
                     <TableCell>Status</TableCell>
                     <TableCell>Payment</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {serviceRequests.map((request, index) => (
-                    <TableRow key={index}>
-                      <TableCell>{request.clientName}</TableCell>
-                      <TableCell>{request.contactPerson}</TableCell>
-                      <TableCell>{request.email}</TableCell>
-                      <TableCell>{request.phone}</TableCell>
-                      <TableCell>{request.accountant}</TableCell>
-                      <TableCell>{request.engineer}</TableCell>
-                      <TableCell>{request.status}</TableCell>
-                      <TableCell>{request.payment}</TableCell>
+                  {serviceRequests.length > 0 ? (
+                    serviceRequests.map((request) => (
+                      <TableRow key={request._id}>
+                        <TableCell>{request.clientName}</TableCell>
+                        <TableCell>{request.contactPerson}</TableCell>
+                        <TableCell>{request.createdBy.email}</TableCell>
+                        <TableCell>{request.mobileNo}</TableCell>
+                        <TableCell>{request.createdBy.name}</TableCell>
+                        <TableCell>{request.engineer.name}</TableCell>
+                        <TableCell>{request.status}</TableCell>
+                        <TableCell>{request.appointmentAmount}</TableCell>
+                      </TableRow>
+                    ))
+                  ) : (
+                    <TableRow>
+                      <TableCell colSpan={8} align="center">
+                        No service requests available.
+                      </TableCell>
                     </TableRow>
-                  ))}
+                  )}
                 </TableBody>
               </StyledTable>
             </TableContainer>

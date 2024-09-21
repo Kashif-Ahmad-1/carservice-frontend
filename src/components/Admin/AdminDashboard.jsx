@@ -1,4 +1,3 @@
-// AdminDashboard.js
 import React, { useEffect, useState } from "react";
 import {
   Box,
@@ -8,6 +7,8 @@ import {
   Paper,
   Typography,
   Button,
+  Divider,
+  Card as MuiCard,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { Bar } from "react-chartjs-2";
@@ -37,6 +38,7 @@ ChartJS.register(
 const MainContent = styled("main")(({ theme }) => ({
   flexGrow: 1,
   padding: theme.spacing(3),
+  backgroundColor: theme.palette.background.default,
 }));
 
 const ToolbarSpacer = styled("div")(({ theme }) => ({
@@ -45,19 +47,32 @@ const ToolbarSpacer = styled("div")(({ theme }) => ({
 
 const SectionTitle = styled(Typography)(({ theme }) => ({
   marginBottom: theme.spacing(2),
+  fontWeight: "bold",
+  color: theme.palette.primary.main,
 }));
 
-const Card = styled(Paper)(({ theme }) => ({
+const Card = styled(MuiCard)(({ theme }) => ({
   padding: theme.spacing(2),
   textAlign: "center",
   color: theme.palette.text.secondary,
-  height: '100%', // Make all cards the same height
+  height: "100%",
+  boxShadow: theme.shadows[3],
+  transition: "transform 0.2s",
+  "&:hover": {
+    transform: "scale(1.03)",
+    boxShadow: theme.shadows[5],
+  },
 }));
 
 const CardHeaderStyled = styled(Typography)(({ theme }) => ({
-  backgroundColor: theme.palette.primary.light,
+  backgroundColor: theme.palette.primary.main,
   padding: theme.spacing(1),
   color: theme.palette.common.white,
+  borderRadius: theme.shape.borderRadius,
+}));
+
+const RecentActivityCard = styled(Card)(({ theme }) => ({
+  borderLeft: `5px solid ${theme.palette.secondary.main}`,
 }));
 
 const AdminDashboard = () => {
@@ -88,7 +103,9 @@ const AdminDashboard = () => {
 
       const data = await response.json();
       const mechanics = data.filter((user) => user.role === "engineer").length;
-      const accountants = data.filter((user) => user.role === "accountant").length;
+      const accountants = data.filter(
+        (user) => user.role === "accountant"
+      ).length;
 
       setMechanicCount(mechanics);
       setAccountantCount(accountants);
@@ -112,14 +129,19 @@ const AdminDashboard = () => {
       }
 
       const appointments = await response.json();
-      const newRequests = appointments.filter((appointment) => !appointment.completed).length;
+      const newRequests = appointments.filter(
+        (appointment) => !appointment.completed
+      ).length;
+
+      // Reverse the activities to show the latest first
       const activities = appointments
         .map((appointment) => ({
           accountant: appointment.createdBy.name,
           engineer: appointment.engineer.name,
-          serviceDate: new Date(appointment.appointmentDate).toLocaleString(),
+          createdAt: new Date(appointment.createdAt).toLocaleString(),
         }))
-        .slice(-3);
+        .reverse() // This line ensures the latest is first
+        .slice(0, 3); // Limit to 3 most recent activities
 
       setNewServiceRequests(newRequests);
       setRecentActivities(activities);
@@ -156,7 +178,7 @@ const AdminDashboard = () => {
           <Grid container spacing={3}>
             <Grid item xs={12} sm={6} md={4}>
               <Card>
-                <CardHeaderStyled>Total Engineer</CardHeaderStyled>
+                <CardHeaderStyled>Total Engineers</CardHeaderStyled>
                 <Paper sx={{ p: 2, textAlign: "center" }}>
                   <Typography variant="h4">{mechanicCount}</Typography>
                   <Button
@@ -193,7 +215,13 @@ const AdminDashboard = () => {
                 <CardHeaderStyled>New Service Requests</CardHeaderStyled>
                 <Paper sx={{ p: 2, textAlign: "center" }}>
                   <Typography variant="h4">{newServiceRequests}</Typography>
-                  <Button variant="contained" color="primary" sx={{ mt: 2 }} component={Link} to="/service-request">
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    sx={{ mt: 2 }}
+                    component={Link}
+                    to="/service-request"
+                  >
                     View Requests
                   </Button>
                 </Paper>
@@ -203,41 +231,56 @@ const AdminDashboard = () => {
           <SectionTitle variant="h4" sx={{ mt: 4 }}>
             Service Requests Trend
           </SectionTitle>
-          <Paper sx={{ p: 2 }}>
-            <Bar data={data} options={{ responsive: true }} />
+          <Paper sx={{ p: 2, borderRadius: 2, boxShadow: 2, width: '100%' }}>
+            <div style={{ height: "380px", display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+              <Bar data={data} options={{ responsive: true }} />
+            </div>
           </Paper>
           <SectionTitle variant="h4" sx={{ mt: 4 }}>
             Recent Activity
           </SectionTitle>
           <Grid container spacing={3}>
-            {recentActivities.map((activity, index) => (
-              <Grid item xs={12} sm={6} md={4} key={index}>
-                <Card>
-                  <CardHeaderStyled>
-                    New Service Request by {activity.accountant}
-                  </CardHeaderStyled>
+            {recentActivities.length > 0 ? (
+              recentActivities.map((activity, index) => (
+                <Grid item xs={12} sm={6} md={4} key={index}>
+                  <RecentActivityCard>
+                    <CardHeaderStyled>
+                      New Service Request by {activity.accountant}
+                    </CardHeaderStyled>
+                    <Paper sx={{ p: 2, textAlign: "center" }}>
+                      <Typography variant="body1">
+                        A new request has been assigned by{" "}
+                        <Typography
+                          component="span"
+                          sx={{ fontWeight: "bold", color: "primary.main" }}
+                        >
+                          {activity.accountant}
+                        </Typography>{" "}
+                        to{" "}
+                        <Typography
+                          component="span"
+                          sx={{ fontWeight: "bold", color: "secondary.main" }}
+                        >
+                          {activity.engineer}
+                        </Typography>{" "}
+                        on {activity.createdAt}.
+                      </Typography>
+                    </Paper>
+                  </RecentActivityCard>
+                </Grid>
+              ))
+            ) : (
+              <Grid item xs={12}>
+                <RecentActivityCard>
+                  <CardHeaderStyled>No Recent Activity</CardHeaderStyled>
                   <Paper sx={{ p: 2, textAlign: "center" }}>
                     <Typography variant="body1">
-                      A new request has been assigned by{" "}
-                      <Typography
-                        component="span"
-                        sx={{ fontWeight: "bold", color: "primary.main" }}
-                      >
-                        {activity.accountant}
-                      </Typography>{" "}
-                      to{" "}
-                      <Typography
-                        component="span"
-                        sx={{ fontWeight: "bold", color: "secondary.main" }}
-                      >
-                        {activity.engineer}
-                      </Typography>{" "}
-                      on {activity.serviceDate}.
+                      There are currently no recent activities to display.
                     </Typography>
                   </Paper>
-                </Card>
+                </RecentActivityCard>
               </Grid>
-            ))}
+            )}
           </Grid>
         </Container>
       </MainContent>
