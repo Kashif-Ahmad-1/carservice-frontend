@@ -1,21 +1,21 @@
 import React, { useState, useContext } from "react";
 import HeroCar from "./../../images/hero/main-car.png";
 import { FaEye, FaEyeSlash } from "react-icons/fa6";
-import styles from './Login.module.css'; // Import CSS Module
-import { useNavigate } from "react-router-dom"; // Import useNavigate for redirection
-import  AuthContext  from "./../../Store/AuthContext"; // Import the AuthContext
+import styles from './Login.module.css';
+import { useNavigate } from "react-router-dom";
+import AuthContext from "./../../Store/AuthContext";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const { login } = useContext(AuthContext);  // Destructure login from context
-  const navigate = useNavigate(); // Hook for navigation
+  const { login } = useContext(AuthContext);
+  const navigate = useNavigate();
 
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      const response = await fetch("http://localhost:5000/api/auth/login", { // Replace with your API endpoint
+      const response = await fetch("http://localhost:5000/api/auth/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -26,20 +26,22 @@ const Login = () => {
       const data = await response.json();
       console.log("the data is ", data);
       if (response.ok) {
-        // Store JWT token in local storage or cookies
-        localStorage.setItem("token", data.token); 
-        localStorage.setItem("role", data.role); 
+        // Use context's login function
+        login(data.token, data.role);
 
-        // Update context with user data
-        // login({ role: data.role, token: data.token });
-
-        // Assuming the API returns a role property
-        if (data.role == "admin") {
-          navigate("/admin");
-        } else if (data.role == "engineer") {
-          navigate("/engineerservice");
-        } else if (data.role == "accountant") {
-          navigate("/accountspage");
+        // Navigate based on the role
+        switch (data.role) {
+          case "admin":
+            navigate("/admin");
+            break;
+          case "engineer":
+            navigate("/engineerservice");
+            break;
+          case "accountant":
+            navigate("/accountspage");
+            break;
+          default:
+            navigate("/");
         }
       } else {
         alert(data.message || "Login failed!");

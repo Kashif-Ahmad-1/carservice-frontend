@@ -10,13 +10,14 @@ import {
   Button,
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import HomeIcon from '@mui/icons-material/Home';
 import EngineeringIcon from '@mui/icons-material/Engineering';
 import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
 import AssignmentIcon from '@mui/icons-material/Assignment';
 import AssessmentIcon from '@mui/icons-material/Assessment';
 import LogoutIcon from '@mui/icons-material/Logout';
+import Swal from 'sweetalert2';
 
 // Styled components
 const drawerWidth = 240;
@@ -50,13 +51,6 @@ const SidebarTitle = styled(Typography)(({ theme }) => ({
   fontSize: '1.5rem',
 }));
 
-const SidebarSubtitle = styled(Typography)(({ theme }) => ({
-  padding: theme.spacing(1),
-  textAlign: 'left',
-  fontSize: '0.875rem',
-  color: theme.palette.text.secondary,
-}));
-
 const LogoutButton = styled(Button)(({ theme }) => ({
   margin: theme.spacing(2),
   width: '90%',
@@ -68,9 +62,26 @@ const LogoutButton = styled(Button)(({ theme }) => ({
 }));
 
 const Sidebar = () => {
+  const navigate = useNavigate();
+
   const handleLogout = () => {
-    // Implement logout functionality here
-    console.log("Logging out...");
+    // Implement logout functionality here (e.g., clear tokens)
+    localStorage.removeItem('token'); // Adjust according to your storage method
+
+    // Show success message
+    Swal.fire({
+      title: 'Logged out!',
+      text: 'You have successfully logged out.',
+      icon: 'success',
+      confirmButtonText: 'OK',
+      timer: 2000, // Auto close after 2 seconds
+      timerProgressBar: true,
+    }).then((result) => {
+      if (result.dismiss === Swal.DismissReason.timer) {
+        // Redirect to home page after 2 seconds
+        navigate('/'); // Adjust to your home route
+      }
+    });
   };
 
   return (
@@ -78,7 +89,6 @@ const Sidebar = () => {
       <ToolbarSpacer />
       <div>
         <SidebarTitle variant="h6">Admin Panel</SidebarTitle>
-        {/* <SidebarSubtitle variant="body2">Manage your platform</SidebarSubtitle> */}
         <Divider />
         <List>
           <ListItemStyled button component={Link} to="/admin">

@@ -16,8 +16,8 @@ import PrivateRoute from "./PrivateRoute"; // Import PrivateRoute component
 import ServiceRequestPage from "./components/Admin/ServiceRequest";
 
 function App() {
-  const role = localStorage.getItem("role");
-  console.log(role);
+  // const role = localStorage.getItem("role");
+  // console.log(role);
   return (
     <AuthProvider>
       <div>
