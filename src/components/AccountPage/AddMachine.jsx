@@ -27,9 +27,9 @@ function AddMachine({ onSubmit }) {
         sx={{ marginBottom: 1 }}
       />
       <TextField
-        label="Quantity"
+        label="Model"
         name="quantity"
-        type="number"
+        type="string"
         value={machineData.quantity}
         onChange={handleInputChange}
         fullWidth

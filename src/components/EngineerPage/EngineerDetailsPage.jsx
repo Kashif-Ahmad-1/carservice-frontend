@@ -18,15 +18,18 @@ import {
   Modal,
   List,
   ListItem,
-  ListItemText
+  ListItemText,
 } from '@mui/material';
-import { Download } from '@mui/icons-material';
+import { Download, Menu } from '@mui/icons-material';
 import Sidebar from './Sidebar'; // Adjust path if necessary
 
 // Header Component
-const Header = () => (
+const Header = ({ onToggleSidebar }) => (
   <AppBar position="static">
     <Toolbar>
+      <Button color="inherit" onClick={onToggleSidebar}>
+        <Menu />
+      </Button>
       <Typography variant="h6">Company Name</Typography>
     </Toolbar>
   </AppBar>
@@ -43,10 +46,11 @@ function EngineerDetailsPage() {
   const { engineerId } = useParams();
   const navigate = useNavigate();
   const [appointments, setAppointments] = useState([]);
-  const [serviceHistory, setServiceHistory] = useState([]);
   const [openModal, setOpenModal] = useState(false);
   const [selectedClient, setSelectedClient] = useState(null);
+  const [serviceHistory, setServiceHistory] = useState([]);
   const [error, setError] = useState(null);
+  const [sidebarOpen, setSidebarOpen] = useState(true); // State to handle sidebar visibility
 
   useEffect(() => {
     const fetchAppointmentData = async () => {
@@ -75,6 +79,10 @@ function EngineerDetailsPage() {
     fetchAppointmentData();
   }, [engineerId]);
 
+  const handleToggleSidebar = () => {
+    setSidebarOpen(prev => !prev); // Toggle sidebar visibility
+  };
+
   if (error) {
     return <Typography variant="h6" color="error">Error: {error.message}</Typography>;
   }
@@ -95,8 +103,7 @@ function EngineerDetailsPage() {
     });
   };
 
-  const handleDownloadPDF = (appointment) => {
-    const documentPath = appointment.document; // Get the file path
+  const handleDownloadPDF = (documentPath) => {
     const link = document.createElement('a');
     link.href = `http://localhost:5000/${documentPath}`; // Point to your server path
     link.setAttribute('download', documentPath.split('/').pop()); // Use the file name for downloading
@@ -120,9 +127,9 @@ function EngineerDetailsPage() {
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'row', minHeight: '100vh' }}>
-      <Sidebar /> {/* Add Sidebar here */}
+      {sidebarOpen && <Sidebar />} {/* Conditionally render Sidebar */}
       <Box sx={{ flexGrow: 1 }}>
-        <Header />
+        <Header onToggleSidebar={handleToggleSidebar} />
         <Container sx={{ padding: 4, flexGrow: 1 }} maxWidth="xl">
           <Typography variant="h4" gutterBottom>Client Details</Typography>
           <Typography variant="h6" paragraph>
@@ -148,7 +155,7 @@ function EngineerDetailsPage() {
                     <TableCell>{appointment.contactPerson}</TableCell>
                     <TableCell>{appointment.mobileNo}</TableCell>
                     <TableCell>{new Date(appointment.appointmentDate).toLocaleDateString()}</TableCell>
-                    <TableCell>{typeof appointment.appointmentAmount === 'number' ? `$${appointment.appointmentAmount.toFixed(2)}` : 'N/A'}</TableCell>
+                    <TableCell>{typeof appointment.appointmentAmount === 'number' ? `${appointment.appointmentAmount.toFixed(2)}` : 'N/A'}</TableCell>
                     <TableCell>{appointment.machineName}</TableCell>
                     <TableCell>{appointment.model}</TableCell>
                     <TableCell>{appointment.partNo}</TableCell>
@@ -158,7 +165,7 @@ function EngineerDetailsPage() {
                     <TableCell>{new Date(appointment.expectedServiceDate).toLocaleDateString()}</TableCell>
                     <TableCell>
                       {appointment.document ? (
-                        <Button variant="outlined" color="primary" onClick={() => handleDownloadPDF(appointment)}>
+                        <Button variant="outlined" color="primary" onClick={() => handleDownloadPDF(appointment.document)}>
                           <Download />
                         </Button>
                       ) : (
@@ -184,18 +191,23 @@ function EngineerDetailsPage() {
 
       {/* Modal for Service History */}
       <Modal open={openModal} onClose={handleCloseModal}>
-        <Box sx={{ bgcolor: 'white', padding: 4, borderRadius: 2, width: 400, margin: 'auto', marginTop: '15%' }}>
+        <Box sx={{ bgcolor: 'white', padding: 4, borderRadius: 2, width: 600, margin: 'auto', marginTop: '15%' }}>
           <Typography variant="h6" gutterBottom>Service History for {selectedClient}</Typography>
-          <List>
-            {serviceHistory.map((history) => (
-              <ListItem key={history._id}>
+          {serviceHistory.map((history) => (
+            <Box key={history._id} sx={{ marginBottom: 2 }}>
+              <ListItem>
                 <ListItemText
                   primary={`Date: ${new Date(history.appointmentDate).toLocaleDateString()}`}
-                  secondary={`Amount: $${history.appointmentAmount.toFixed(2)}`}
+                  secondary={`Amount: ${history.appointmentAmount.toFixed(2)}`}
                 />
               </ListItem>
-            ))}
-          </List>
+              {history.document && (
+                <Button variant="outlined" onClick={() => handleDownloadPDF(history.document)}>
+                  Download Document
+                </Button>
+              )}
+            </Box>
+          ))}
           <Button variant="contained" color="primary" onClick={handleCloseModal}>Close</Button>
         </Box>
       </Modal>

@@ -17,8 +17,9 @@ import {
   AppBar,
   Toolbar,
   TablePagination,
+  IconButton,
 } from '@mui/material';
-import { Add, Download } from '@mui/icons-material';
+import { Add, Download, Menu } from '@mui/icons-material';
 import AppointmentSidebar from './AppointmentSidebar';
 import AddMachine from './AddMachine';
 import { ToastContainer, toast } from 'react-toastify';
@@ -34,7 +35,7 @@ function AppointmentDetailsPage() {
   const navigate = useNavigate();
   const [page, setPage] = useState(0);
   const [rowsPerPage] = useState(5);
-  const [sidebarOpen, setSidebarOpen] = useState(false); // Sidebar state
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
@@ -55,7 +56,6 @@ function AppointmentDetailsPage() {
           throw new Error('Network response was not ok');
         }
         const data = await response.json();
-        // Sort appointments by creation date descending
         data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
         setAppointments(data);
       } catch (error) {
@@ -148,11 +148,11 @@ function AppointmentDetailsPage() {
   };
 
   const handleDownloadPDF = (appointment) => {
-    const documentPath = appointment.document; // Get the file path
+    const documentPath = appointment.document;
     if (documentPath) {
       const link = document.createElement('a');
-      link.href = `http://localhost:5000/${documentPath}`; // Point to your server path
-      link.setAttribute('download', documentPath.split('/').pop()); // Use the file name for downloading
+      link.href = `http://localhost:5000/${documentPath}`;
+      link.setAttribute('download', documentPath.split('/').pop());
       document.body.appendChild(link);
       link.click();
       link.remove();
@@ -171,17 +171,16 @@ function AppointmentDetailsPage() {
     });
   };
 
-  if (appointments.length === 0) {
-    return <Typography variant="h6">Loading...</Typography>;
-  }
-
   const toggleSidebar = () => {
-    setSidebarOpen(!sidebarOpen); // Toggle sidebar visibility
+    setSidebarOpen((prev) => !prev);
   };
 
   const Header = () => (
     <AppBar position="static" sx={{ backgroundColor: "#ff4d30" }}>
       <Toolbar>
+        <IconButton edge="start" color="inherit" onClick={toggleSidebar} sx={{ mr: 2 }}>
+          <Menu />
+        </IconButton>
         <Typography variant="h6" sx={{ flexGrow: 1, fontWeight: 'bold' }}>
           Company Name
         </Typography>
@@ -258,11 +257,9 @@ function AppointmentDetailsPage() {
               value={clientData.mobileNo}
               onChange={handleInputChange}
               fullWidth
-              sx={{ marginBottom: 2 }}
+              sx={{ marginBottom: 1 }}
             />
-            <Button variant="contained" color="success" onClick={handleAddClientSubmit}>
-              Submit
-            </Button>
+            <Button variant="contained" color="primary" onClick={handleAddClientSubmit}>Submit</Button>
           </Box>
         )}
         {showAddMachineField && <AddMachine onSubmit={handleAddMachineSubmit} />}
@@ -287,7 +284,7 @@ function AppointmentDetailsPage() {
                     <TableCell>{appointment.contactPerson}</TableCell>
                     <TableCell>{appointment.mobileNo}</TableCell>
                     <TableCell>{new Date(appointment.appointmentDate).toLocaleDateString()}</TableCell>
-                    <TableCell>{typeof appointment.appointmentAmount === 'number' ? `$${appointment.appointmentAmount.toFixed(2)}` : 'N/A'}</TableCell>
+                    <TableCell>{typeof appointment.appointmentAmount === 'number' ? `${appointment.appointmentAmount.toFixed(2)}` : 'N/A'}</TableCell>
                     <TableCell>{appointment.machineName}</TableCell>
                     <TableCell>{appointment.model}</TableCell>
                     <TableCell>{appointment.partNo}</TableCell>

@@ -123,13 +123,14 @@ form login-button[type='button'] {
 .loginCenterButtons {
   margin-top: 40px;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   row-gap: 10px;
 }
 
 .loginCenterButtons button:nth-child(1) {
   background-color: black;
   color: white;
+
   border: 3px solid black;
 }
 
@@ -137,13 +138,16 @@ form login-button[type='button'] {
   color: #333;
   background-color: white;
 }
-
+/* .login-button{
+  background-color: black;
+  color: white;
+  border: 3px solid black;
+} */
 .loginCenterButtons button:nth-child(2) {
-  background-color: #F0F0F0;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  column-gap: 10px;
+  background-color: black;
+  color: white;
+padding: 0px;
+  border: 3px solid black;
 }
 
 .loginCenterButtons button:nth-child(2) img {
@@ -151,7 +155,8 @@ form login-button[type='button'] {
 }
 
 .loginCenterButtons button:nth-child(2):hover {
-  background-color: #c4c4c457;
+  color: #333;
+  background-color: white;
 }
 
 .loginBottomP {

@@ -86,7 +86,7 @@ const Login = () => {
               </div>
               <div className={styles.loginCenterButtons}>
                 <button className="login-button" type="submit">Log In</button>
-                <button type="button" className="login-button" onClick={() => setIsModalOpen(true)}>
+                <button  className="forgot-button" onClick={() => setIsModalOpen(true)}>
                   Forgot Password?
                 </button>
               </div>

@@ -7,6 +7,7 @@ import {
   Typography,
   Button,
   TextField,
+  TablePagination,
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import Navbar from './Navbar';
@@ -66,29 +67,46 @@ const ClientPage = () => {
   const [showForm, setShowForm] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [newClient, setNewClient] = useState({
-    name: '',
+    clientName: '',
     contactPerson: '',
-    mobileNumber: '',
-    address: '',
+    mobileNo: '',
+    clientAddress: '',
   });
   const [editingClientId, setEditingClientId] = useState(null);
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(15);
 
-  // Dummy data
   useEffect(() => {
-    const dummyClients = [
-      { _id: '1', name: 'Client A', contactPerson: 'John Doe', mobileNumber: '1234567890', address: '123 Street A' },
-      { _id: '2', name: 'Client B', contactPerson: 'Jane Doe', mobileNumber: '0987654321', address: '456 Street B' },
-    ];
-    setClients(dummyClients);
-    setFilteredClients(dummyClients);
+    const fetchClients = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        const response = await fetch('http://localhost:5000/api/companies', {
+          method: 'GET',
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        });
+        if (!response.ok) {
+          throw new Error('Failed to fetch clients');
+        }
+        const data = await response.json();
+        setClients(data);
+        setFilteredClients(data);
+      } catch (error) {
+        toast.error(error.message || 'Error fetching clients');
+      }
+    };
+
+    fetchClients();
   }, []);
 
   useEffect(() => {
     const results = clients.filter(client =>
-      (client.name && client.name.toLowerCase().includes(searchQuery.toLowerCase())) ||
+      (client.clientName && client.clientName.toLowerCase().includes(searchQuery.toLowerCase())) ||
       (client.contactPerson && client.contactPerson.toLowerCase().includes(searchQuery.toLowerCase())) ||
-      (client.mobileNumber && client.mobileNumber.includes(searchQuery)) ||
-      (client.address && client.address.toLowerCase().includes(searchQuery.toLowerCase()))
+      (client.mobileNo && client.mobileNo.includes(searchQuery)) ||
+      (client.clientAddress && client.clientAddress.toLowerCase().includes(searchQuery.toLowerCase()))
     );
     setFilteredClients(results);
   }, [searchQuery, clients]);
@@ -98,19 +116,56 @@ const ClientPage = () => {
     setNewClient((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    const token = localStorage.getItem('token');
+
     if (editingClientId) {
-      setClients((prev) =>
-        prev.map((client) => (client._id === editingClientId ? { ...newClient, _id: editingClientId } : client))
-      );
-      toast.success('Client updated successfully!');
+      // Update existing client
+      try {
+        const response = await fetch(`http://localhost:5000/api/companies/${editingClientId}`, {
+          method: 'PUT',
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(newClient),
+        });
+        if (!response.ok) {
+          throw new Error('Failed to update client');
+        }
+        const updatedClient = await response.json();
+        setClients((prev) =>
+          prev.map((client) => (client._id === editingClientId ? updatedClient : client))
+        );
+        toast.success('Client updated successfully!');
+      } catch (error) {
+        toast.error(error.message || 'Error updating client');
+      }
     } else {
-      setClients((prev) => [...prev, { ...newClient, _id: Date.now().toString() }]);
-      toast.success('Client added successfully!');
+      // Add new client
+      try {
+        const response = await fetch('http://localhost:5000/api/companies', {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(newClient),
+        });
+        if (!response.ok) {
+          throw new Error('Failed to add client');
+        }
+        const addedClient = await response.json();
+        setClients((prev) => [addedClient, ...prev]); // Prepend new client
+        toast.success('Client added successfully!');
+      } catch (error) {
+        toast.error(error.message || 'Error adding client');
+      }
     }
+
     setShowForm(false);
-    setNewClient({ name: '', contactPerson: '', mobileNumber: '', address: '' });
+    setNewClient({ clientName: '', contactPerson: '', mobileNo: '', clientAddress: '' });
     setEditingClientId(null);
   };
 
@@ -120,11 +175,35 @@ const ClientPage = () => {
     setShowForm(true);
   };
 
-  const handleDelete = (id) => {
+  const handleDelete = async (id) => {
     if (window.confirm('Are you sure you want to delete this client?')) {
-      setClients((prev) => prev.filter((client) => client._id !== id));
-      toast.success('Client deleted successfully!');
+      const token = localStorage.getItem('token');
+      try {
+        const response = await fetch(`http://localhost:5000/api/companies/${id}`, {
+          method: 'DELETE',
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        });
+        if (!response.ok) {
+          throw new Error('Failed to delete client');
+        }
+        setClients((prev) => prev.filter((client) => client._id !== id));
+        toast.success('Client deleted successfully!');
+      } catch (error) {
+        toast.error(error.message || 'Error deleting client');
+      }
     }
+  };
+
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (event) => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0);
   };
 
   return (
@@ -157,8 +236,8 @@ const ClientPage = () => {
               <form onSubmit={handleSubmit}>
                 <TextField
                   label="Client Name"
-                  name="name"
-                  value={newClient.name}
+                  name="clientName"
+                  value={newClient.clientName}
                   onChange={handleChange}
                   sx={{ mb: 1, width: '90%' }}
                   required
@@ -173,16 +252,16 @@ const ClientPage = () => {
                 />
                 <TextField
                   label="Mobile Number"
-                  name="mobileNumber"
-                  value={newClient.mobileNumber}
+                  name="mobileNo"
+                  value={newClient.mobileNo}
                   onChange={handleChange}
                   sx={{ mb: 1, width: '90%' }}
                   required
                 />
                 <TextField
                   label="Address"
-                  name="address"
-                  value={newClient.address}
+                  name="clientAddress"
+                  value={newClient.clientAddress}
                   onChange={handleChange}
                   sx={{ mb: 1, width: '90%' }}
                   required
@@ -209,13 +288,13 @@ const ClientPage = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredClients.map((client, index) => (
+                  {filteredClients.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((client, index) => (
                     <tr key={client._id}>
-                      <td>{index + 1}</td>
-                      <td>{client.name}</td>
+                      <td>{page * rowsPerPage + index + 1}</td>
+                      <td>{client.clientName}</td>
                       <td>{client.contactPerson}</td>
-                      <td>{client.mobileNumber}</td>
-                      <td>{client.address}</td>
+                      <td>{client.mobileNo}</td>
+                      <td>{client.clientAddress}</td>
                       <td>
                         <Button variant="contained" color="secondary" sx={{ mr: 1 }} onClick={() => handleEdit(client)}>
                           Edit
@@ -229,6 +308,15 @@ const ClientPage = () => {
                 </tbody>
               </Table>
             </Paper>
+            <TablePagination
+              rowsPerPageOptions={[15, 25, 50]}
+              component="div"
+              count={filteredClients.length}
+              rowsPerPage={rowsPerPage}
+              page={page}
+              onPageChange={handleChangePage}
+              onRowsPerPageChange={handleChangeRowsPerPage}
+            />
           </Card>
         </Container>
       </MainContent>

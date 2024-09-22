@@ -54,7 +54,7 @@ const LogoutButton = styled(Button)(({ theme }) => ({
   },
 }));
 
-const AppointmentSidebar = () => {
+const AppointmentSidebar = ({ open, toggleSidebar }) => {
   const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -74,18 +74,18 @@ const AppointmentSidebar = () => {
   };
 
   return (
-    <DrawerStyled variant="permanent">
+    <DrawerStyled variant="temporary" open={open} onClose={toggleSidebar}>
       <div>
         <SidebarTitle variant="h6">Appointments</SidebarTitle>
         <Divider />
         <List>
-          <ListItemStyled button component={Link} to="/accountspage">
+          <ListItemStyled button component={Link} to="/accountspage" onClick={toggleSidebar}>
             <ListItemIcon>
               <HomeIcon />
             </ListItemIcon>
             <ListItemText primary="Home" />
           </ListItemStyled>
-          <ListItemStyled button component={Link} to="/accountspage">
+          <ListItemStyled button component={Link} to="/accountspage" onClick={toggleSidebar}>
             <ListItemIcon>
               <ClientIcon />
             </ListItemIcon>

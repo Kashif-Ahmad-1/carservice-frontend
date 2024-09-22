@@ -60,6 +60,12 @@ const SmallCard = styled(Card)(({ theme }) => ({
   borderRadius: theme.shape.borderRadius,
 }));
 
+const PaginationContainer = styled('div')(({ theme }) => ({
+  display: 'flex',
+  justifyContent: 'space-between',
+  marginTop: theme.spacing(2),
+}));
+
 const MachinePage = () => {
   const [machines, setMachines] = useState([]);
   const [filteredMachines, setFilteredMachines] = useState([]);
@@ -67,29 +73,42 @@ const MachinePage = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [newMachine, setNewMachine] = useState({
     name: '',
-    model: '',
-    serialNumber: '',
-    location: '',
+    quantity: '',
   });
   const [editingMachineId, setEditingMachineId] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [machinesPerPage] = useState(15);
 
-  // Dummy data
   useEffect(() => {
-    const dummyMachines = [
-      { _id: '1', name: 'Excavator', model: 'CAT 320', serialNumber: 'SN123456', location: 'Site A' },
-      { _id: '2', name: 'Bulldozer', model: 'CAT D6', serialNumber: 'SN654321', location: 'Site B' },
-    ];
-    setMachines(dummyMachines);
-    setFilteredMachines(dummyMachines);
+    const fetchMachines = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        const response = await fetch('http://localhost:5000/api/machines', {
+          method: 'GET',
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        });
+        if (!response.ok) throw new Error('Failed to fetch machines');
+        const data = await response.json();
+        setMachines(data);
+      } catch (error) {
+        toast.error(error.message || 'Error fetching machines');
+      }
+    };
+
+    fetchMachines();
   }, []);
 
   useEffect(() => {
-    const results = machines.filter(machine =>
-      (machine.name && machine.name.toLowerCase().includes(searchQuery.toLowerCase())) ||
-      (machine.model && machine.model.toLowerCase().includes(searchQuery.toLowerCase())) ||
-      (machine.serialNumber && machine.serialNumber.includes(searchQuery)) ||
-      (machine.location && machine.location.toLowerCase().includes(searchQuery.toLowerCase()))
-    );
+    const results = machines
+      .filter(machine =>
+        (machine.name && machine.name.toLowerCase().includes(searchQuery.toLowerCase())) ||
+        (machine.quantity && machine.quantity.toString().includes(searchQuery))
+      )
+      .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)); // Sort latest first
+
     setFilteredMachines(results);
   }, [searchQuery, machines]);
 
@@ -98,19 +117,53 @@ const MachinePage = () => {
     setNewMachine((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    const token = localStorage.getItem('token');
+
+    const machineData = {
+      ...newMachine,
+      createdAt: new Date().toISOString(), // Set the current timestamp
+    };
+
     if (editingMachineId) {
-      setMachines((prev) =>
-        prev.map((machine) => (machine._id === editingMachineId ? { ...newMachine, _id: editingMachineId } : machine))
-      );
-      toast.success('Machine updated successfully!');
+      try {
+        const response = await fetch(`http://localhost:5000/api/machines/${editingMachineId}`, {
+          method: 'PUT',
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(machineData),
+        });
+        if (!response.ok) throw new Error('Failed to update machine');
+        const updatedMachine = await response.json();
+        setMachines(prev => prev.map(machine => (machine._id === editingMachineId ? updatedMachine : machine)));
+        toast.success('Machine updated successfully!');
+      } catch (error) {
+        toast.error(error.message || 'Error updating machine');
+      }
     } else {
-      setMachines((prev) => [...prev, { ...newMachine, _id: Date.now().toString() }]);
-      toast.success('Machine added successfully!');
+      try {
+        const response = await fetch('http://localhost:5000/api/machines', {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(machineData),
+        });
+        if (!response.ok) throw new Error('Failed to add machine');
+        const addedMachine = await response.json();
+        setMachines(prev => [addedMachine, ...prev]); // Add new machine at the beginning
+        toast.success('Machine added successfully!');
+      } catch (error) {
+        toast.error(error.message || 'Error adding machine');
+      }
     }
+
     setShowForm(false);
-    setNewMachine({ name: '', model: '', serialNumber: '', location: '' });
+    setNewMachine({ name: '', quantity: '' });
     setEditingMachineId(null);
   };
 
@@ -120,12 +173,32 @@ const MachinePage = () => {
     setShowForm(true);
   };
 
-  const handleDelete = (id) => {
+  const handleDelete = async (id) => {
     if (window.confirm('Are you sure you want to delete this machine?')) {
-      setMachines((prev) => prev.filter((machine) => machine._id !== id));
-      toast.success('Machine deleted successfully!');
+      const token = localStorage.getItem('token');
+
+      try {
+        const response = await fetch(`http://localhost:5000/api/machines/${id}`, {
+          method: 'DELETE',
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        });
+        if (!response.ok) throw new Error('Failed to delete machine');
+        setMachines(prev => prev.filter(machine => machine._id !== id));
+        toast.success('Machine deleted successfully!');
+      } catch (error) {
+        toast.error(error.message || 'Error deleting machine');
+      }
     }
   };
+
+  // Pagination Logic
+  const indexOfLastMachine = currentPage * machinesPerPage;
+  const indexOfFirstMachine = indexOfLastMachine - machinesPerPage;
+  const currentMachines = filteredMachines.slice(indexOfFirstMachine, indexOfLastMachine);
+  const totalPages = Math.ceil(filteredMachines.length / machinesPerPage);
 
   return (
     <Box sx={{ display: 'flex' }}>
@@ -164,25 +237,10 @@ const MachinePage = () => {
                   required
                 />
                 <TextField
-                  label="Model"
-                  name="model"
-                  value={newMachine.model}
-                  onChange={handleChange}
-                  sx={{ mb: 1, width: '90%' }}
-                  required
-                />
-                <TextField
-                  label="Serial Number"
-                  name="serialNumber"
-                  value={newMachine.serialNumber}
-                  onChange={handleChange}
-                  sx={{ mb: 1, width: '90%' }}
-                  required
-                />
-                <TextField
-                  label="Location"
-                  name="location"
-                  value={newMachine.location}
+                  label="Quantity"
+                  name="quantity"
+                  type="number"
+                  value={newMachine.quantity}
                   onChange={handleChange}
                   sx={{ mb: 1, width: '90%' }}
                   required
@@ -202,20 +260,16 @@ const MachinePage = () => {
                   <tr>
                     <th>SR No</th>
                     <th>Machine Name</th>
-                    <th>Model</th>
-                    <th>Serial Number</th>
-                    <th>Location</th>
+                    <th>Quantity</th>
                     <th>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredMachines.map((machine, index) => (
+                  {currentMachines.map((machine, index) => (
                     <tr key={machine._id}>
-                      <td>{index + 1}</td>
+                      <td>{indexOfFirstMachine + index + 1}</td>
                       <td>{machine.name}</td>
-                      <td>{machine.model}</td>
-                      <td>{machine.serialNumber}</td>
-                      <td>{machine.location}</td>
+                      <td>{machine.quantity}</td>
                       <td>
                         <Button variant="contained" color="secondary" sx={{ mr: 1 }} onClick={() => handleEdit(machine)}>
                           Edit
@@ -229,6 +283,20 @@ const MachinePage = () => {
                 </tbody>
               </Table>
             </Paper>
+            <PaginationContainer>
+              <Button
+                disabled={currentPage === 1}
+                onClick={() => setCurrentPage(prev => prev - 1)}
+              >
+                Previous
+              </Button>
+              <Button
+                disabled={currentPage === totalPages}
+                onClick={() => setCurrentPage(prev => prev + 1)}
+              >
+                Next
+              </Button>
+            </PaginationContainer>
           </Card>
         </Container>
       </MainContent>
