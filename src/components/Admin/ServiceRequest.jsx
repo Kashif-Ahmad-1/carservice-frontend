@@ -78,7 +78,6 @@ const ServiceRequestPage = () => {
       }
 
       const data = await response.json();
-      // Sort by createdAt date, latest first
       const sortedData = data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
       setServiceRequests(sortedData);
     } catch (error) {
@@ -121,10 +120,10 @@ const ServiceRequestPage = () => {
                       <TableRow key={request._id}>
                         <TableCell>{request.clientName}</TableCell>
                         <TableCell>{request.contactPerson}</TableCell>
-                        <TableCell>{request.createdBy.email}</TableCell>
+                        <TableCell>{request.createdBy?.email || 'N/A'}</TableCell>
                         <TableCell>{request.mobileNo}</TableCell>
-                        <TableCell>{request.createdBy.name}</TableCell>
-                        <TableCell>{request.engineer.name}</TableCell>
+                        <TableCell>{request.createdBy?.name || 'N/A'}</TableCell>
+                        <TableCell>{request.engineer?.name || 'N/A'}</TableCell>
                         <TableCell>{request.status}</TableCell>
                         <TableCell>{request.appointmentAmount}</TableCell>
                       </TableRow>

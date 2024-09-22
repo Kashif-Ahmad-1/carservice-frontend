@@ -124,6 +124,16 @@ const EngineerPage = () => {
       : 'http://localhost:5000/api/auth/register';
     const method = editingEngineerId ? 'PUT' : 'POST';
 
+    const payload = { ...newEngineer, role: 'engineer' };
+    if (!editingEngineerId && !newEngineer.password) {
+      toast.error("Password is required for new users.");
+      return;
+    }
+
+    if (editingEngineerId && !newEngineer.password) {
+      delete payload.password; // Omit password if not provided during update
+    }
+
     try {
       const response = await fetch(url, {
         method,
@@ -131,7 +141,7 @@ const EngineerPage = () => {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`,
         },
-        body: JSON.stringify({ ...newEngineer, role: 'engineer' }),
+        body: JSON.stringify(payload),
       });
 
       if (!response.ok) {

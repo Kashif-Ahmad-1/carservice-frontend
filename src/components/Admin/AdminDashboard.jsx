@@ -7,7 +7,6 @@ import {
   Paper,
   Typography,
   Button,
-  Divider,
   Card as MuiCard,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
@@ -25,14 +24,7 @@ import { Link } from "react-router-dom";
 import Sidebar from "./Sidebar";
 import Navbar from "./Navbar";
 
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  Title,
-  Tooltip,
-  Legend
-);
+ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
 // Styled components
 const MainContent = styled("main")(({ theme }) => ({
@@ -103,9 +95,7 @@ const AdminDashboard = () => {
 
       const data = await response.json();
       const mechanics = data.filter((user) => user.role === "engineer").length;
-      const accountants = data.filter(
-        (user) => user.role === "accountant"
-      ).length;
+      const accountants = data.filter((user) => user.role === "accountant").length;
 
       setMechanicCount(mechanics);
       setAccountantCount(accountants);
@@ -129,19 +119,17 @@ const AdminDashboard = () => {
       }
 
       const appointments = await response.json();
-      const newRequests = appointments.filter(
-        (appointment) => !appointment.completed
-      ).length;
+      const newRequests = appointments.filter((appointment) => !appointment.completed).length;
 
       // Reverse the activities to show the latest first
       const activities = appointments
         .map((appointment) => ({
-          accountant: appointment.createdBy.name,
-          engineer: appointment.engineer.name,
+          accountant: appointment.createdBy ? appointment.createdBy.name : "Unknown Accountant",
+          engineer: appointment.engineer ? appointment.engineer.name : "Unknown Engineer",
           createdAt: new Date(appointment.createdAt).toLocaleString(),
         }))
-        .reverse() // This line ensures the latest is first
-        .slice(0, 3); // Limit to 3 most recent activities
+        .reverse()
+        .slice(0, 3);
 
       setNewServiceRequests(newRequests);
       setRecentActivities(activities);
