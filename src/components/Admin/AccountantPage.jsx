@@ -11,8 +11,8 @@ import {
 import { styled } from '@mui/material/styles';
 import Navbar from './Navbar';
 import Sidebar from './Sidebar';
-import { toast, ToastContainer } from 'react-toastify'; // Import toast and ToastContainer
-import 'react-toastify/dist/ReactToastify.css'; // Import the toastify CSS
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const MainContent = styled('main')(({ theme }) => ({
   flexGrow: 1,
@@ -41,8 +41,8 @@ const Table = styled('table')(({ theme }) => ({
     padding: theme.spacing(1),
     textAlign: 'left',
     borderBottom: `1px solid ${theme.palette.divider}`,
-    fontSize: '1.2rem', // Increase font size
-    fontWeight: '600', // Set font weight
+    fontSize: '1.2rem',
+    fontWeight: '600',
   },
   '& th': {
     backgroundColor: theme.palette.grey[200],
@@ -54,22 +54,25 @@ const ButtonContainer = styled('div')(({ theme }) => ({
 }));
 
 const SmallCard = styled(Card)(({ theme }) => ({
-  maxWidth: 400, // Set a maximum width for the form
-  margin: 'auto', // Center the card
-  padding: theme.spacing(1), // Reduce padding
-  borderRadius: theme.shape.borderRadius, // Keep rounded corners
+  maxWidth: 400,
+  margin: 'auto',
+  padding: theme.spacing(1),
+  borderRadius: theme.shape.borderRadius,
 }));
 
 const AccountantPage = () => {
   const [accountants, setAccountants] = useState([]);
+  const [filteredAccountants, setFilteredAccountants] = useState([]);
   const [showForm, setShowForm] = useState(false);
-  const [newAccountant, setNewAccountant] = useState({ 
-    name: '', 
-    email: '', 
+  const [searchQuery, setSearchQuery] = useState('');
+  const [newAccountant, setNewAccountant] = useState({
+    name: '',
+    email: '',
     password: '',
-    mobileNumber: '', 
+    mobileNumber: '',
     address: '',
   });
+  const [editingAccountantId, setEditingAccountantId] = useState(null);
   const token = localStorage.getItem('token');
 
   const fetchAccountants = async () => {
@@ -88,6 +91,7 @@ const AccountantPage = () => {
 
       const data = await response.json();
       setAccountants(data);
+      setFilteredAccountants(data);
     } catch (error) {
       console.error(error);
     }
@@ -97,6 +101,16 @@ const AccountantPage = () => {
     fetchAccountants();
   }, [token]);
 
+  useEffect(() => {
+    const results = accountants.filter(accountant =>
+      (accountant.name && accountant.name.toLowerCase().includes(searchQuery.toLowerCase())) ||
+      (accountant.email && accountant.email.toLowerCase().includes(searchQuery.toLowerCase())) ||
+      (accountant.mobileNumber && accountant.mobileNumber.includes(searchQuery)) ||
+      (accountant.address && accountant.address.toLowerCase().includes(searchQuery.toLowerCase()))
+    );
+    setFilteredAccountants(results);
+  }, [searchQuery, accountants]);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setNewAccountant((prev) => ({ ...prev, [name]: value }));
@@ -104,28 +118,86 @@ const AccountantPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const url = editingAccountantId
+      ? `http://localhost:5000/api/users/${editingAccountantId}`
+      : 'http://localhost:5000/api/auth/register';
+    const method = editingAccountantId ? 'PUT' : 'POST';
+
     try {
-      const response = await fetch('http://localhost:5000/api/auth/register', {
-        method: 'POST',
+      const response = await fetch(url, {
+        method,
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`,
         },
-        body: JSON.stringify({ ...newAccountant, role: 'accountant' }), // Add role here
+        body: JSON.stringify({ ...newAccountant, role: 'accountant' }),
       });
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to add accountant');
+        throw new Error(errorData.message || 'Failed to save accountant');
       }
 
       await fetchAccountants();
-      toast.success('Accountant added successfully!'); // Show success message
+      toast.success(editingAccountantId ? 'Accountant updated successfully!' : 'Accountant added successfully!');
       setShowForm(false);
       setNewAccountant({ name: '', email: '', password: '', mobileNumber: '', address: '' });
+      setEditingAccountantId(null);
     } catch (error) {
       console.error(error);
-      toast.error(error.message); // Show error message
+      toast.error(error.message);
+    }
+  };
+
+  const handleEdit = (accountant) => {
+    setNewAccountant(accountant);
+    setEditingAccountantId(accountant._id);
+    setShowForm(true);
+  };
+
+  const handleDelete = async (id) => {
+    if (window.confirm('Are you sure you want to delete this accountant?')) {
+      try {
+        const response = await fetch(`http://localhost:5000/api/users/${id}`, {
+          method: 'DELETE',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+          },
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.message || 'Failed to delete accountant');
+        }
+
+        await fetchAccountants();
+        toast.success('Accountant deleted successfully!');
+      } catch (error) {
+        console.error(error);
+        toast.error(error.message);
+      }
+    }
+  };
+
+  const handleSendResetLink = async (email) => {
+    try {
+      const response = await fetch('http://localhost:5000/api/auth/forgot-password', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email }),
+      });
+
+      const data = await response.json();
+      if (response.ok) {
+        toast.success('Password reset email sent successfully!');
+      } else {
+        toast.error(data.message || 'Failed to send reset email.');
+      }
+    } catch (error) {
+      console.error('Error sending reset email:', error);
+      toast.error('An error occurred while sending the reset email.');
     }
   };
 
@@ -138,6 +210,15 @@ const AccountantPage = () => {
         <ToolbarSpacer />
         <Container>
           <SectionTitle variant="h4">Accountant List</SectionTitle>
+          
+          {/* Search Box */}
+          <TextField
+            label="Search"
+            variant="outlined"
+            fullWidth
+            onChange={(e) => setSearchQuery(e.target.value)}
+            sx={{ mb: 2 }}
+          />
           <ButtonContainer>
             <Button variant="contained" color="primary" onClick={() => setShowForm(!showForm)}>
               {showForm ? 'Cancel' : 'Add Accountant'}
@@ -146,14 +227,14 @@ const AccountantPage = () => {
 
           {showForm && (
             <SmallCard sx={{ mb: 2 }}>
-              <Typography variant="h6" align="center">Add New Accountant</Typography>
+              <Typography variant="h6" align="center">{editingAccountantId ? 'Edit Accountant' : 'Add New Accountant'}</Typography>
               <form onSubmit={handleSubmit}>
                 <TextField
                   label="Name"
                   name="name"
                   value={newAccountant.name}
                   onChange={handleChange}
-                  sx={{ mb: 1, width: '90%' }} // Custom width and margin
+                  sx={{ mb: 1, width: '90%' }}
                   required
                 />
                 <TextField
@@ -171,7 +252,7 @@ const AccountantPage = () => {
                   value={newAccountant.password}
                   onChange={handleChange}
                   sx={{ mb: 1, width: '90%' }}
-                  required
+                  required={!editingAccountantId} // Password required only on add
                 />
                 <TextField
                   label="Mobile Number"
@@ -190,7 +271,7 @@ const AccountantPage = () => {
                   required
                 />
                 <Button type="submit" variant="contained" color="primary" sx={{ width: '90%' }}>
-                  Add Accountant
+                  {editingAccountantId ? 'Update Accountant' : 'Add Accountant'}
                 </Button>
               </form>
             </SmallCard>
@@ -202,25 +283,39 @@ const AccountantPage = () => {
               <Table>
                 <thead>
                   <tr>
+                    <th>SR No</th>
                     <th>Name</th>
                     <th>Email</th>
-                    {/* <th>Password</th> */}
                     <th>Mobile Number</th>
                     <th>Address</th>
                     <th>Actions</th>
+                    <th>Password Reset</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {accountants.map(accountant => (
+                  {filteredAccountants.map((accountant, index) => (
                     <tr key={accountant._id}>
+                      <td>{index + 1}</td>
                       <td>{accountant.name}</td>
                       <td>{accountant.email}</td>
-                      {/* <td>{accountant.password}</td> */}
                       <td>{accountant.mobileNumber}</td>
                       <td>{accountant.address}</td>
                       <td>
-                        <Button variant="contained" color="secondary" sx={{ mr: 1 }}>Edit</Button>
-                        <Button variant="outlined" color="error">Delete</Button>
+                        <Button variant="contained" color="secondary" sx={{ mr: 1 }} onClick={() => handleEdit(accountant)}>
+                          Edit
+                        </Button>
+                        <Button variant="outlined" color="error" onClick={() => handleDelete(accountant._id)}>
+                          Delete
+                        </Button>
+                      </td>
+                      <td>
+                        <Button 
+                          variant="contained" 
+                          color="secondary" 
+                          onClick={() => handleSendResetLink(accountant.email)}
+                        >
+                          Send
+                        </Button>
                       </td>
                     </tr>
                   ))}
@@ -230,7 +325,7 @@ const AccountantPage = () => {
           </Card>
         </Container>
       </MainContent>
-      <ToastContainer /> {/* Add ToastContainer here */}
+      <ToastContainer />
     </Box>
   );
 };

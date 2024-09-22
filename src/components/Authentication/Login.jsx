@@ -4,6 +4,7 @@ import { FaEye, FaEyeSlash } from "react-icons/fa6";
 import styles from './Login.module.css';
 import { useNavigate } from "react-router-dom";
 import AuthContext from "./../../Store/AuthContext";
+import ForgotPasswordModal from "./ForgotPasswordModal";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -11,6 +12,7 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const { login } = useContext(AuthContext);
   const navigate = useNavigate();
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -26,10 +28,8 @@ const Login = () => {
       const data = await response.json();
       console.log("the data is ", data);
       if (response.ok) {
-        // Use context's login function
         login(data.token, data.role);
-
-        // Navigate based on the role
+        
         switch (data.role) {
           case "admin":
             navigate("/admin");
@@ -51,7 +51,6 @@ const Login = () => {
       alert("An error occurred, please try again.");
     }
   };
-
   return (
     <div className={styles.loginMain}>
       <div className={styles.loginLeft}>
@@ -73,7 +72,6 @@ const Login = () => {
               />
               <div className={styles.passInputDiv}>
                 <input
-                  className="input-style"
                   type={showPassword ? "text" : "password"}
                   placeholder="Password"
                   value={password}
@@ -88,14 +86,15 @@ const Login = () => {
               </div>
               <div className={styles.loginCenterButtons}>
                 <button className="login-button" type="submit">Log In</button>
+                <button type="button" className="login-button" onClick={() => setIsModalOpen(true)}>
+                  Forgot Password?
+                </button>
               </div>
             </form>
           </div>
-          {/* <p className={styles.loginBottomP}>
-            Don't have an account? <a href="#">Sign Up</a>
-          </p> */}
         </div>
       </div>
+      {isModalOpen && <ForgotPasswordModal onClose={() => setIsModalOpen(false)} />}
     </div>
   );
 };

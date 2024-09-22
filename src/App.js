@@ -14,7 +14,7 @@ import PdfGenerator from "./components/Pdf Generator/PdfGenerator";
 import { AuthProvider } from "./Store/AuthContext";
 import PrivateRoute from "./PrivateRoute"; // Import PrivateRoute component
 import ServiceRequestPage from "./components/Admin/ServiceRequest";
-
+import ResetPassword from "./components/Authentication/ResetPassword";
 function App() {
   // const role = localStorage.getItem("role");
   // console.log(role);
@@ -69,6 +69,7 @@ function App() {
 
           {/* PDF generation route, assuming anyone can access */}
           <Route path="/pdfcheck" element={<PdfGenerator />} />
+          <Route path="/reset/:token" element={<ResetPassword />} />
         </Routes>
       </div>
     </AuthProvider>
