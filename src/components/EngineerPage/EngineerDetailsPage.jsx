@@ -41,6 +41,7 @@ function EngineerDetailsPage() {
           throw new Error('Network response was not ok');
         }
         const data = await response.json();
+       console.log(data)
         // Sort appointments by creation date descending
         data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
         setAppointments(data);
@@ -60,9 +61,21 @@ function EngineerDetailsPage() {
     return <Typography variant="h6">Loading...</Typography>;
   }
 
-  const handleEditClick = () => {
-    navigate(`/checklist`);
+  const handleEditClick = (appointment) => {
+    navigate(`/checklist`, {
+      state: {
+        clientName: appointment.clientName,
+        contactPerson: appointment.contactPerson,
+        phone: appointment.mobileNo,
+        address: appointment.clientAddress,
+        engineer: appointment.engineer,
+        
+      }
+      
+    });
+
   };
+ 
   const handleDownloadPDF = (appointment) => {
     const documentPath = appointment.document; // Get the file path
     const link = document.createElement('a');
@@ -74,6 +87,7 @@ function EngineerDetailsPage() {
 };
 
   return (
+  
     <Box sx={{ display: 'flex', flexDirection: 'row', minHeight: '100vh' }}>
       <Sidebar /> {/* Add Sidebar here */}
       <Box sx={{ flexGrow: 1 }}>
@@ -122,7 +136,7 @@ function EngineerDetailsPage() {
                       )}
                     </TableCell>
                     <TableCell sx={{ display: 'flex', justifyContent: 'space-around' }}>
-                      <Button variant="contained" color="primary" sx={{ marginRight: 1 }} onClick={handleEditClick}>
+                      <Button variant="contained" color="primary" sx={{ marginRight: 1 }} onClick={() => handleEditClick(appointment)}>
                         Checklist
                       </Button>
                       {/* <Button variant="outlined" color="secondary">Delete</Button> */}

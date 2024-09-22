@@ -204,6 +204,7 @@ const AccountantPage = () => {
                   <tr>
                     <th>Name</th>
                     <th>Email</th>
+                    {/* <th>Password</th> */}
                     <th>Mobile Number</th>
                     <th>Address</th>
                     <th>Actions</th>
@@ -214,6 +215,7 @@ const AccountantPage = () => {
                     <tr key={accountant._id}>
                       <td>{accountant.name}</td>
                       <td>{accountant.email}</td>
+                      {/* <td>{accountant.password}</td> */}
                       <td>{accountant.mobileNumber}</td>
                       <td>{accountant.address}</td>
                       <td>
