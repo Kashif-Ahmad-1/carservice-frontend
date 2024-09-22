@@ -36,9 +36,6 @@ function AppointmentDetailsPage() {
   const [rowsPerPage] = useState(5);
   const [sidebarOpen, setSidebarOpen] = useState(false); // Sidebar state
 
-
- 
-
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
   };
@@ -97,14 +94,22 @@ function AppointmentDetailsPage() {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(clientData),
+        body: JSON.stringify({
+          clientName: clientData.name,
+          contactPerson: clientData.contact,
+          mobileNo: clientData.mobileNo,
+          clientAddress: clientData.address,
+        }),
       });
 
       if (!response.ok) {
         throw new Error('Failed to create company');
       }
 
+      const data = await response.json();
+      console.log('Company created successfully:', data);
       toast.success('Client added successfully!');
+
       setClientData({ name: '', address: '', contact: '', mobileNo: '' });
       setShowAddClientFields(false);
     } catch (error) {
@@ -120,7 +125,7 @@ function AppointmentDetailsPage() {
     });
   };
 
-  const handleAddMachineSubmit = async () => {
+  const handleAddMachineSubmit = async (machineData) => {
     try {
       const token = localStorage.getItem('token');
       const response = await fetch('http://localhost:5000/api/machines', {
@@ -134,8 +139,9 @@ function AppointmentDetailsPage() {
       if (!response.ok) {
         throw new Error('Failed to create machine');
       }
-      toast.success('Machine added successfully!');
+      console.log('Machine created successfully:', machineData);
       setShowAddMachineField(true);
+      toast.success('Machine added successfully!');
     } catch (error) {
       console.error('Error creating machine:', error);
     }
@@ -220,12 +226,40 @@ function AppointmentDetailsPage() {
           </Box>
         </Box>
         {showAddClientFields && (
-          <Box sx={{ marginBottom: 2, p: 2, borderRadius: 1, boxShadow: 2, backgroundColor: '#f9f9f9' }}>
-            <Typography variant="h6" sx={{ fontWeight: 'bold' }}>Add New Client</Typography>
-            <TextField label="Client Name" name="name" value={clientData.name} onChange={handleInputChange} fullWidth sx={{ marginBottom: 1 }} />
-            <TextField label="Client Address" name="address" value={clientData.address} onChange={handleInputChange} fullWidth sx={{ marginBottom: 1 }} />
-            <TextField label="Contact Person" name="contact" value={clientData.contact} onChange={handleInputChange} fullWidth sx={{ marginBottom: 1 }} />
-            <TextField label="Mobile No." name="mobileNo" value={clientData.mobileNo} onChange={handleInputChange} fullWidth sx={{ marginBottom: 2 }} />
+          <Box sx={{ marginBottom: 2, p: 2, borderRadius: 1, boxShadow: 1, backgroundColor: '#f9f9f9' }}>
+            <Typography variant="h6">Add New Client</Typography>
+            <TextField
+              label="Client Name"
+              name="name"
+              value={clientData.name}
+              onChange={handleInputChange}
+              fullWidth
+              sx={{ marginBottom: 1 }}
+            />
+            <TextField
+              label="Client Address"
+              name="address"
+              value={clientData.address}
+              onChange={handleInputChange}
+              fullWidth
+              sx={{ marginBottom: 1 }}
+            />
+            <TextField
+              label="Contact Person"
+              name="contact"
+              value={clientData.contact}
+              onChange={handleInputChange}
+              fullWidth
+              sx={{ marginBottom: 1 }}
+            />
+            <TextField
+              label="Mobile No."
+              name="mobileNo"
+              value={clientData.mobileNo}
+              onChange={handleInputChange}
+              fullWidth
+              sx={{ marginBottom: 2 }}
+            />
             <Button variant="contained" color="success" onClick={handleAddClientSubmit}>
               Submit
             </Button>
@@ -261,7 +295,7 @@ function AppointmentDetailsPage() {
                     <TableCell>{new Date(appointment.installationDate).toLocaleDateString()}</TableCell>
                     <TableCell>{appointment.serviceFrequency}</TableCell>
                     <TableCell>{new Date(appointment.expectedServiceDate).toLocaleDateString()}</TableCell>
-                    <TableCell>{appointment.engineer.name}</TableCell>
+                    <TableCell>{appointment.engineer ? appointment.engineer.name : 'N/A'}</TableCell>
                     <TableCell>
                       {appointment.document ? (
                         <Button variant="outlined" color="primary" onClick={() => handleDownloadPDF(appointment)}>
@@ -283,7 +317,7 @@ function AppointmentDetailsPage() {
                           <Typography>Installation Date: {new Date(appointment.installationDate).toLocaleDateString()}</Typography>
                           <Typography>Service Frequency: {appointment.serviceFrequency}</Typography>
                           <Typography>Expected Service Date: {new Date(appointment.expectedServiceDate).toLocaleDateString()}</Typography>
-                          <Typography>Service Engineer: {appointment.engineer.name}</Typography>
+                          <Typography>Service Engineer: {appointment.engineer ? appointment.engineer.name : 'N/A'}</Typography>
                         </Box>
                       </TableCell>
                     </TableRow>
