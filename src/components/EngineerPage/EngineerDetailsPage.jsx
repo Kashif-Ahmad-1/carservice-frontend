@@ -1,9 +1,28 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { AppBar, Toolbar, Typography, Box, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Container, Button, Divider } from '@mui/material';
-import axios from 'axios';
+import {
+  AppBar,
+  Toolbar,
+  Typography,
+  Box,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  Container,
+  Button,
+  Divider,
+  Modal,
+  List,
+  ListItem,
+  ListItemText
+} from '@mui/material';
+import { Download } from '@mui/icons-material';
 import Sidebar from './Sidebar'; // Adjust path if necessary
-import { Add, Download } from '@mui/icons-material';
+
 // Header Component
 const Header = () => (
   <AppBar position="static">
@@ -24,6 +43,9 @@ function EngineerDetailsPage() {
   const { engineerId } = useParams();
   const navigate = useNavigate();
   const [appointments, setAppointments] = useState([]);
+  const [serviceHistory, setServiceHistory] = useState([]);
+  const [openModal, setOpenModal] = useState(false);
+  const [selectedClient, setSelectedClient] = useState(null);
   const [error, setError] = useState(null);
 
   useEffect(() => {
@@ -41,12 +63,12 @@ function EngineerDetailsPage() {
           throw new Error('Network response was not ok');
         }
         const data = await response.json();
-       console.log(data)
         // Sort appointments by creation date descending
         data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
         setAppointments(data);
       } catch (error) {
         console.error('Failed to fetch appointment data', error);
+        setError(error);
       }
     };
 
@@ -54,7 +76,7 @@ function EngineerDetailsPage() {
   }, [engineerId]);
 
   if (error) {
-    return <Typography variant="h6" color="error">Error: {error}</Typography>;
+    return <Typography variant="h6" color="error">Error: {error.message}</Typography>;
   }
 
   if (appointments.length === 0) {
@@ -69,13 +91,10 @@ function EngineerDetailsPage() {
         phone: appointment.mobileNo,
         address: appointment.clientAddress,
         engineer: appointment.engineer,
-        
-      }
-      
+      },
     });
-
   };
- 
+
   const handleDownloadPDF = (appointment) => {
     const documentPath = appointment.document; // Get the file path
     const link = document.createElement('a');
@@ -84,15 +103,26 @@ function EngineerDetailsPage() {
     document.body.appendChild(link);
     link.click();
     link.remove();
-};
+  };
+
+  const handleServiceHistoryClick = (clientName) => {
+    const history = appointments.filter(app => app.clientName === clientName); // Fetch service history for the client
+    setServiceHistory(history);
+    setSelectedClient(clientName);
+    setOpenModal(true);
+  };
+
+  const handleCloseModal = () => {
+    setOpenModal(false);
+    setServiceHistory([]);
+    setSelectedClient(null);
+  };
 
   return (
-  
     <Box sx={{ display: 'flex', flexDirection: 'row', minHeight: '100vh' }}>
       <Sidebar /> {/* Add Sidebar here */}
       <Box sx={{ flexGrow: 1 }}>
         <Header />
-        
         <Container sx={{ padding: 4, flexGrow: 1 }} maxWidth="xl">
           <Typography variant="h4" gutterBottom>Client Details</Typography>
           <Typography variant="h6" paragraph>
@@ -105,19 +135,19 @@ function EngineerDetailsPage() {
               <TableHead>
                 <TableRow>
                   {/* Table Headers */}
-                  {["Client Name", "Client Address", "Contact Person", "Mobile No.", "Invoice Date", "Invoice Amount", "Machine Name", "Model", "Part No.", "Serial No.", "Installation Date", "Service Frequency (Days)", "Expected Service Date", "Document","Checklist"].map(header => (
+                  {["Client Name", "Client Address", "Contact Person", "Mobile No.", "Appointment Date", "Invoice Amount", "Machine Name", "Model", "Part No.", "Serial No.", "Installation Date", "Service Frequency (Days)", "Expected Service Date", "Document", "Checklist", "Service History"].map(header => (
                     <TableCell key={header} sx={{ fontSize: '1.1rem' }}>{header}</TableCell>
                   ))}
                 </TableRow>
               </TableHead>
               <TableBody>
                 {appointments.map((appointment) => (
-                  <TableRow key={appointment.clientName}>
+                  <TableRow key={appointment._id}>
                     <TableCell>{appointment.clientName}</TableCell>
                     <TableCell>{appointment.clientAddress}</TableCell>
                     <TableCell>{appointment.contactPerson}</TableCell>
                     <TableCell>{appointment.mobileNo}</TableCell>
-                    <TableCell>{new Date(appointment.invoiceDate).toLocaleDateString()}</TableCell>
+                    <TableCell>{new Date(appointment.appointmentDate).toLocaleDateString()}</TableCell>
                     <TableCell>{typeof appointment.appointmentAmount === 'number' ? `$${appointment.appointmentAmount.toFixed(2)}` : 'N/A'}</TableCell>
                     <TableCell>{appointment.machineName}</TableCell>
                     <TableCell>{appointment.model}</TableCell>
@@ -128,9 +158,9 @@ function EngineerDetailsPage() {
                     <TableCell>{new Date(appointment.expectedServiceDate).toLocaleDateString()}</TableCell>
                     <TableCell>
                       {appointment.document ? (
-                          <Button variant="outlined" color="primary" onClick={() => handleDownloadPDF(appointment)}>
-                          <Download /> 
-                      </Button>
+                        <Button variant="outlined" color="primary" onClick={() => handleDownloadPDF(appointment)}>
+                          <Download />
+                        </Button>
                       ) : (
                         <Typography variant="body2" color="textSecondary">No Document</Typography>
                       )}
@@ -139,7 +169,9 @@ function EngineerDetailsPage() {
                       <Button variant="contained" color="primary" sx={{ marginRight: 1 }} onClick={() => handleEditClick(appointment)}>
                         Checklist
                       </Button>
-                      {/* <Button variant="outlined" color="secondary">Delete</Button> */}
+                      <Button variant="outlined" color="secondary" onClick={() => handleServiceHistoryClick(appointment.clientName)}>
+                        Details
+                      </Button>
                     </TableCell>
                   </TableRow>
                 ))}
@@ -149,6 +181,24 @@ function EngineerDetailsPage() {
         </Container>
         <Footer />
       </Box>
+
+      {/* Modal for Service History */}
+      <Modal open={openModal} onClose={handleCloseModal}>
+        <Box sx={{ bgcolor: 'white', padding: 4, borderRadius: 2, width: 400, margin: 'auto', marginTop: '15%' }}>
+          <Typography variant="h6" gutterBottom>Service History for {selectedClient}</Typography>
+          <List>
+            {serviceHistory.map((history) => (
+              <ListItem key={history._id}>
+                <ListItemText
+                  primary={`Date: ${new Date(history.appointmentDate).toLocaleDateString()}`}
+                  secondary={`Amount: $${history.appointmentAmount.toFixed(2)}`}
+                />
+              </ListItem>
+            ))}
+          </List>
+          <Button variant="contained" color="primary" onClick={handleCloseModal}>Close</Button>
+        </Box>
+      </Modal>
     </Box>
   );
 }

@@ -302,13 +302,14 @@ function AppointmentPage() {
             </div>
             <div className="form-group">
               <label htmlFor="machineName">Machine Name:</label>
-              <input 
-                type="text" 
-                id="machineName" 
-                value={machineName} 
-                onChange={(e) => setMachineName(e.target.value)} 
-                required 
-              />
+              <select id="machineName" value={machineName} onChange={(e) => setMachineName(e.target.value)} required>
+                <option value="">Select a Machine</option>
+                {machines.map((machine) => (
+                  <option key={machine._id} value={machine.name}>
+                    {machine.name} 
+                  </option>
+                ))}
+              </select>
             </div>
             <div className="form-group">
               <label htmlFor="model">Model:</label>

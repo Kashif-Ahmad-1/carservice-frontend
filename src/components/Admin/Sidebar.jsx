@@ -17,6 +17,9 @@ import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
 import AssignmentIcon from '@mui/icons-material/Assignment';
 import AssessmentIcon from '@mui/icons-material/Assessment';
 import LogoutIcon from '@mui/icons-material/Logout';
+import BusinessIcon from '@mui/icons-material/Business';
+import SettingsIcon from '@mui/icons-material/Settings';
+
 import Swal from 'sweetalert2';
 
 // Styled components
@@ -109,6 +112,23 @@ const Sidebar = () => {
             </ListItemIcon>
             <ListItemText primary="Accountant List" />
           </ListItemStyled>
+
+
+          <ListItemStyled button component={Link} to="/client-list">
+            <ListItemIcon>
+              <BusinessIcon  />
+            </ListItemIcon>
+            <ListItemText primary="Client List" />
+          </ListItemStyled>
+
+
+          <ListItemStyled button component={Link} to="/machine-list">
+            <ListItemIcon>
+              <SettingsIcon   />
+            </ListItemIcon>
+            <ListItemText primary="Machine List" />
+          </ListItemStyled>
+
           <Divider />
           <ListItemStyled button component={Link} to="/service-request">
             <ListItemIcon>

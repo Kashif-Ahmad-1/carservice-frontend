@@ -112,58 +112,64 @@ const AdminDashboard = () => {
 
   const fetchAppointmentCounts = async () => {
     try {
-      const response = await fetch("http://localhost:5000/api/appointments/", {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      });
+        const response = await fetch("http://localhost:5000/api/appointments/", {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+            },
+        });
 
-      if (!response.ok) {
-        throw new Error("Failed to fetch appointment counts");
-      }
+        if (!response.ok) {
+            throw new Error("Failed to fetch appointment counts");
+        }
 
-      const appointments = await response.json();
-      const newRequests = appointments.filter((appointment) => !appointment.completed).length;
+        const appointments = await response.json();
+        const newRequests = appointments.filter((appointment) => !appointment.completed).length;
 
-      // Calculate service requests by day or month
-      const requestCountByDay = Array(7).fill(0);
-      const requestCountByMonth = Array(12).fill(0);
-      appointments.forEach((appointment) => {
-        const date = new Date(appointment.createdAt);
-        const day = date.getDay();
-        const month = date.getMonth();
+        // Calculate service requests by day or month
+        const requestCountByDay = Array(7).fill(0);
+        const requestCountByMonth = Array(12).fill(0);
+        
+        const daysOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+        const dayLabels = Array(7).fill("").map((_, index) => {
+            const date = new Date();
+            date.setDate(date.getDate() - (date.getDay() - index));
+            return `${daysOfWeek[index]} (${date.getDate()}/${date.getMonth() + 1})`;
+        });
 
-        requestCountByDay[day]++;
-        requestCountByMonth[month]++;
-      });
+        appointments.forEach((appointment) => {
+            const date = new Date(appointment.createdAt);
+            const day = date.getDay();
+            requestCountByDay[day]++;
+        });
 
-      const daysOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-      const monthsOfYear = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+        const monthsOfYear = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+        
+        // Set initial data based on current viewMode
+        setServiceRequestsData({
+            labels: viewMode === "day" ? dayLabels : monthsOfYear,
+            data: viewMode === "day" ? requestCountByDay : requestCountByMonth,
+        });
 
-      // Set initial data based on current viewMode
-      setServiceRequestsData({
-        labels: viewMode === "day" ? daysOfWeek : monthsOfYear,
-        data: viewMode === "day" ? requestCountByDay : requestCountByMonth,
-      });
+        // Reverse the activities to show the latest first
+        const activities = appointments
+            .map((appointment) => ({
+                accountant: appointment.createdBy ? appointment.createdBy.name : "Unknown Accountant",
+                engineer: appointment.engineer ? appointment.engineer.name : "Unknown Engineer",
+                createdAt: new Date(appointment.createdAt).toLocaleString(),
+            }))
+            .reverse()
+            .slice(0, 3);
 
-      // Reverse the activities to show the latest first
-      const activities = appointments
-        .map((appointment) => ({
-          accountant: appointment.createdBy ? appointment.createdBy.name : "Unknown Accountant",
-          engineer: appointment.engineer ? appointment.engineer.name : "Unknown Engineer",
-          createdAt: new Date(appointment.createdAt).toLocaleString(),
-        }))
-        .reverse()
-        .slice(0, 3);
-
-      setNewServiceRequests(newRequests);
-      setRecentActivities(activities);
+        setNewServiceRequests(newRequests);
+        setRecentActivities(activities);
     } catch (error) {
-      console.error("Appointment Count Error:", error);
+        console.error("Appointment Count Error:", error);
     }
-  };
+};
+
+
 
   useEffect(() => {
     fetchUserCounts();

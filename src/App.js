@@ -15,6 +15,8 @@ import { AuthProvider } from "./Store/AuthContext";
 import PrivateRoute from "./PrivateRoute"; // Import PrivateRoute component
 import ServiceRequestPage from "./components/Admin/ServiceRequest";
 import ResetPassword from "./components/Authentication/ResetPassword";
+import ClientPage from "./components/Admin/ClientPage";
+import MachinePage from "./components/Admin/MachinePage";
 function App() {
   // const role = localStorage.getItem("role");
   // console.log(role);
@@ -69,6 +71,8 @@ function App() {
 
           {/* PDF generation route, assuming anyone can access */}
           <Route path="/pdfcheck" element={<PdfGenerator />} />
+          <Route path="/client-list" element={<ClientPage />} />
+          <Route path="/machine-list" element={<MachinePage />} />
           <Route path="/reset/:token" element={<ResetPassword />} />
         </Routes>
       </div>

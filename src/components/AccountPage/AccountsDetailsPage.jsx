@@ -36,6 +36,9 @@ function AppointmentDetailsPage() {
   const [rowsPerPage] = useState(5);
   const [sidebarOpen, setSidebarOpen] = useState(false); // Sidebar state
 
+
+ 
+
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
   };
@@ -140,13 +143,18 @@ function AppointmentDetailsPage() {
 
   const handleDownloadPDF = (appointment) => {
     const documentPath = appointment.document; // Get the file path
-    const link = document.createElement('a');
-    link.href = `http://localhost:5000/${documentPath}`; // Point to your server path
-    link.setAttribute('download', documentPath.split('/').pop()); // Use the file name for downloading
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
-};
+    if (documentPath) {
+      const link = document.createElement('a');
+      link.href = `http://localhost:5000/${documentPath}`; // Point to your server path
+      link.setAttribute('download', documentPath.split('/').pop()); // Use the file name for downloading
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    } else {
+      toast.error('No document available for download.');
+    }
+  };
+
   const toggleRow = (index) => {
     setExpandedRows((prev) => {
       if (prev.includes(index)) {
@@ -233,7 +241,6 @@ function AppointmentDetailsPage() {
                 {['Client Name', 'Client Address', 'Contact Person', 'Mobile No.', 'Appointment Date', 'Appointment Amount', 'Machine Name', 'Model', 'Part No.', 'Serial No.', 'Installation Date', 'Service Frequency', 'Expected Service Date', 'Service Engineer', 'Document'].map((header) => (
                   <TableCell key={header} sx={{ fontWeight: 'bold', fontSize: '1.1rem' }}>{header}</TableCell>
                 ))}
-                {/* <TableCell sx={{ fontWeight: 'bold', fontSize: '1.1rem' }}>Details</TableCell> */}
               </TableRow>
             </TableHead>
             <TableBody>
@@ -257,18 +264,13 @@ function AppointmentDetailsPage() {
                     <TableCell>{appointment.engineer.name}</TableCell>
                     <TableCell>
                       {appointment.document ? (
-                          <Button variant="outlined" color="primary" onClick={() => handleDownloadPDF(appointment)}>
-                          <Download /> 
-                      </Button>
+                        <Button variant="outlined" color="primary" onClick={() => handleDownloadPDF(appointment)}>
+                          <Download />
+                        </Button>
                       ) : (
                         <Typography variant="body2" color="textSecondary">No Document</Typography>
                       )}
                     </TableCell>
-                    {/* <TableCell>
-                      <Button onClick={() => toggleRow(index)}>
-                        {expandedRows.includes(index) ? 'Hide Details' : 'Show Details'}
-                      </Button>
-                    </TableCell> */}
                   </TableRow>
                   {expandedRows.includes(index) && (
                     <TableRow>
