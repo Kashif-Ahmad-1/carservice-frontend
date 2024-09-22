@@ -8,6 +8,10 @@ import {
   Typography,
   Button,
   Card as MuiCard,
+  Select,
+  MenuItem,
+  FormControl,
+  InputLabel,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { Bar } from "react-chartjs-2";
@@ -73,6 +77,8 @@ const AdminDashboard = () => {
   const [accountantCount, setAccountantCount] = useState(0);
   const [newServiceRequests, setNewServiceRequests] = useState(0);
   const [recentActivities, setRecentActivities] = useState([]);
+  const [serviceRequestsData, setServiceRequestsData] = useState({ labels: [], data: [] });
+  const [viewMode, setViewMode] = useState("day"); // New state for dropdown
   const token = localStorage.getItem("token");
 
   const handleDrawerToggle = () => {
@@ -121,6 +127,27 @@ const AdminDashboard = () => {
       const appointments = await response.json();
       const newRequests = appointments.filter((appointment) => !appointment.completed).length;
 
+      // Calculate service requests by day or month
+      const requestCountByDay = Array(7).fill(0);
+      const requestCountByMonth = Array(12).fill(0);
+      appointments.forEach((appointment) => {
+        const date = new Date(appointment.createdAt);
+        const day = date.getDay();
+        const month = date.getMonth();
+
+        requestCountByDay[day]++;
+        requestCountByMonth[month]++;
+      });
+
+      const daysOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+      const monthsOfYear = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+      // Set initial data based on current viewMode
+      setServiceRequestsData({
+        labels: viewMode === "day" ? daysOfWeek : monthsOfYear,
+        data: viewMode === "day" ? requestCountByDay : requestCountByMonth,
+      });
+
       // Reverse the activities to show the latest first
       const activities = appointments
         .map((appointment) => ({
@@ -143,12 +170,16 @@ const AdminDashboard = () => {
     fetchAppointmentCounts();
   }, [token]);
 
+  useEffect(() => {
+    fetchAppointmentCounts(); // Re-fetch data when viewMode changes
+  }, [viewMode]); // Depend on viewMode
+
   const data = {
-    labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
+    labels: serviceRequestsData.labels,
     datasets: [
       {
         label: "Service Requests",
-        data: [30, 45, 28, 50, 40, 60],
+        data: serviceRequestsData.data,
         backgroundColor: "#ff4d30",
       },
     ],
@@ -219,6 +250,18 @@ const AdminDashboard = () => {
           <SectionTitle variant="h4" sx={{ mt: 4 }}>
             Service Requests Trend
           </SectionTitle>
+          <FormControl variant="outlined" sx={{ minWidth: 120, mb: 2 }}>
+            <InputLabel>View Mode</InputLabel>
+            <Select
+              value={viewMode}
+              onChange={(e) => {
+                setViewMode(e.target.value);
+              }}
+            >
+              <MenuItem value="day">Day Wise</MenuItem>
+              <MenuItem value="month">Month Wise</MenuItem>
+            </Select>
+          </FormControl>
           <Paper sx={{ p: 2, borderRadius: 2, boxShadow: 2, width: '100%' }}>
             <div style={{ height: "380px", display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
               <Bar data={data} options={{ responsive: true }} />
