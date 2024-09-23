@@ -13,14 +13,14 @@ import {
   TableRow,
   Paper,
   Container,
-  Button,
   Divider,
   Modal,
   List,
+  Button,
   ListItem,
   ListItemText,
 } from '@mui/material';
-import { Download, Menu } from '@mui/icons-material';
+import { Download, Menu, CheckCircle, History as HistoryIcon } from '@mui/icons-material';
 import Sidebar from './Sidebar'; // Adjust path if necessary
 
 // Header Component
@@ -30,7 +30,7 @@ const Header = ({ onToggleSidebar }) => (
       <Button color="inherit" onClick={onToggleSidebar}>
         <Menu />
       </Button>
-      <Typography variant="h6">Company Name</Typography>
+      <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#ff4081' }}>Company Name</Typography>
     </Toolbar>
   </AppBar>
 );
@@ -41,6 +41,8 @@ const Footer = () => (
     <Typography variant="body2">© {new Date().getFullYear()} Company Name. All rights reserved.</Typography>
   </Box>
 );
+
+const headerColor = '#4CAF50'; // Single color code for headers
 
 function EngineerDetailsPage() {
   const { engineerId } = useParams();
@@ -109,6 +111,7 @@ function EngineerDetailsPage() {
   const handleEditClick = (appointment) => {
     navigate(`/checklist`, {
       state: {
+        appointmentId: appointment._id,
         clientName: appointment.clientName,
         contactPerson: appointment.contactPerson,
         phone: appointment.mobileNo,
@@ -156,8 +159,10 @@ function EngineerDetailsPage() {
             <Table sx={{ minWidth: 650 }}>
               <TableHead>
                 <TableRow>
-                  {["Client Name", "Mobile No.", "Client Address", "Contact Person", "Appointment Date", "Invoice Amount", "Machine Name", "Model", "Part No.", "Serial No.", "Installation Date", "Service Frequency (Days)", "Expected Service Date", "Document", "Checklist", "Service History"].map(header => (
-                    <TableCell key={header} sx={{ fontSize: '1.1rem' }}>{header}</TableCell>
+                  {["Client Name", "Mobile No.", "Client Address", "Contact Person", "Appointment Date", "Invoice Amount", "Machine Name", "Model", "Part No.", "Serial No.", "Installation Date", "Service Frequency (Days)", "Expected Service Date", "Document", "Checklist", "Invoice", "Service History"].map((header) => (
+                    <TableCell key={header} sx={{ fontSize: '1.1rem', fontWeight: 'bold', backgroundColor: headerColor }}>
+                      {header}
+                    </TableCell>
                   ))}
                 </TableRow>
               </TableHead>
@@ -183,27 +188,36 @@ function EngineerDetailsPage() {
                         <TableCell>{new Date(firstAppointment.expectedServiceDate).toLocaleDateString()}</TableCell>
                         <TableCell>
                           {firstAppointment.document ? (
-                            <Button variant="outlined" color="primary" onClick={() => handleDownloadPDF(firstAppointment.document)}>
-                              <Download />
-                            </Button>
+                            <span onClick={() => handleDownloadPDF(firstAppointment.document)} style={{ cursor: 'pointer' }}>
+                              <Download sx={{ color: 'blue' }}/>
+                            </span>
                           ) : (
                             <Typography variant="body2" color="textSecondary">No Document</Typography>
                           )}
                         </TableCell>
                         <TableCell>
-                          <Button variant="contained" color="primary" onClick={() => handleEditClick(firstAppointment)}>
-                            Checklist
-                          </Button>
+                          <span onClick={() => handleEditClick(firstAppointment)} style={{ cursor: 'pointer' }}>
+                            <CheckCircle sx={{ color: 'blue' }}/>
+                          </span>
                         </TableCell>
                         <TableCell>
-                          <Button variant="outlined" color="secondary" onClick={() => handleServiceHistoryClick(clientName)}>
-                            History
-                          </Button>
+                          {firstAppointment.checklists[0]?.pdfPath ? (
+                            <span onClick={() => handleDownloadPDF(firstAppointment.checklists[0].pdfPath)} style={{ cursor: 'pointer' }}>
+                              <Download sx={{ color: 'blue' }}/>
+                            </span>
+                          ) : (
+                            <Typography variant="body2" color="textSecondary">No Invoice</Typography>
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          <span onClick={() => handleServiceHistoryClick(clientName)} style={{ cursor: 'pointer' }}>
+                            <HistoryIcon sx={{ color: 'blue' }}/>
+                          </span>
                         </TableCell>
                       </TableRow>
                       {expandedRows[key] && (
                         <TableRow>
-                          <TableCell colSpan={15}>
+                          <TableCell colSpan={16}>
                             <Box sx={{ padding: 2, backgroundColor: '#f9f9f9' }}>
                               <Typography variant="subtitle1">Other Appointments:</Typography>
                               <Table>
@@ -225,15 +239,24 @@ function EngineerDetailsPage() {
                                       <TableCell>{new Date(appointment.expectedServiceDate).toLocaleDateString()}</TableCell>
                                       <TableCell>
                                         {appointment.document ? (
-                                          <Button variant="outlined" color="primary" onClick={() => handleDownloadPDF(appointment.document)}>
-                                            <Download />
-                                          </Button>
+                                          <span onClick={() => handleDownloadPDF(appointment.document)} style={{ cursor: 'pointer' }}>
+                                            <Download sx={{ color: 'blue' }}/>
+                                          </span>
                                         ) : (
                                           <Typography variant="body2" color="textSecondary">No Document</Typography>
                                         )}
                                       </TableCell>
+                                      <TableCell>
+                                        {appointment.checklists[0]?.pdfPath ? (
+                                          <span onClick={() => handleDownloadPDF(appointment.checklists[0].pdfPath)} style={{ cursor: 'pointer' }}>
+                                            <Download sx={{ color: 'blue' }}/>
+                                          </span>
+                                        ) : (
+                                          <Typography variant="body2" color="textSecondary">No Invoice</Typography>
+                                        )}
+                                      </TableCell>
                                     </TableRow>
-                                  ))}
+                                  ))} 
                                 </TableBody>
                               </Table>
                             </Box>
@@ -263,13 +286,13 @@ function EngineerDetailsPage() {
                 />
               </ListItem>
               {history.document && (
-                <Button variant="outlined" onClick={() => handleDownloadPDF(history.document)}>
-                  Download Document
-                </Button>
+                <span onClick={() => handleDownloadPDF(history.document)} style={{ cursor: 'pointer' }}>
+                  <Download />
+                </span>
               )}
             </Box>
           ))}
-          <Button variant="contained" color="primary" onClick={handleCloseModal}>Close</Button>
+          <Button variant="contained" color="primary" size="small" onClick={handleCloseModal}>Close</Button>
         </Box>
       </Modal>
     </Box>

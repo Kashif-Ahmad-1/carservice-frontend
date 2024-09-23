@@ -288,8 +288,9 @@ const ChecklistPage = () => {
     engineer: ""
   });
   const [authorizedSignature, setAuthorizedSignature] = useState("");
+  const [appointmentId, setAppointmentId] = useState("");
   const location = useLocation();
-
+ 
   useEffect(() => {
     
     if (location.state) {
@@ -300,6 +301,8 @@ const ChecklistPage = () => {
         address: location.state.address || "",
         engineer: location.state.engineer.name || ""
       });
+      setAppointmentId(location.state.appointmentId); // Store appointment ID
+      console.log(appointmentId)
     }
   }, [location.state]);
 
@@ -331,10 +334,9 @@ const ChecklistPage = () => {
 
   const handleGeneratePDFAndSubmit = async () => {
     const doc = new jsPDF();
-
+  
     // Add logo in the top-right corner
-    const logo =
-      "https://cdn.pixabay.com/photo/2016/12/27/13/10/logo-1933884_640.png"; // Logo URL
+    const logo = "https://cdn.pixabay.com/photo/2016/12/27/13/10/logo-1933884_640.png"; // Logo URL
     const logoWidth = 40;
     const logoHeight = 40;
     doc.addImage(
@@ -345,37 +347,44 @@ const ChecklistPage = () => {
       logoWidth,
       logoHeight
     );
-
+  
     // Company Name
-    doc.setFontSize(26);
+    doc.setFontSize(14); // Smaller font size
     doc.setFont("helvetica", "bold");
-    doc.text("XYZ Company", 14, 30); // Company name position
-
+    doc.text("XYZ Company", 14, 20); // Move company name up
+  
     // Service Title
-    doc.setFontSize(18);
+    doc.setFontSize(12); // Smaller font size
     doc.setFont("helvetica", "normal");
-    doc.text("Service Checklist", 14, 50); // Service title position
-
+    doc.text("Service Checklist", 14, 30); // Move service title up
+  
     // Client Information Section
-    doc.setFontSize(14);
+    doc.setFontSize(10); // Smaller font size
     doc.setFont("helvetica", "bold");
-    doc.text("Client Information", 14, 65);
-    doc.setFontSize(12);
+    doc.text("Client Information", 14, 40); // Move client info header up
+  
+    // Compact client information
+    doc.setFontSize(8); // Even smaller font size
     doc.setFont("helvetica", "normal");
-    doc.text(`Name: ${clientInfo.name}`, 14, 75);
-    doc.text(`Contact Person: ${clientInfo.contactPerson}`, 14, 85);
-    doc.text(`Phone: ${clientInfo.phone}`, 14, 95);
-    doc.text(`Address: ${clientInfo.address}`, 14, 105);
-    doc.text(`Authorized Signature: ${clientInfo.engineer}`, 14, 115);
-
+    const clientInfoLines = [
+      `Name: ${clientInfo.name}`,
+      `Contact: ${clientInfo.contactPerson} | Phone: ${clientInfo.phone}`,
+      `Address: ${clientInfo.address}`,
+      `Authorized Signature: ${clientInfo.engineer}`
+    ];
+  
+    clientInfoLines.forEach((line, index) => {
+      doc.text(line, 14, 50 + (index * 5)); // Adjust line spacing
+    });
+  
     // Add a horizontal line
-    doc.line(10, 110, doc.internal.pageSize.getWidth() - 10, 110);
-
+    doc.line(10, 80, doc.internal.pageSize.getWidth() - 10, 80); // Move the line up
+  
     // Checklists Header
-    doc.setFontSize(14);
+    doc.setFontSize(12); // Smaller font size
     doc.setFont("helvetica", "bold");
-    doc.text("Screw Compressor Checklist", 14, 125);
-
+    doc.text("Screw Compressor Checklist", 14, 85); // Move header up
+  
     // Checklist Table
     autoTable(doc, {
       head: [["Task", "Done", "Remark"]],
@@ -387,10 +396,10 @@ const ChecklistPage = () => {
           item.remark,
         ];
       }),
-      startY: 130,
+      startY: 90, // Move table up
       styles: {
-        fontSize: 10,
-        cellPadding: 5,
+        fontSize: 9, // Smaller font size for table
+        cellPadding: 3, // Smaller padding
         halign: "left",
         valign: "middle",
         lineColor: [22, 160, 133],
@@ -406,14 +415,13 @@ const ChecklistPage = () => {
       },
       margin: { top: 10 },
     });
-
+  
     // Refrigerator Checklist Header
-    doc.setFontSize(14);
+    doc.setFontSize(12); // Smaller font size
     doc.setFont("helvetica", "bold");
-    doc.text("Refrigerator Checklist", 14, doc.autoTable.previous.finalY + 15);
-
+    doc.text("Refrigerator Checklist", 14, doc.autoTable.previous.finalY + 10); // Adjust positioning
+  
     // Refrigerator Checklist Table
-
     autoTable(doc, {
       head: [["Task", "Done", "Remark"]],
       body: refrigeratorList.map((item) => {
@@ -424,10 +432,10 @@ const ChecklistPage = () => {
           item.remark,
         ];
       }),
-      startY: doc.autoTable.previous.finalY + 20,
+      startY: doc.autoTable.previous.finalY + 15, // Move table up
       styles: {
-        fontSize: 10,
-        cellPadding: 5,
+        fontSize: 9, // Smaller font size for table
+        cellPadding: 3, // Smaller padding
         halign: "left",
         valign: "middle",
         lineColor: [22, 160, 133],
@@ -443,7 +451,7 @@ const ChecklistPage = () => {
       },
       margin: { top: 10 },
     });
-
+  
     // Add footer
     doc.setFontSize(8);
     doc.setFont("helvetica", "normal");
@@ -453,11 +461,36 @@ const ChecklistPage = () => {
       doc.autoTable.previous.finalY + 15
     );
     doc.text("© XYZ Company", 14, doc.autoTable.previous.finalY + 20);
-
-    // Save the PDF
+  
+    // Backend upload
+    const pdfBlob = doc.output("blob");
+    const pdfFile = new File([pdfBlob], "checklist.pdf", { type: "application/pdf" });
+  
+    // Prepare FormData to send to backend
+    const formData = new FormData();
+    formData.append("pdf", pdfFile);
+    formData.append("checklistData", JSON.stringify({
+      clientInfo,
+      appointmentId,
+      checklist,
+      refrigeratorList,
+    }));
+  
+    try {
+      // Send the checklist data and PDF to the backend
+      await axios.post("http://localhost:5000/api/checklist", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+      console.log("Checklist and PDF uploaded successfully");
+    } catch (error) {
+      console.error("Error uploading checklist and PDF:", error);
+    }
+  
+    // Save the PDF locally (optional)
     doc.save("checklist.pdf");
   };
-
   return (
     <TableContainer
       component={Paper}
