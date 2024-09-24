@@ -42,7 +42,7 @@ const Footer = () => (
   </Box>
 );
 
-const headerColor = '#4CAF50'; // Single color code for headers
+const headerColor = '#ff4d30'; // Single color code for headers
 
 function EngineerDetailsPage() {
   const { engineerId } = useParams();
@@ -53,7 +53,7 @@ function EngineerDetailsPage() {
   const [selectedClient, setSelectedClient] = useState(null);
   const [serviceHistory, setServiceHistory] = useState([]);
   const [error, setError] = useState(null);
-  const [sidebarOpen, setSidebarOpen] = useState(true); // State to handle sidebar visibility
+  const [sidebarOpen, setSidebarOpen] = useState(false); // State to handle sidebar visibility
 
   useEffect(() => {
     const fetchAppointmentData = async () => {
@@ -118,7 +118,10 @@ function EngineerDetailsPage() {
         address: appointment.clientAddress,
         engineer: appointment.engineer,
       },
-    });
+     
+    }
+  );
+ 
   };
 
   const handleDownloadPDF = (documentPath) => {
@@ -143,6 +146,22 @@ function EngineerDetailsPage() {
     setSelectedClient(null);
   };
 
+  const handleQuatation = (appointment) => {
+    navigate(`/pdfcheck`, {
+      state: {
+        appointmentId: appointment._id,
+        clientName: appointment.clientName,
+        contactPerson: appointment.contactPerson,
+        mobileNo: appointment.mobileNo,
+        address: appointment.clientAddress,
+        engineer: appointment.engineer,
+      },
+     
+    }
+  );
+ 
+  };
+
   return (
     <Box sx={{ display: 'flex', flexDirection: 'row', minHeight: '100vh' }}>
       {sidebarOpen && <Sidebar />} {/* Conditionally render Sidebar */}
@@ -159,7 +178,7 @@ function EngineerDetailsPage() {
             <Table sx={{ minWidth: 650 }}>
               <TableHead>
                 <TableRow>
-                  {["Client Name", "Mobile No.", "Client Address", "Contact Person", "Appointment Date", "Invoice Amount", "Machine Name", "Model", "Part No.", "Serial No.", "Installation Date", "Service Frequency (Days)", "Expected Service Date", "Document", "Checklist", "Invoice", "Service History"].map((header) => (
+                  {["Client Name", "Mobile No.", "Client Address", "Contact Person", "Appointment Date", "Invoice Amount", "Machine Name", "Model", "Part No.", "Serial No.", "Installation Date", "Service Frequency (Days)", "Expected Service Date", "Document", "Checklist", "Invoice", "Service History", "Quotation"].map((header) => (
                     <TableCell key={header} sx={{ fontSize: '1.1rem', fontWeight: 'bold', backgroundColor: headerColor }}>
                       {header}
                     </TableCell>
@@ -214,10 +233,15 @@ function EngineerDetailsPage() {
                             <HistoryIcon sx={{ color: 'blue' }}/>
                           </span>
                         </TableCell>
+                        <TableCell>
+                          <span onClick={()=>handleQuatation(firstAppointment)} style={{ cursor: 'pointer' }}>
+                            <Typography variant="body2" color="blue">View</Typography>
+                          </span>
+                        </TableCell>
                       </TableRow>
                       {expandedRows[key] && (
                         <TableRow>
-                          <TableCell colSpan={16}>
+                          <TableCell colSpan={17}>
                             <Box sx={{ padding: 2, backgroundColor: '#f9f9f9' }}>
                               <Typography variant="subtitle1">Other Appointments:</Typography>
                               <Table>
@@ -275,6 +299,44 @@ function EngineerDetailsPage() {
 
       {/* Modal for Service History */}
       <Modal open={openModal} onClose={handleCloseModal}>
+            <Box sx={{ width: 400, padding: 4, backgroundColor: 'white', margin: 'auto', marginTop: '10%' }}>
+              <Typography variant="h6">{selectedClient}'s Service History</Typography>
+              <List>
+                {serviceHistory.map((historyItem, index) => (
+                  <ListItem key={index}>
+                    <ListItemText
+                      primary={`Date: ${new Date(historyItem.appointmentDate).toLocaleDateString()} | Amount: ${historyItem.appointmentAmount || 'N/A'}`}
+                      secondary={`Machine: ${historyItem.machineName}`}
+                    />
+                  </ListItem>
+                ))}
+              </List>
+              <Button onClick={handleCloseModal} variant="contained" sx={{ marginTop: 2 }}>Close</Button>
+            </Box>
+          </Modal>
+
+
+     
+    </Box>
+  );
+}
+
+export default EngineerDetailsPage;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ {/* <Modal open={openModal} onClose={handleCloseModal}>
         <Box sx={{ bgcolor: 'white', padding: 4, borderRadius: 2, width: 600, margin: 'auto', marginTop: '15%' }}>
           <Typography variant="h6" gutterBottom>Service History for {selectedClient}</Typography>
           {serviceHistory.map((history) => (
@@ -294,9 +356,4 @@ function EngineerDetailsPage() {
           ))}
           <Button variant="contained" color="primary" size="small" onClick={handleCloseModal}>Close</Button>
         </Box>
-      </Modal>
-    </Box>
-  );
-}
-
-export default EngineerDetailsPage;
+      </Modal> */}

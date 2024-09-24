@@ -114,6 +114,13 @@ const Sidebar = () => {
           </ListItemStyled>
 
 
+          <ListItemStyled button component={Link} to="/admin-list">
+            <ListItemIcon>
+              <BusinessIcon  />
+            </ListItemIcon>
+            <ListItemText primary="Admin List" />
+          </ListItemStyled>
+
           <ListItemStyled button component={Link} to="/client-list">
             <ListItemIcon>
               <BusinessIcon  />

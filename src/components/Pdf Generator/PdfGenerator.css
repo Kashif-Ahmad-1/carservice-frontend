@@ -7,9 +7,9 @@
     border: 1px solid #ccc;
     border-radius: 8px;
     background-color: #f9f9f9;
-    max-width: 100rem !important;
+    max-width: 80rem !important;
     margin: 14px auto !important;
-    padding: 16px 2.5rem !important;
+    padding: 30px 2.5rem !important;
   }
   
   .form-box {
@@ -88,7 +88,20 @@
       display: none !important; /* Hide all buttons when printing */
     }
   } 
-
+  form input[type='email'],
+  form input[type='number'],
+  form input[type='password'],
+  form input[type='text'] {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 0px;
+   
+    border: 0;
+    border: 1px solid #ddd;
+    outline: none;
+    box-sizing: border-box;
+  }
+  
 
 
   /* added css */

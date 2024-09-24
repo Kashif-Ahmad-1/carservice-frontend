@@ -36,7 +36,7 @@ function AppointmentDetailsPage() {
   const [page, setPage] = useState(0);
   const [rowsPerPage] = useState(5);
   const [sidebarOpen, setSidebarOpen] = useState(false);
-
+  const headerColor = '#ff4d30'; 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
   };
@@ -176,7 +176,7 @@ function AppointmentDetailsPage() {
   };
 
   const Header = () => (
-    <AppBar position="static" sx={{ backgroundColor: "#ff4d30" }}>
+    <AppBar position="static" sx={{ backgroundColor: "#1976d2" }}>
       <Toolbar>
         <IconButton edge="start" color="inherit" onClick={toggleSidebar} sx={{ mr: 2 }}>
           <Menu />
@@ -268,9 +268,9 @@ function AppointmentDetailsPage() {
           <Table sx={{ minWidth: 650 }}>
             <TableHead>
               <TableRow>
-                <TableCell sx={{ fontWeight: 'bold', fontSize: '1.1rem' }}>SR. No.</TableCell>
+                <TableCell sx={{ fontWeight: 'bold', fontSize: '1.1rem',backgroundColor: headerColor }}>SR. No.</TableCell>
                 {['Client Name', 'Client Address', 'Contact Person', 'Mobile No.', 'Appointment Date', 'Appointment Amount', 'Machine Name', 'Model', 'Part No.', 'Serial No.', 'Installation Date', 'Service Frequency', 'Expected Service Date', 'Service Engineer', 'Document'].map((header) => (
-                  <TableCell key={header} sx={{ fontWeight: 'bold', fontSize: '1.1rem' }}>{header}</TableCell>
+                  <TableCell key={header} sx={{ fontWeight: 'bold', fontSize: '1.1rem', backgroundColor: headerColor }}>{header}</TableCell>
                 ))}
               </TableRow>
             </TableHead>

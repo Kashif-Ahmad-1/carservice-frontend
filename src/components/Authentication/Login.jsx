@@ -5,7 +5,7 @@ import styles from './Login.module.css';
 import { useNavigate } from "react-router-dom";
 import AuthContext from "./../../Store/AuthContext";
 import ForgotPasswordModal from "./ForgotPasswordModal";
-
+import API_BASE_URL from './../../config';
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -17,7 +17,7 @@ const Login = () => {
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      const response = await fetch("https://carservice-backend.vercel.app//api/auth/login", {
+      const response = await fetch(`${API_BASE_URL}/auth/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

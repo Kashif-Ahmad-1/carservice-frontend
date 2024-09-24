@@ -290,6 +290,7 @@ const ChecklistPage = () => {
   const [authorizedSignature, setAuthorizedSignature] = useState("");
   const [appointmentId, setAppointmentId] = useState("");
   const location = useLocation();
+  
  
   useEffect(() => {
     

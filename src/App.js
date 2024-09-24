@@ -17,6 +17,7 @@ import ServiceRequestPage from "./components/Admin/ServiceRequest";
 import ResetPassword from "./components/Authentication/ResetPassword";
 import ClientPage from "./components/Admin/ClientPage";
 import MachinePage from "./components/Admin/MachinePage";
+import AdminList from "./components/Admin/AdminList";
 function App() {
   // const role = localStorage.getItem("role");
   // console.log(role);
@@ -73,6 +74,7 @@ function App() {
           <Route path="/pdfcheck" element={<PdfGenerator />} />
           <Route path="/client-list" element={<ClientPage />} />
           <Route path="/machine-list" element={<MachinePage />} />
+          <Route path="/admin-list" element={<AdminList />} />
           <Route path="/reset/:token" element={<ResetPassword />} />
         </Routes>
       </div>

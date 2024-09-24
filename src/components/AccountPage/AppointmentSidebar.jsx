@@ -76,7 +76,7 @@ const AppointmentSidebar = ({ open, toggleSidebar }) => {
   return (
     <DrawerStyled variant="temporary" open={open} onClose={toggleSidebar}>
       <div>
-        <SidebarTitle variant="h6">Appointments</SidebarTitle>
+        <SidebarTitle variant="h6">Accountants</SidebarTitle>
         <Divider />
         <List>
           <ListItemStyled button component={Link} to="/accountspage" onClick={toggleSidebar}>
