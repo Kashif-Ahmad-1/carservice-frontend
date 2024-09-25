@@ -1,173 +1,88 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
 
 const ServiceReportForm = () => {
-  const [formData, setFormData] = useState({
-    visitType: "",
-    problemNature: "",
-    remarks: "",
-    model: "",
-    serialNo: "",
-    tasks: {
-      screwCompressor: false,
-      airFilter: false,
-      oilFilter: false,
-      motorBearing: false,
-    },
-    customerRemarks: "",
-    technicianName: "",
-    customerName: "",
-    startTime: "",
-    endTime: "",
-    partsUsed: [{ description: "", partNo: "", quantity: "" }],
-  });
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+    const { engineerId } = useParams();
+    const [appointments, setAppointments] = useState([]);
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
-  };
+    useEffect(() => {
+        const fetchAppointmentData = async () => {
+            try {
+                const token = localStorage.getItem("token");
+                const response = await fetch("http://localhost:5000/api/appointments/", {
+                    method: "GET",
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        "Content-Type": "application/json",
+                    },
+                });
 
-  const handleTaskChange = (e) => {
-    const { name, checked } = e.target;
-    setFormData({
-      ...formData,
-      tasks: { ...formData.tasks, [name]: checked },
-    });
-  };
+                if (!response.ok) {
+                    throw new Error("Network response was not ok");
+                }
 
-  const handlePartsChange = (index, e) => {
-    const { name, value } = e.target;
-    const newParts = formData.partsUsed.map((part, i) =>
-      i === index ? { ...part, [name]: value } : part
-    );
-    setFormData({ ...formData, partsUsed: newParts });
-  };
+                const data = await response.json();
+                // Sort appointments by creation date descending
+                data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+                setAppointments(data);
+            } catch (error) {
+                console.error("Failed to fetch appointment data", error);
+                setError(error);
+            } finally {
+                setLoading(false);
+            }
+        };
 
-  const addPart = () => {
-    setFormData({
-      ...formData,
-      partsUsed: [...formData.partsUsed, { description: "", partNo: "", quantity: "" }],
-    });
-  };
+        fetchAppointmentData();
+    }, [engineerId]);
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    // Handle form submission (e.g., save to a database or generate a PDF)
-    console.log(formData);
-  };
+    const handleDownload = (pdfPath) => {
+        if (pdfPath) {
+            const link = document.createElement('a');
+            link.href = pdfPath;
+            link.setAttribute('download', 'checklist.pdf');
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+    };
 
-  return (
-    <form onSubmit={handleSubmit}>
-      <h2>Service Report</h2>
-      
-      {/* Nature of Visit */}
-      <label>Nature of Visit:</label>
-      <select name="visitType" value={formData.visitType} onChange={handleInputChange}>
-        <option value="">Select</option>
-        <option value="AMC">AMC</option>
-        <option value="Warranty">Warranty</option>
-        <option value="Goodwill">Goodwill</option>
-        <option value="Chargeable">Chargeable</option>
-      </select>
+    if (loading) return <p>Loading...</p>;
+    if (error) return <p>Error loading appointment data: {error.message}</p>;
 
-      {/* Nature of Problem */}
-      <label>Nature of Problem:</label>
-      <textarea name="problemNature" value={formData.problemNature} onChange={handleInputChange} />
+    return (
+        <div>
+            <h1>Appointment Details</h1>
+            {appointments.length > 0 ? (
+                appointments.map(appointment => (
+                    <div key={appointment._id}>
+                        <h2>Client Name: {appointment.clientName || "N/A"}</h2>
+                        <p>Contact Person: {appointment.contactPerson || "N/A"}</p>
+                        <p>Phone: {appointment.mobileNo || "N/A"}</p>
+                        <p>Address: {appointment.clientAddress || "N/A"}</p>
+                        <p>Appointment Date: {new Date(appointment.appointmentDate).toLocaleString()}</p>
 
-      {/* Equipment Details */}
-      <label>Model:</label>
-      <input type="text" name="model" value={formData.model} onChange={handleInputChange} />
-
-      <label>Serial No:</label>
-      <input type="text" name="serialNo" value={formData.serialNo} onChange={handleInputChange} />
-
-      {/* Tasks Checklist */}
-      <h3>Checklist</h3>
-      <label>
-        <input
-          type="checkbox"
-          name="screwCompressor"
-          checked={formData.tasks.screwCompressor}
-          onChange={handleTaskChange}
-        />
-        Screw Compressor
-      </label>
-      <label>
-        <input
-          type="checkbox"
-          name="airFilter"
-          checked={formData.tasks.airFilter}
-          onChange={handleTaskChange}
-        />
-        Air Filter
-      </label>
-      <label>
-        <input
-          type="checkbox"
-          name="oilFilter"
-          checked={formData.tasks.oilFilter}
-          onChange={handleTaskChange}
-        />
-        Oil Filter
-      </label>
-      <label>
-        <input
-          type="checkbox"
-          name="motorBearing"
-          checked={formData.tasks.motorBearing}
-          onChange={handleTaskChange}
-        />
-        Motor Bearing Lubrication
-      </label>
-
-      {/* Customer Remarks */}
-      <label>Customer Remarks:</label>
-      <textarea name="customerRemarks" value={formData.customerRemarks} onChange={handleInputChange} />
-
-      {/* Technician & Customer Details */}
-      <label>Technician Name:</label>
-      <input type="text" name="technicianName" value={formData.technicianName} onChange={handleInputChange} />
-
-      <label>Customer Name:</label>
-      <input type="text" name="customerName" value={formData.customerName} onChange={handleInputChange} />
-
-      <label>Start Time:</label>
-      <input type="time" name="startTime" value={formData.startTime} onChange={handleInputChange} />
-
-      <label>End Time:</label>
-      <input type="time" name="endTime" value={formData.endTime} onChange={handleInputChange} />
-
-      {/* Parts Used */}
-      <h3>Parts Used</h3>
-      {formData.partsUsed.map((part, index) => (
-        <div key={index}>
-          <label>Part Description:</label>
-          <input
-            type="text"
-            name="description"
-            value={part.description}
-            onChange={(e) => handlePartsChange(index, e)}
-          />
-          <label>Part No:</label>
-          <input
-            type="text"
-            name="partNo"
-            value={part.partNo}
-            onChange={(e) => handlePartsChange(index, e)}
-          />
-          <label>Quantity:</label>
-          <input
-            type="number"
-            name="quantity"
-            value={part.quantity}
-            onChange={(e) => handlePartsChange(index, e)}
-          />
+                        <h3>Checklists</h3>
+                        {appointment.checklists.length > 0 ? (
+                            appointment.checklists.map(checklist => (
+                                <div key={checklist._id}>
+                                    <p>Checklist for: {checklist.clientInfo.name || "N/A"}</p>
+                                    <p>Invoice No: {checklist.invoiceNo || "N/A"}</p>
+                                    <button onClick={() => handleDownload(checklist.pdfPath)}>Download Checklist PDF</button>
+                                </div>
+                            ))
+                        ) : (
+                            <p>No checklists available for this appointment.</p>
+                        )}
+                    </div>
+                ))
+            ) : (
+                <p>No appointments found.</p>
+            )}
         </div>
-      ))}
-      <button type="button" onClick={addPart}>Add Part</button>
-
-      <button type="submit">Submit Report</button>
-    </form>
-  );
+    );
 };
 
 export default ServiceReportForm;

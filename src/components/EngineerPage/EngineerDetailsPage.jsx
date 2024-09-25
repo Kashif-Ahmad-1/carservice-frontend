@@ -135,7 +135,7 @@ function EngineerDetailsPage() {
   }, {});
 
   const handleEditClick = (appointment) => {
-    const invoiceNo = `INV-${appointment._id.substring(0, 6)}`;
+    
     navigate(`/checklist`, {
       state: {
         appointmentId: appointment._id,
@@ -144,19 +144,14 @@ function EngineerDetailsPage() {
         phone: appointment.mobileNo,
         address: appointment.clientAddress,
         engineer: appointment.engineer,
-        invoiceNo: invoiceNo,
+        invoiceNo: appointment.invoiceNumber,
       },
     });
   };
 
   const handleDownloadPDF = (documentPath) => {
-    if (!documentPath) {
-      console.error("No document path provided!");
-      return;
-    }
-
     const link = document.createElement("a");
-    link.href = `http://localhost:5000/${documentPath}`; // Ensure this points to the correct file
+    link.href = `http://localhost:5000/${documentPath}`; // Point to your server path
     link.setAttribute("download", documentPath.split("/").pop()); // Use the file name for downloading
     document.body.appendChild(link);
     link.click();
@@ -188,6 +183,7 @@ function EngineerDetailsPage() {
       },
     });
   };
+  
 
   return (
     <Box sx={{ display: "flex", flexDirection: "row", minHeight: "100vh" }}>
@@ -247,14 +243,14 @@ function EngineerDetailsPage() {
                   ([key, clientAppointments]) => {
                     const [clientName, mobileNo] = key.split("-"); // Destructure client name and mobile number
                     const firstAppointment = clientAppointments[0]; // Get the first appointment to display
-                    const invoiceNo = `INV-${firstAppointment._id.substring(0, 6)}`; 
+                   
                     return (
                       <React.Fragment key={firstAppointment._id}>
                         <TableRow
                           onClick={() => toggleRow(key)}
                           style={{ cursor: "pointer" }}
                         >
-                          <TableCell>{invoiceNo}</TableCell>
+                          <TableCell>{firstAppointment.invoiceNumber}</TableCell>
                           <TableCell>{clientName}</TableCell>
                           <TableCell>{mobileNo}</TableCell>
                           <TableCell>
@@ -318,25 +314,26 @@ function EngineerDetailsPage() {
                             </span>
                           </TableCell>
                           <TableCell>
-                            {firstAppointment.checklists &&
-                            firstAppointment.checklists.length > 0 ? (
-                              <span
-                                onClick={
-                                  () =>
-                                    handleDownloadPDF(
-                                      firstAppointment.checklists[0].pdfPath
-                                    ) // Ensure this points to the correct path
-                                }
-                                style={{ cursor: "pointer" }}
-                              >
-                                <Download sx={{ color: "blue" }} />
-                              </span>
-                            ) : (
-                              <Typography variant="body2" color="textSecondary">
-                                No Checklist
-                              </Typography>
-                            )}
-                          </TableCell>
+  {firstAppointment.checklists.length > 0 ? (
+    // Sort checklists by generatedOn in descending order and get the latest one
+    (() => {
+      const sortedChecklists = [...firstAppointment.checklists].sort((a, b) => {
+        return new Date(b.generatedOn) - new Date(a.generatedOn);
+      });
+      const latestChecklist = sortedChecklists[0]; // Get the most recent checklist
+      return latestChecklist.pdfPath ? (
+        <span onClick={() => handleDownloadPDF(latestChecklist.pdfPath)} style={{ cursor: 'pointer' }}>
+          <Download sx={{ color: 'blue' }} />
+        </span>
+      ) : (
+        <Typography variant="body2" color="textSecondary">No Invoice</Typography>
+      );
+    })()
+  ) : (
+    <Typography variant="body2" color="textSecondary">No Checklist</Typography>
+  )}
+</TableCell>
+
                           <TableCell>
                             <span
                               onClick={() =>
@@ -374,7 +371,7 @@ function EngineerDetailsPage() {
                                         appointment // Skip the first appointment
                                       ) => (
                                         <TableRow key={appointment._id}>
-                                          <TableCell>{invoiceNo}</TableCell>
+                                          <TableCell>{appointment.invoiceNumber}</TableCell>
                                           <TableCell>
                                             {appointment.clientName}
                                           </TableCell>
@@ -463,31 +460,26 @@ function EngineerDetailsPage() {
                                             </span>
                                           </TableCell>
                                           <TableCell>
-                                            {firstAppointment.checklists &&
-                                            firstAppointment.checklists.length >
-                                              0 ? (
-                                              <span
-                                                onClick={() =>
-                                                  handleDownloadPDF(
-                                                    firstAppointment
-                                                      .checklists[0].pdfPath
-                                                  )
-                                                }
-                                                style={{ cursor: "pointer" }}
-                                              >
-                                                <Download
-                                                  sx={{ color: "blue" }}
-                                                />
-                                              </span>
-                                            ) : (
-                                              <Typography
-                                                variant="body2"
-                                                color="textSecondary"
-                                              >
-                                                No Checklist
-                                              </Typography>
-                                            )}
-                                          </TableCell>
+  {firstAppointment.checklists.length > 0 ? (
+    // Sort checklists by generatedOn in descending order and get the latest one
+    (() => {
+      const sortedChecklists = [...firstAppointment.checklists].sort((a, b) => {
+        return new Date(b.generatedOn) - new Date(a.generatedOn);
+      });
+      const latestChecklist = sortedChecklists[0]; // Get the most recent checklist
+      return latestChecklist.pdfPath ? (
+        <span onClick={() => handleDownloadPDF(latestChecklist.pdfPath)} style={{ cursor: 'pointer' }}>
+          <Download sx={{ color: 'blue' }} />
+        </span>
+      ) : (
+        <Typography variant="body2" color="textSecondary">No Invoice</Typography>
+      );
+    })()
+  ) : (
+    <Typography variant="body2" color="textSecondary">No Checklist</Typography>
+  )}
+</TableCell>
+
                                         </TableRow>
                                       )
                                     )}
