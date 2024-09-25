@@ -80,6 +80,10 @@ const QuotationPage = () => {
   const fetchQuotations = async () => {
     try {
       const token = localStorage.getItem("token"); // Assuming you store the token in localStorage
+      if (!token) {
+        throw new Error("No token found. Please log in.");
+      }
+  
       const response = await fetch("http://localhost:5000/api/quotations", {
         method: "GET",
         headers: {
@@ -87,17 +91,22 @@ const QuotationPage = () => {
           Authorization: `Bearer ${token}`,
         },
       });
-
+  
       if (!response.ok) {
-        throw new Error("Failed to fetch quotations");
+        // Log response status for debugging
+        const errorData = await response.json();
+        throw new Error(`Failed to fetch quotations: ${response.status} - ${errorData.message}`);
       }
-
+  
       const data = await response.json();
       setQuotations(data);
     } catch (error) {
       toast.error(error.message || "Error fetching quotations!");
+    } finally {
+      // Optionally handle loading state or cleanup here
     }
   };
+  
 
   const handleStatusUpdate = async (quotation) => {
     try {

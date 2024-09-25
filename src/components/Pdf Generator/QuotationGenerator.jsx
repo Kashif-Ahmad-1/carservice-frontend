@@ -237,12 +237,17 @@ const QuotationGenerator = () => {
     formDatas.append("quotationData", JSON.stringify({ clientInfo,appointmentId, quotationNo: formData.quotationNo }));
 
     try {
-      await axios.post("http://localhost:5000/api/quotations", formDatas, { headers: { "Content-Type": "multipart/form-data" } });
+      const token = localStorage.getItem("token");
+      await axios.post("http://localhost:5000/api/quotations", formDatas, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+          Authorization: `Bearer ${token}`, // Set the Authorization header
+        },
+      });
       console.log("Checklist and PDF uploaded successfully");
     } catch (error) {
       console.error("Error uploading checklist and PDF:", error);
     }
-
     doc.save("quotation.pdf");
   };
 

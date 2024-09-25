@@ -131,7 +131,7 @@ const ChecklistPage = () => {
       inputs: {},
     },
     {
-      task: "Check Control voltage; L1 <TextField> V, Logo Power Output <TextField> V DC.",
+      task: "Check Control voltage; L1 <strong>TextField</strong> V, Logo Power Output <TextField> V DC.",
       done: false,
       remark: "",
       inputs: {},
@@ -289,8 +289,9 @@ const ChecklistPage = () => {
   });
   const [authorizedSignature, setAuthorizedSignature] = useState("");
   const [appointmentId, setAppointmentId] = useState("");
+ 
   const location = useLocation();
-  
+  const { invoiceNo } = location.state || {};
  
   useEffect(() => {
     
@@ -300,7 +301,8 @@ const ChecklistPage = () => {
         contactPerson: location.state.contactPerson || "",
         phone: location.state.phone || "",
         address: location.state.address || "",
-        engineer: location.state.engineer.name || ""
+        engineer: location.state.engineer.name || "",
+        
       });
       setAppointmentId(location.state.appointmentId); // Store appointment ID
       console.log(appointmentId)
@@ -474,18 +476,22 @@ const ChecklistPage = () => {
       clientInfo,
       appointmentId,
       checklist,
+      invoiceNo,
       refrigeratorList,
     }));
   
     try {
       // Send the checklist data and PDF to the backend
+      const token = localStorage.getItem("token");
     const response =  await axios.post("http://localhost:5000/api/checklist", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "multipart/form-data",
+         // Set the Authorization header
+      },
       });
       console.log("Checklist and PDF uploaded successfully", response.data);
-      const { checklist, appointment } = response.data;
+      const { checklist, appointment,invoiceNo } = response.data;
     
       // You can now use checklist and appointment data as needed
       console.log("Saved Checklist:", checklist);
@@ -546,6 +552,26 @@ const ChecklistPage = () => {
               }}
             />
           </Grid>
+
+
+          <Grid item xs={12} md={3}>
+            <TextField
+              label="Invoice number"
+              variant="outlined"
+              fullWidth
+              margin="normal"
+              size="small"
+              name="invoiceNo" // Fixed the name to "contactPerson"
+              value={invoiceNo}
+              onChange={handleClientInfoChange}
+              InputProps={{
+                readOnly: true,
+                style: { backgroundColor: "#f5f5f5" },
+              }}
+            />
+          </Grid>
+
+
           <Grid item xs={12} md={3}>
             <TextField
               label="Mobile"

@@ -135,6 +135,7 @@ function EngineerDetailsPage() {
   }, {});
 
   const handleEditClick = (appointment) => {
+    const invoiceNo = `INV-${appointment._id.substring(0, 6)}`;
     navigate(`/checklist`, {
       state: {
         appointmentId: appointment._id,
@@ -143,6 +144,7 @@ function EngineerDetailsPage() {
         phone: appointment.mobileNo,
         address: appointment.clientAddress,
         engineer: appointment.engineer,
+        invoiceNo: invoiceNo,
       },
     });
   };
@@ -152,7 +154,7 @@ function EngineerDetailsPage() {
       console.error("No document path provided!");
       return;
     }
-    
+
     const link = document.createElement("a");
     link.href = `http://localhost:5000/${documentPath}`; // Ensure this points to the correct file
     link.setAttribute("download", documentPath.split("/").pop()); // Use the file name for downloading
@@ -160,7 +162,6 @@ function EngineerDetailsPage() {
     link.click();
     link.remove();
   };
-  
 
   const handleServiceHistoryClick = (clientName) => {
     const history = appointments.filter((app) => app.clientName === clientName); // Fetch service history for the client
@@ -208,6 +209,7 @@ function EngineerDetailsPage() {
               <TableHead>
                 <TableRow>
                   {[
+                    "Invoice No.",
                     "Client Name",
                     "Mobile No.",
                     "Client Address",
@@ -245,12 +247,14 @@ function EngineerDetailsPage() {
                   ([key, clientAppointments]) => {
                     const [clientName, mobileNo] = key.split("-"); // Destructure client name and mobile number
                     const firstAppointment = clientAppointments[0]; // Get the first appointment to display
+                    const invoiceNo = `INV-${firstAppointment._id.substring(0, 6)}`; 
                     return (
                       <React.Fragment key={firstAppointment._id}>
                         <TableRow
                           onClick={() => toggleRow(key)}
                           style={{ cursor: "pointer" }}
                         >
+                          <TableCell>{invoiceNo}</TableCell>
                           <TableCell>{clientName}</TableCell>
                           <TableCell>{mobileNo}</TableCell>
                           <TableCell>
@@ -314,21 +318,25 @@ function EngineerDetailsPage() {
                             </span>
                           </TableCell>
                           <TableCell>
-  {firstAppointment.checklists && firstAppointment.checklists.length > 0 ? (
-    <span
-      onClick={() =>
-        handleDownloadPDF(firstAppointment.checklists[0].pdfPath) // Ensure this points to the correct path
-      }
-      style={{ cursor: "pointer" }}
-    >
-      <Download sx={{ color: "blue" }} />
-    </span>
-  ) : (
-    <Typography variant="body2" color="textSecondary">
-      No Checklist
-    </Typography>
-  )}
-</TableCell>
+                            {firstAppointment.checklists &&
+                            firstAppointment.checklists.length > 0 ? (
+                              <span
+                                onClick={
+                                  () =>
+                                    handleDownloadPDF(
+                                      firstAppointment.checklists[0].pdfPath
+                                    ) // Ensure this points to the correct path
+                                }
+                                style={{ cursor: "pointer" }}
+                              >
+                                <Download sx={{ color: "blue" }} />
+                              </span>
+                            ) : (
+                              <Typography variant="body2" color="textSecondary">
+                                No Checklist
+                              </Typography>
+                            )}
+                          </TableCell>
                           <TableCell>
                             <span
                               onClick={() =>
@@ -366,6 +374,7 @@ function EngineerDetailsPage() {
                                         appointment // Skip the first appointment
                                       ) => (
                                         <TableRow key={appointment._id}>
+                                          <TableCell>{invoiceNo}</TableCell>
                                           <TableCell>
                                             {appointment.clientName}
                                           </TableCell>
@@ -438,6 +447,20 @@ function EngineerDetailsPage() {
                                                 No Document
                                               </Typography>
                                             )}
+                                          </TableCell>
+                                          <TableCell>
+                                            <span
+                                              onClick={() =>
+                                                handleEditClick(
+                                                  firstAppointment
+                                                )
+                                              }
+                                              style={{ cursor: "pointer" }}
+                                            >
+                                              <CheckCircle
+                                                sx={{ color: "blue" }}
+                                              />
+                                            </span>
                                           </TableCell>
                                           <TableCell>
                                             {firstAppointment.checklists &&

@@ -190,7 +190,9 @@ const EngineerPage = () => {
     }
   };
 
-  const handleSendResetLink = async (email) => {
+
+
+  const handleSendResetLink = async (email, mobileNumber, password) => {
     try {
       const response = await fetch('http://localhost:5000/api/auth/forgot-password', {
         method: 'POST',
@@ -203,6 +205,8 @@ const EngineerPage = () => {
       const data = await response.json();
       if (response.ok) {
         toast.success('Password reset email sent successfully!');
+        // Send WhatsApp message after the email is sent
+       
       } else {
         toast.error(data.message || 'Failed to send reset email.');
       }
@@ -214,140 +218,117 @@ const EngineerPage = () => {
 
   return (
     <Box sx={{ display: 'flex' }}>
-      <CssBaseline />
-      <Navbar />
-      <Sidebar />
-      <MainContent>
-        <ToolbarSpacer />
-        <Container>
-          <SectionTitle variant="h4">Engineer List</SectionTitle>
+    <CssBaseline />
+    <Navbar />
+    <Sidebar />
+    <MainContent>
+      <ToolbarSpacer />
+      <Container>
+        <SectionTitle variant="h4">Engineer List</SectionTitle>
 
-          {/* Search Box */}
-          <TextField
-            label="Search"
-            variant="outlined"
-            fullWidth
-            onChange={(e) => setSearchQuery(e.target.value)}
-            sx={{ mb: 2 }}
-          />
+        {/* Search Box */}
+        <TextField
+          label="Search"
+          variant="outlined"
+          fullWidth
+          onChange={(e) => setSearchQuery(e.target.value)}
+          sx={{ mb: 2 }}
+        />
 
-          <ButtonContainer>
-            <Button variant="contained" color="primary" onClick={() => setShowForm(!showForm)}>
-              {showForm ? 'Cancel' : 'Add Engineer'}
-            </Button>
-          </ButtonContainer>
+        <ButtonContainer>
+          <Button variant="contained" color="primary" onClick={() => setShowForm(!showForm)}>
+            {showForm ? 'Cancel' : 'Add Engineer'}
+          </Button>
+        </ButtonContainer>
 
-          {showForm && (
-            <SmallCard sx={{ mb: 2 }}>
-              <Typography variant="h6" align="center">{editingEngineerId ? 'Edit Engineer' : 'Add New Engineer'}</Typography>
-              <form onSubmit={handleSubmit}>
-                <TextField
-                  label="Name"
-                  name="name"
-                  value={newEngineer.name}
-                  onChange={handleChange}
-                  sx={{ mb: 1, width: '90%' }} 
-                  required
-                />
-                <TextField
-                  label="Email"
-                  name="email"
-                  value={newEngineer.email}
-                  onChange={handleChange}
-                  sx={{ mb: 1, width: '90%' }}
-                  required
-                />
-                <TextField
-                  label="Password"
-                  name="password"
-                  type="password"
-                  value={newEngineer.password}
-                  onChange={handleChange}
-                  sx={{ mb: 1, width: '90%' }}
-                  required={!editingEngineerId} // Password required only on add
-                />
-                <TextField
-                  label="Mobile Number"
-                  name="mobileNumber"
-                  value={newEngineer.mobileNumber}
-                  onChange={handleChange}
-                  sx={{ mb: 1, width: '90%' }}
-                  required
-                />
-                <TextField
-                  label="Address"
-                  name="address"
-                  value={newEngineer.address}
-                  onChange={handleChange}
-                  sx={{ mb: 1, width: '90%' }}
-                  required
-                />
-                <Button type="submit" variant="contained" color="primary" sx={{ width: '90%' }}>
-                  {editingEngineerId ? 'Update Engineer' : 'Add Engineer'}
-                </Button>
-              </form>
-            </SmallCard>
-          )}
+        {showForm && (
+          <SmallCard sx={{ mb: 2 }}>
+            <Typography variant="h6" align="center">{editingEngineerId ? 'Edit Engineer' : 'Add New Engineer'}</Typography>
+            <form onSubmit={handleSubmit}>
+              {/* Existing form fields... */}
+              <TextField
+                label="Mobile Number"
+                name="mobileNumber"
+                value={newEngineer.mobileNumber}
+                onChange={handleChange}
+                sx={{ mb: 1, width: '90%' }}
+                required
+              />
+              <TextField
+                label="Password"
+                name="password"
+                type="password"
+                value={newEngineer.password}
+                onChange={handleChange}
+                sx={{ mb: 1, width: '90%' }}
+                required={!editingEngineerId} // Password required only on add
+              />
+              <Button type="submit" variant="contained" color="primary" sx={{ width: '90%' }}>
+                {editingEngineerId ? 'Update Engineer' : 'Add Engineer'}
+              </Button>
+            </form>
+          </SmallCard>
+        )}
 
-          <Card>
-            <Typography variant="h6">Engineers</Typography>
-            <Paper sx={{ overflowX: 'auto', mt: 2 }}>
-              <Table>
-                <thead>
-                  <tr>
-                    <th>SR No</th>
-                    <th>Name</th>
-                    <th>Email</th>
-                    <th>Mobile Number</th>
-                    <th>Address</th>
-                    <th>Actions</th>
-                    <th>Password Reset</th>
+        <Card>
+          <Typography variant="h6">Engineers</Typography>
+          <Paper sx={{ overflowX: 'auto', mt: 2 }}>
+            <Table>
+              <thead>
+                <tr>
+                  <th>SR No</th>
+                  <th>Name</th>
+                  <th>Email</th>
+                  <th>Mobile Number</th>
+                  <th>Address</th>
+                  <th>Actions</th>
+                  <th>Password Reset</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredEngineers.map((engineer, index) => (
+                  <tr key={engineer._id}>
+                    <td>{index + 1}</td>
+                    <td>{engineer.name}</td>
+                    <td>{engineer.email}</td>
+                    <td>{engineer.mobileNumber}</td>
+                    <td>{engineer.address}</td>
+                    <td>
+                      <Button 
+                        variant="contained" 
+                        color="secondary" 
+                        sx={{ mr: 1 }} 
+                        onClick={() => handleEdit(engineer)}
+                      >
+                        Edit
+                      </Button>
+                      <Button 
+                        variant="outlined" 
+                        color="error" 
+                        onClick={() => handleDelete(engineer._id)}
+                      >
+                        Delete
+                      </Button>
+                    </td>
+                    <td>
+                      <Button 
+                        variant="contained" 
+                        color="secondary" 
+                        onClick={() => handleSendResetLink(engineer.email, engineer.mobileNumber, engineer.password)}
+                      >
+                        Send
+                      </Button>
+                    </td>
                   </tr>
-                </thead>
-                <tbody>
-                  {filteredEngineers.map((engineer, index) => (
-                    <tr key={engineer._id}>
-                      <td>{index + 1}</td>
-                      <td>{engineer.name}</td>
-                      <td>{engineer.email}</td>
-                      <td>{engineer.mobileNumber}</td>
-                      <td>{engineer.address}</td>
-                      <td>
-                        <Button 
-                          variant="contained" 
-                          color="secondary" 
-                          sx={{ mr: 1 }} 
-                          onClick={() => handleEdit(engineer)}
-                        >
-                          Edit
-                        </Button>
-                        <Button 
-                          variant="outlined" 
-                          color="error" 
-                          onClick={() => handleDelete(engineer._id)}
-                        >
-                          Delete
-                        </Button>
-                      </td>
-                      <td>
-                        <Button 
-                          variant="contained" 
-                          color="secondary" 
-                          onClick={() => handleSendResetLink(engineer.email)}
-                        >
-                          Send
-                        </Button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </Table>
-            </Paper>
-          </Card>
-        </Container>
-      </MainContent>
-      <ToastContainer /> 
-    </Box>
+                ))}
+              </tbody>
+            </Table>
+          </Paper>
+        </Card>
+      </Container>
+    </MainContent>
+    <ToastContainer /> 
+  </Box>
   );
 };
 

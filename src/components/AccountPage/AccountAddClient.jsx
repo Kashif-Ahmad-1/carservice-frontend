@@ -25,6 +25,7 @@ function AppointmentPage() {
   const [engineerId, setEngineerId] = useState("");
   const [suggestions, setSuggestions] = useState([]);
   const [document, setDocument] = useState(null);
+  const [dateError, setDateError] = useState("");
 
   useEffect(() => {
     const fetchEngineers = async () => {
@@ -89,7 +90,7 @@ function AppointmentPage() {
   const handleClientNameChange = async (e) => {
     const value = e.target.value;
     setClientName(value);
-  
+
     if (value.length >= 2) {
       try {
         const response = await fetch(`http://localhost:5000/api/companies/search?name=${encodeURIComponent(value)}`, {
@@ -97,7 +98,7 @@ function AppointmentPage() {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
         });
-  
+
         const data = await response.json();
         setSuggestions(data);
       } catch (error) {
@@ -108,8 +109,48 @@ function AppointmentPage() {
     }
   };
 
+  const validateDates = (installDate, invoiceDate) => {
+    if (installDate <= invoiceDate) {
+      setDateError("Installation date must be greater than the invoice date.");
+      return false;
+    } else {
+      setDateError("");
+      return true;
+    }
+  };
+
+  const handleDateChange = (e) => {
+    const newInstallDate = e.target.value;
+    setInstallationDate(newInstallDate);
+    calculateExpectedServiceDate(newInstallDate, serviceFrequency);
+
+    // Validate the dates
+    const invoiceDate = new Date(appointmentDate);
+    validateDates(new Date(newInstallDate), invoiceDate);
+  };
+
+  const handleInvoiceDateChange = (e) => {
+    const newInvoiceDate = e.target.value;
+    setAppointmentDate(newInvoiceDate);
+
+    // Validate the dates
+    const installDate = new Date(installationDate);
+    validateDates(installDate, new Date(newInvoiceDate));
+  };
+
+  const handleFrequencyChange = (e) => {
+    setServiceFrequency(e.target.value);
+    calculateExpectedServiceDate(installationDate, e.target.value);
+  };
+
   const handleSubmit = async (event) => {
     event.preventDefault();
+
+    const installDate = new Date(installationDate);
+    const invoiceDate = new Date(appointmentDate);
+    if (!validateDates(installDate, invoiceDate)) {
+      return; // Stop submission if dates are invalid
+    }
 
     const appointmentData = new FormData();
     appointmentData.append("clientName", clientName);
@@ -147,10 +188,6 @@ function AppointmentPage() {
       toast.success("Appointment booked successfully!", {
         position: "top-right",
         autoClose: 5000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
       });
 
       setTimeout(() => {
@@ -160,10 +197,6 @@ function AppointmentPage() {
       toast.error("Failed to save appointment data.", {
         position: "top-right",
         autoClose: 5000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
       });
     }
   };
@@ -189,25 +222,11 @@ function AppointmentPage() {
     toast.success("Draft saved successfully!", {
       position: "top-right",
       autoClose: 3000,
-      hideProgressBar: false,
-      closeOnClick: true,
-      pauseOnHover: true,
-      draggable: true,
     });
   };
 
   const handleBackClick = () => {
     navigate("/accountspage");
-  };
-
-  const handleDateChange = (e) => {
-    setInstallationDate(e.target.value);
-    calculateExpectedServiceDate(e.target.value, serviceFrequency);
-  };
-
-  const handleFrequencyChange = (e) => {
-    setServiceFrequency(e.target.value);
-    calculateExpectedServiceDate(installationDate, e.target.value);
   };
 
   const calculateExpectedServiceDate = (installationDate, serviceFrequency) => {
@@ -261,7 +280,7 @@ function AppointmentPage() {
               />
             </div>
             <div className="form-group">
-              <label htmlFor="contactPerson">Contact Person Name:</label>
+              <label htmlFor="contactPerson">Contact Person:</label>
               <input 
                 type="text" 
                 id="contactPerson" 
@@ -281,17 +300,17 @@ function AppointmentPage() {
               />
             </div>
             <div className="form-group">
-              <label htmlFor="appointmentDate">Appointment Date:</label>
+              <label htmlFor="appointmentDate">Invoice Date:</label>
               <input 
                 type="date" 
                 id="appointmentDate" 
                 value={appointmentDate} 
-                onChange={(e) => setAppointmentDate(e.target.value)} 
+                onChange={handleInvoiceDateChange} 
                 required 
               />
             </div>
             <div className="form-group">
-              <label htmlFor="appointmentAmount">Appointment Amount:</label>
+              <label htmlFor="appointmentAmount">Invoice Amount:</label>
               <input 
                 type="number" 
                 id="appointmentAmount" 
@@ -350,6 +369,7 @@ function AppointmentPage() {
                 onChange={handleDateChange} 
                 required 
               />
+              {dateError && <span className="error-message">{dateError}</span>}
             </div>
             <div className="form-group">
               <label htmlFor="serviceFrequency">Service Frequency (Days):</label>

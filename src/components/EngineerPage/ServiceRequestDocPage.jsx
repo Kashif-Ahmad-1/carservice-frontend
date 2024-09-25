@@ -87,8 +87,9 @@ const ServiceRequestDocPage = () => {
       const response = await fetch("http://localhost:5000/api/checklist", {
         method: "GET",
         headers: {
-          "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+          
         },
       });
 
@@ -121,8 +122,9 @@ const ServiceRequestDocPage = () => {
       const response = await fetch(`http://localhost:5000/api/checklist/${id}`, {
         method: "DELETE",
         headers: {
-          "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+          
         },
       });
 
@@ -175,6 +177,7 @@ const ServiceRequestDocPage = () => {
                 <thead>
                   <tr>
                     <th>SR No</th>
+                    <th>Invoice No</th>
                     <th>Client Name</th>
                     <th>Contact Person</th>
                     <th>Mobile Number</th>
@@ -186,6 +189,7 @@ const ServiceRequestDocPage = () => {
                   {currentChecklists.map((checklist, index) => (
                     <tr key={checklist._id}>
                       <td>{index + 1 + indexOfFirstChecklist}</td>
+                      <td>{checklist.invoiceNo || "N/A"}</td>
                       <td>{checklist.clientInfo?.name || "N/A"}</td>
                       <td>{checklist.clientInfo?.contactPerson || "N/A"}</td>
                       <td>{checklist.clientInfo?.phone || "N/A"}</td>
