@@ -14,6 +14,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import HomeIcon from '@mui/icons-material/Home';
 import LogoutIcon from '@mui/icons-material/Logout';
 import Swal from 'sweetalert2';
+import { FaFileInvoice } from 'react-icons/fa6';
 
 // Styled components
 const drawerWidth = 240;
@@ -88,6 +89,14 @@ const Sidebar = () => {
               <HomeIcon />
             </ListItemIcon>
             <ListItemText primary="Home" />
+          </ListItemStyled>
+
+
+          <ListItemStyled button component={Link} to="/quotation-list">
+            <ListItemIcon>
+              <FaFileInvoice />
+            </ListItemIcon>
+            <ListItemText primary="Quotation" />
           </ListItemStyled>
           {/* Add more sidebar items if needed */}
         </List>

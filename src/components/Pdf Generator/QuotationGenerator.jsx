@@ -1,105 +1,124 @@
-
-import React, { useState, useEffect, useRef } from 'react';
-import { jsPDF } from 'jspdf';
-import 'jspdf-autotable';
-import './PdfGenerator.css';
+import React, { useState, useRef } from "react";
+import { jsPDF } from "jspdf";
+import "jspdf-autotable";
+import "./PdfGenerator.css";
 import { useLocation } from "react-router-dom";
-import axios from 'axios';
+import axios from "axios";
 
-const PdfGenerator = () => {
+const QuotationGenerator = () => {
   const formRef = useRef();
   const location = useLocation();
-  console.log(location.state)
-  const { clientName, contactPerson, address, mobileNo,appointmentId } = location.state || {};
+  const { clientName, contactPerson, address, mobileNo } = location.state || {};
 
-  const generateQuotationNo = () => {
-    return 'QT' + Math.floor(Math.random() * 100000); // Example: QT12345
-  };
+  const generateQuotationNo = () => "QT" + Math.floor(Math.random() * 100000);
+  const formatDate = (date) => date.toLocaleDateString(undefined, { year: "numeric", month: "2-digit", day: "2-digit" });
 
-  const formatDate = (date) => {
-    const options = { year: 'numeric', month: '2-digit', day: '2-digit' };
-    return date.toLocaleDateString(undefined, options);
-  };
+  const [clientInfo, setClientInfo] = useState({
+    name: clientName || "",
+    contactPerson: contactPerson || "",
+    phone: mobileNo || "",
+    address: address || "",
+  });
 
   const [formData, setFormData] = useState({
-    buyerName: clientName || '',
+    buyerName: clientName || "",
     quotationNo: generateQuotationNo(),
     docDate: formatDate(new Date()),
-    address: address ||'',
-    contactPerson:contactPerson || '',
-    mobileNo: mobileNo || '',
-    email: '',
+    address: address || "",
+    contactPerson: contactPerson || "",
+    mobileNo: mobileNo || "",
+    email: "",
     items: [],
-    amountInWords: '',
     gst: 18,
     totalAmount: 0,
     totalWithGST: 0,
-    advance: '',
-    validity: '',
-    authorisedSignatory: ''
+    advance: "",
+    validity: "",
+    authorisedSignatory: "",
   });
 
   const [itemData, setItemData] = useState({
-    itemName: '',
-    quantity: '',
-    rate: '',
+    itemName: "",
+    quantity: "",
+    rate: "",
   });
-
- 
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData({
-      ...formData,
-      [name]: value
-    });
+    setFormData((prevData) => ({
+      ...prevData,
+      [name]: value,
+    }));
+
+    if (name === "gst") {
+      updateTotalWithGST(value);
+    }
   };
 
   const handleItemChange = (e) => {
     const { name, value } = e.target;
     setItemData((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
   };
 
   const addItem = () => {
     if (itemData.itemName && itemData.quantity && itemData.rate) {
-      const total = parseFloat(itemData.quantity) * parseFloat(itemData.rate);
-      const newItem = { ...itemData, total };
-      setFormData((prevData) => ({
-        ...prevData,
-        items: [...prevData.items, newItem]
-      }));
-      setItemData({ itemName: '', quantity: '', rate: '' });
+      const quantity = parseFloat(itemData.quantity);
+      const rate = parseFloat(itemData.rate);
+      const total = quantity * rate;
+      const gstAmount = (total * formData.gst) / 100;
+      const totalWithGST = total + gstAmount;
+
+      const newItem = { ...itemData, total, gstAmount, totalWithGST };
+      setFormData((prevData) => {
+        const updatedItems = [...prevData.items, newItem];
+        const totalAmount = calculateTotalAmount(updatedItems);
+        const totalWithGST = calculateTotalWithGST(totalAmount, prevData.gst);
+        return {
+          ...prevData,
+          items: updatedItems,
+          totalAmount,
+          totalWithGST,
+        };
+      });
+      setItemData({ itemName: "", quantity: "", rate: "" });
     }
   };
 
-  const calculateTotalAmount = () => {
-    return formData.items.reduce((acc, item) => acc + (item.total || 0), 0);
+  const calculateTotalAmount = (items) => {
+    return items.reduce((acc, item) => acc + (item.total || 0), 0);
   };
 
-  useEffect(() => {
-    const totalAmount = calculateTotalAmount();
-    const gstAmount = (totalAmount * formData.gst) / 100;
-    const totalWithGST = totalAmount + gstAmount;
+  const calculateTotalWithGST = (totalAmount, gstPercentage) => {
+    const gstAmount = (totalAmount * gstPercentage) / 100;
+    return totalAmount + gstAmount;
+  };
 
+  const updateTotalWithGST = (gstPercentage) => {
+    const totalAmount = calculateTotalAmount(formData.items);
+    const totalWithGST = calculateTotalWithGST(totalAmount, gstPercentage);
     setFormData((prevData) => ({
       ...prevData,
       totalAmount,
       totalWithGST,
     }));
-  }, [formData.items]);
+  };
+  const itemRows = formData.items.map((item, index) => [
+    index + 1,
+    item.itemName,
+    item.quantity,
+    item.rate,
+    (item.gstAmount || 0).toFixed(2), // Ensure gstAmount has a default value
+    (item.totalWithGST || 0).toFixed(2), // Ensure totalWithGST has a default value
+  ]);
 
   const generatePDF = async () => {
     const doc = new jsPDF();
+    const logo = "https://cdn.pixabay.com/photo/2016/12/27/13/10/logo-1933884_640.png";
 
-    const logoImg = new Image();
-    logoImg.src = 'https://cdn.pixabay.com/photo/2016/12/27/13/10/logo-1933884_640.png';
-    logoImg.onload = async () => {
-      doc.addImage(logoImg, 'PNG', 10, 10, 40, 15);
-
-      doc.setDrawColor(200);
+     doc.setDrawColor(200);
       doc.setFillColor(245, 245, 245);
       doc.rect(60, 10, 100, 25, 'F');
       doc.setFontSize(10);
@@ -175,10 +194,10 @@ const PdfGenerator = () => {
       doc.setFont("helvetica", "normal");
       doc.setFontSize(9);
       doc.setTextColor(60, 60, 60);
-      doc.text(`Total Amount: ${formData.totalAmount.toFixed(2)}`, 15, amountSummaryY + 20);
-      doc.text(`GST (18%): ${(formData.totalAmount * 0.18).toFixed(2)}`, 15, amountSummaryY + 26);
-      doc.text(`Total (Incl. GST): ${(formData.totalAmount * 1.18).toFixed(2)}`, 15, amountSummaryY + 32);
-      doc.text(`Amount In Words: ${formData.amountInWords}`, 15, amountSummaryY + 38);
+      // doc.text(`Total Amount: ${formData.totalAmount.toFixed(2)}`, 15, amountSummaryY + 20);
+      // doc.text(`GST (18%): ${(formData.totalAmount * 0.18).toFixed(2)}`, 15, amountSummaryY + 26);
+      doc.text(`Total Amount(Incl. GST): ${(formData.totalAmount * 1.18).toFixed(2)}`, 15, amountSummaryY + 32);
+      // doc.text(`Amount In Words: ${formData.amountInWords}`, 15, amountSummaryY + 38);
 
       const signatoryY = amountSummaryY + 55;
       doc.setDrawColor(200);
@@ -209,58 +228,40 @@ const PdfGenerator = () => {
       doc.text('Thank you for your business!', 15, footerY);
       doc.text('For any queries, please contact us at info@company.com', 15, footerY + 5);
 
+    const pdfBlob = doc.output("blob");
+    const pdfFile = new File([pdfBlob], "quotation.pdf", { type: "application/pdf" });
 
-      // backend code
-      const pdfBlob = doc.output("blob");
-      const formDataToSend = new FormData();
-      formDataToSend.append('fileField', pdfBlob, 'invoice.pdf');
+    const formDatas = new FormData();
+    formDatas.append("pdf", pdfFile);
+    formDatas.append("quotationData", JSON.stringify({ clientInfo, quotationNo: formData.quotationNo }));
 
-      const quotationData = {
-        appointmentId,
-        quotationData: formData,
-      };
+    try {
+      await axios.post("http://localhost:5000/api/quotations", formDatas, { headers: { "Content-Type": "multipart/form-data" } });
+      console.log("Checklist and PDF uploaded successfully");
+    } catch (error) {
+      console.error("Error uploading checklist and PDF:", error);
+    }
 
-      formDataToSend.append('quatationData', JSON.stringify(quotationData));
-
-      try {
-        const response = await fetch('http://localhost:5000/api/quotations', {
-          method: 'POST',
-          body: formDataToSend,
-        });
-
-        if (response.ok) {
-          const data = await response.json();
-          console.log('Quotation saved successfully:', data);
-        } else {
-          console.error('Error saving quotation:', response.statusText);
-        }
-      } catch (error) {
-        console.error('Error:', error);
-      }
-
-      doc.save('invoice.pdf');
-
-    };
-
+    doc.save("quotation.pdf");
   };
 
   return (
     <div className="container-pdf" ref={formRef}>
-      <h2>Quatations</h2>
+      <h2>Quotations</h2>
       <form className="form-box">
         <h4>Buyer Details</h4>
         <div className="form-row">
           <div className="form-group">
             <label>Buyer Name:</label>
-            <input  type="text" name="buyerName" value={formData.buyerName} onChange={handleInputChange} />
+            <input type="text" name="buyerName" value={clientInfo.name} onChange={handleInputChange} />
           </div>
           <div className="form-group">
             <label>Quotation No:</label>
-            <input type="text" name="quotationNo" value={formData.quotationNo} onChange={handleInputChange} />
+            <input type="text" name="quotationNo" value={formData.quotationNo} readOnly />
           </div>
           <div className="form-group">
-            <label>Doc Date:</label>
-            <input type="text" name="docDate" value={formData.docDate} onChange={handleInputChange} />
+            <label>Date:</label>
+            <input type="text" name="docDate" value={formData.docDate} readOnly />
           </div>
         </div>
         <div className="form-group">
@@ -270,16 +271,12 @@ const PdfGenerator = () => {
         <div className="form-row">
           <div className="form-group">
             <label>Contact Person:</label>
-            <input type="text" name="contactPerson" value={formData.contactPerson} onChange={handleInputChange} />
+            <input type="text" name="contactPerson" value={clientInfo.contactPerson} onChange={handleInputChange} />
           </div>
           <div className="form-group">
             <label>Mobile No:</label>
             <input type="text" name="mobileNo" value={formData.mobileNo} onChange={handleInputChange} />
           </div>
-          {/* <div className="form-group">
-            <label>Email:</label>
-            <input type="text" name="email" value={formData.email} onChange={handleInputChange} />
-          </div> */}
         </div>
 
         <h4>Item Details</h4>
@@ -299,8 +296,12 @@ const PdfGenerator = () => {
                 <input type="number" value={item.rate} readOnly />
               </div>
               <div className="form-group">
+                <label>GST Amount:</label>
+                <input type="number" value={item.gstAmount.toFixed(2)} readOnly />
+              </div>
+              <div className="form-group">
                 <label>Total:</label>
-                <input type="number" value={item.total.toFixed(2)} readOnly />
+                <input type="number" value={item.totalWithGST.toFixed(2)} readOnly />
               </div>
             </div>
           </div>
@@ -321,17 +322,23 @@ const PdfGenerator = () => {
             <input type="number" name="rate" value={itemData.rate} onChange={handleItemChange} />
           </div>
           <div className="form-group">
-            <label>Total:</label>
-            <input type="number" value={itemData.total || 0} readOnly />
+            <label>GST (%):</label>
+            <input type="number" name="gst" value={formData.gst} onChange={handleInputChange} />
           </div>
-          <button type="button" onClick={addItem}>Add Item</button>
+          <div className="form-group">
+            <label>Total:</label>
+            <input type="number" value={(itemData.quantity * itemData.rate * (1 + formData.gst / 100)).toFixed(2) || 0} readOnly />
+          </div>
+          <button type="button" onClick={addItem}>
+            Add Item
+          </button>
         </div>
 
         <h4>Additional Details</h4>
         <div className="form-row">
           <div className="form-group">
             <label>Total Amount:</label>
-            <input type="number" value={formData.totalAmount.toFixed(2)} readOnly />
+            <input type="number" value={formData.totalWithGST.toFixed(2)} readOnly />
           </div>
           <div className="form-group">
             <label>Advance Payment Details:</label>
@@ -346,12 +353,14 @@ const PdfGenerator = () => {
             <input type="text" name="authorisedSignatory" value={formData.authorisedSignatory} onChange={handleInputChange} />
           </div>
         </div>
-        <div className='button-container'>
-          <button type="button" onClick={generatePDF}>Generate PDF</button>
+        <div className="button-container">
+          <button type="button" onClick={generatePDF}>
+            Generate PDF
+          </button>
         </div>
       </form>
     </div>
   );
 };
 
-export default PdfGenerator;
+export default QuotationGenerator;

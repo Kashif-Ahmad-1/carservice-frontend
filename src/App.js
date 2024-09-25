@@ -10,7 +10,7 @@ import Login from "./components/Authentication/Login";
 import AccountantPage from './components/Admin/AccountantPage';
 import EngineerPage from './components/Admin/EngineerPage';
 import ChecklistPage from "./components/EngineerPage/ChecklistPage";
-import PdfGenerator from "./components/Pdf Generator/PdfGenerator";
+import QuotationGenerator from "./components/Pdf Generator/QuotationGenerator";
 import { AuthProvider } from "./Store/AuthContext";
 import PrivateRoute from "./PrivateRoute"; // Import PrivateRoute component
 import ServiceRequestPage from "./components/Admin/ServiceRequest";
@@ -18,6 +18,7 @@ import ResetPassword from "./components/Authentication/ResetPassword";
 import ClientPage from "./components/Admin/ClientPage";
 import MachinePage from "./components/Admin/MachinePage";
 import AdminList from "./components/Admin/AdminList";
+import QuotationPage from "./components/EngineerPage/QuotationPage";
 function App() {
   // const role = localStorage.getItem("role");
   // console.log(role);
@@ -67,11 +68,19 @@ function App() {
             path="/checklist"
             element={<PrivateRoute element={ChecklistPage} roles={["engineer"]} />}
           />
+          <Route
+            path="/pdfcheck"
+            element={<PrivateRoute element={QuotationGenerator} roles={["engineer"]} />}
+          />
+          <Route
+            path="/quotation-list"
+            element={<PrivateRoute element={QuotationPage} roles={["engineer"]} />}
+          />
           
         
 
           {/* PDF generation route, assuming anyone can access */}
-          <Route path="/pdfcheck" element={<PdfGenerator />} />
+      
           <Route path="/client-list" element={<ClientPage />} />
           <Route path="/machine-list" element={<MachinePage />} />
           <Route path="/admin-list" element={<AdminList />} />
