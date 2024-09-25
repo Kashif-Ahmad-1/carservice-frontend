@@ -19,6 +19,7 @@ import ClientPage from "./components/Admin/ClientPage";
 import MachinePage from "./components/Admin/MachinePage";
 import AdminList from "./components/Admin/AdminList";
 import QuotationPage from "./components/EngineerPage/QuotationPage";
+import ServiceRequestDocPage from "./components/EngineerPage/ServiceRequestDocPage";
 function App() {
   // const role = localStorage.getItem("role");
   // console.log(role);
@@ -75,6 +76,10 @@ function App() {
           <Route
             path="/quotation-list"
             element={<PrivateRoute element={QuotationPage} roles={["engineer"]} />}
+          />
+          <Route
+            path="/servicerequestcheck-list"
+            element={<PrivateRoute element={ServiceRequestDocPage} roles={["engineer"]} />}
           />
           
         

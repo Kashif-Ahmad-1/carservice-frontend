@@ -8,7 +8,7 @@ import axios from "axios";
 const QuotationGenerator = () => {
   const formRef = useRef();
   const location = useLocation();
-  const { clientName, contactPerson, address, mobileNo } = location.state || {};
+  const { clientName, contactPerson, address, mobileNo,appointmentId } = location.state || {};
 
   const generateQuotationNo = () => "QT" + Math.floor(Math.random() * 100000);
   const formatDate = (date) => date.toLocaleDateString(undefined, { year: "numeric", month: "2-digit", day: "2-digit" });
@@ -18,6 +18,7 @@ const QuotationGenerator = () => {
     contactPerson: contactPerson || "",
     phone: mobileNo || "",
     address: address || "",
+    appointmentId: appointmentId || "",
   });
 
   const [formData, setFormData] = useState({
@@ -233,7 +234,7 @@ const QuotationGenerator = () => {
 
     const formDatas = new FormData();
     formDatas.append("pdf", pdfFile);
-    formDatas.append("quotationData", JSON.stringify({ clientInfo, quotationNo: formData.quotationNo }));
+    formDatas.append("quotationData", JSON.stringify({ clientInfo,appointmentId, quotationNo: formData.quotationNo }));
 
     try {
       await axios.post("http://localhost:5000/api/quotations", formDatas, { headers: { "Content-Type": "multipart/form-data" } });

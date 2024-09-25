@@ -479,12 +479,17 @@ const ChecklistPage = () => {
   
     try {
       // Send the checklist data and PDF to the backend
-      await axios.post("http://localhost:5000/api/checklist", formData, {
+    const response =  await axios.post("http://localhost:5000/api/checklist", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
       });
-      console.log("Checklist and PDF uploaded successfully");
+      console.log("Checklist and PDF uploaded successfully", response.data);
+      const { checklist, appointment } = response.data;
+    
+      // You can now use checklist and appointment data as needed
+      console.log("Saved Checklist:", checklist);
+      console.log("Appointment Details:", appointment);
     } catch (error) {
       console.error("Error uploading checklist and PDF:", error);
     }

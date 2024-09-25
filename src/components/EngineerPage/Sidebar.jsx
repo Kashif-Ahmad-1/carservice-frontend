@@ -98,6 +98,15 @@ const Sidebar = () => {
             </ListItemIcon>
             <ListItemText primary="Quotation" />
           </ListItemStyled>
+
+
+
+          <ListItemStyled button component={Link} to="/servicerequestcheck-list">
+            <ListItemIcon>
+              <FaFileInvoice />
+            </ListItemIcon>
+            <ListItemText primary="Service Request" />
+          </ListItemStyled>
           {/* Add more sidebar items if needed */}
         </List>
       </div>
