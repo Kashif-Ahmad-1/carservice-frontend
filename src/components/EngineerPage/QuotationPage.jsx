@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import logo from './comp-logo.jpeg';
+import logo from "./comp-logo.jpeg";
 import {
   Box,
   CssBaseline,
@@ -71,10 +71,17 @@ const QuotationPage = () => {
 
   useEffect(() => {
     setFilteredQuotations(
-      quotations.filter((quotation) =>
-        quotation.clientInfo.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        quotation.quotationNo.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        quotation.clientInfo.contactPerson.toLowerCase().includes(searchTerm.toLowerCase())
+      quotations.filter(
+        (quotation) =>
+          quotation.clientInfo.name
+            .toLowerCase()
+            .includes(searchTerm.toLowerCase()) ||
+          quotation.quotationNo
+            .toLowerCase()
+            .includes(searchTerm.toLowerCase()) ||
+          quotation.clientInfo.contactPerson
+            .toLowerCase()
+            .includes(searchTerm.toLowerCase())
       )
     );
     setCurrentPage(1); // Reset to first page on search
@@ -88,11 +95,14 @@ const QuotationPage = () => {
           <Menu />
         </IconButton>
         <img
-        src={logo}
-        alt="Company Logo"
-        style={{ width: 40, height: 40, marginRight: 10 }} // Adjust size and margin as needed
-      />
-        <Typography variant="h6" sx={{ flexGrow: 1, fontWeight: "bold", color: "#ff4081" }}>
+          src={logo}
+          alt="Company Logo"
+          style={{ width: 40, height: 40, marginRight: 10 }} // Adjust size and margin as needed
+        />
+        <Typography
+          variant="h6"
+          sx={{ flexGrow: 1, fontWeight: "bold", color: "#ff4081" }}
+        >
           Company Name
         </Typography>
       </Toolbar>
@@ -105,7 +115,7 @@ const QuotationPage = () => {
       if (!token) {
         throw new Error("No token found. Please log in.");
       }
-  
+
       const response = await fetch("http://localhost:5000/api/quotations", {
         method: "GET",
         headers: {
@@ -113,15 +123,19 @@ const QuotationPage = () => {
           Authorization: `Bearer ${token}`,
         },
       });
-  
+
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(`Failed to fetch quotations: ${response.status} - ${errorData.message}`);
+        throw new Error(
+          `Failed to fetch quotations: ${response.status} - ${errorData.message}`
+        );
       }
-  
+
       const data = await response.json();
       // Optional: Validate the data structure
-      const validData = data.filter(quotation => quotation.clientInfo); // Only keep valid quotations
+      const validData = data.filter((quotation) => quotation.clientInfo); // Only keep valid quotations
+      // Sort quotations by created date (assuming there is a `createdAt` field)
+    validData.sort((a, b) => new Date(b.generatedOn) - new Date(a.generatedOn));
       setQuotations(validData);
     } catch (error) {
       toast.error(error.message || "Error fetching quotations!");
@@ -131,13 +145,16 @@ const QuotationPage = () => {
   const handleStatusUpdate = async (quotation) => {
     try {
       const token = localStorage.getItem("token");
-      const response = await fetch(`http://localhost:5000/api/quotations/${quotation._id}/status`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await fetch(
+        `http://localhost:5000/api/quotations/${quotation._id}/status`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
       if (!response.ok) {
         throw new Error("Failed to update status");
@@ -162,7 +179,10 @@ const QuotationPage = () => {
   // Pagination logic
   const indexOfLastQuotation = currentPage * itemsPerPage;
   const indexOfFirstQuotation = indexOfLastQuotation - itemsPerPage;
-  const currentQuotations = filteredQuotations.slice(indexOfFirstQuotation, indexOfLastQuotation);
+  const currentQuotations = filteredQuotations.slice(
+    indexOfFirstQuotation,
+    indexOfLastQuotation
+  );
   const totalPages = Math.ceil(filteredQuotations.length / itemsPerPage);
 
   const handleNextPage = () => {
@@ -219,7 +239,7 @@ const QuotationPage = () => {
                         <td>{quotation.quotationNo}</td>
                         <td>{quotation.clientInfo.name}</td>
                         <td>{quotation.clientInfo.contactPerson}</td>
-                        
+
                         <td>{quotation.clientInfo.phone}</td>
                         <td>{quotation.quotationAmount}</td>
                         <td>
@@ -253,7 +273,9 @@ const QuotationPage = () => {
               </Table>
             </Paper>
             {/* Pagination Controls */}
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 2 }}>
+            <Box
+              sx={{ display: "flex", justifyContent: "space-between", mt: 2 }}
+            >
               <Button
                 variant="contained"
                 onClick={handlePreviousPage}

@@ -138,7 +138,7 @@ const QuotationGenerator = () => {
       doc.setFontSize(24);
       doc.setFont("helvetica", "bold");
       doc.setTextColor(50, 50, 100);
-      doc.text('INVOICE', 105, 55, null, null, 'center');
+      doc.text('QUOTATION', 105, 55, null, null, 'center');
 
       doc.setDrawColor(200);
       doc.setFillColor(240, 240, 240);
@@ -149,10 +149,10 @@ const QuotationGenerator = () => {
       doc.text(`BILL TO:`, 15, 67);
 
       const buyerDetails = [
-        [`Invoice No: ${formData.quotationNo}`, `Invoice Date: ${formData.docDate}`],
+        [`Quotation No: ${formData.quotationNo}`, `Invoice Date: ${formData.docDate}`],
         [`Customer: ${formData.buyerName}`, `Address: ${formData.address}`],
         [`Contact: ${formData.contactPerson}`, `Mobile: ${formData.mobileNo}`],
-        [`Email: ${formData.email}`, '']
+        // [`Email: ${formData.email}`, '']
       ];
 
       const buyerStartY = 73;
@@ -165,15 +165,16 @@ const QuotationGenerator = () => {
         }
       });
 
-      const itemColumns = ['Sr. No', 'Item Name', 'Delivery Date', 'Unit', 'Qty', 'Rate', 'Amount'];
+      const itemColumns = ['Sr. No', 'Item Name', 'Qty', 'Rate','GST Amount', 'Amount'];
       const itemRows = formData.items.map((item, index) => [
         index + 1,
         item.itemName,
-        item.deliveryDate,
-        item.unit,
         item.quantity,
         !isNaN(item.rate) ? Number(item.rate).toFixed(2) : '0.00',
-        !isNaN(item.total) ? Number(item.total).toFixed(2) : '0.00'
+        !isNaN(item.gstAmount)?Number(item.gstAmount).toFixed(2) : '0.00',
+        
+        
+        !isNaN(item.totalWithGST) ? Number(item.totalWithGST).toFixed(2) : '0.00'
       ]);
 
       for (let i = itemRows.length; i < 10; i++) {

@@ -112,62 +112,80 @@ const AdminDashboard = () => {
 
   const fetchAppointmentCounts = async () => {
     try {
-        const response = await fetch("http://localhost:5000/api/appointments/", {
-            method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${token}`,
-            },
-        });
-
-        if (!response.ok) {
-            throw new Error("Failed to fetch appointment counts");
-        }
-
-        const appointments = await response.json();
-        const newRequests = appointments.filter((appointment) => !appointment.completed).length;
-
-        // Calculate service requests by day or month
-        const requestCountByDay = Array(7).fill(0);
-        const requestCountByMonth = Array(12).fill(0);
+      const response = await fetch("http://localhost:5000/api/appointments/", {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+  
+      if (!response.ok) {
+        throw new Error("Failed to fetch appointment counts");
+      }
+  
+      const appointments = await response.json();
+      const newRequests = appointments.filter((appointment) => !appointment.completed).length;
+  
+      // Initialize counts
+      const requestCountByDay = Array(7).fill(0);
+      const requestCountByMonth = Array(12).fill(0);
+      const monthsOfYear = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  
+      // Calculate service requests by day
+      const daysOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+      const today = new Date();
+      const todayIndex = today.getDay();
+      
+      const dayLabels = Array(7).fill("").map((_, index) => {
+        const date = new Date();
+        date.setDate(today.getDate() - (todayIndex - index));
+        return `${daysOfWeek[index]} (${date.getDate()}/${date.getMonth() + 1})`;
+      });
+  
+      appointments.forEach((appointment) => {
+        const date = new Date(appointment.createdAt);
+        const day = date.getDay();
+        const month = date.getMonth();
+  
+        // Count requests for each day
+        requestCountByDay[day]++;
         
-        const daysOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-        const dayLabels = Array(7).fill("").map((_, index) => {
-            const date = new Date();
-            date.setDate(date.getDate() - (date.getDay() - index));
-            return `${daysOfWeek[index]} (${date.getDate()}/${date.getMonth() + 1})`;
-        });
-
-        appointments.forEach((appointment) => {
-            const date = new Date(appointment.createdAt);
-            const day = date.getDay();
-            requestCountByDay[day]++;
-        });
-
-        const monthsOfYear = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-        
-        // Set initial data based on current viewMode
-        setServiceRequestsData({
-            labels: viewMode === "day" ? dayLabels : monthsOfYear,
-            data: viewMode === "day" ? requestCountByDay : requestCountByMonth,
-        });
-
-        // Reverse the activities to show the latest first
-        const activities = appointments
-            .map((appointment) => ({
-                accountant: appointment.createdBy ? appointment.createdBy.name : "Unknown Accountant",
-                engineer: appointment.engineer ? appointment.engineer.name : "Unknown Engineer",
-                createdAt: new Date(appointment.createdAt).toLocaleString(),
-            }))
-            .reverse()
-            .slice(0, 3);
-
-        setNewServiceRequests(newRequests);
-        setRecentActivities(activities);
+        // Count requests for each month
+        requestCountByMonth[month]++;
+      });
+  
+      // Set upcoming days (after today) to zero
+      for (let i = todayIndex + 1; i < 7; i++) {
+        requestCountByDay[i] = 0;
+      }
+  
+      // Set initial data based on current viewMode
+      setServiceRequestsData({
+        labels: viewMode === "day" ? dayLabels : monthsOfYear,
+        data: viewMode === "day" ? requestCountByDay : requestCountByMonth,
+      });
+  
+      // Reverse the activities to show the latest first
+      const activities = appointments
+        .map((appointment) => ({
+          accountant: appointment.createdBy ? appointment.createdBy.name : "Unknown Accountant",
+          engineer: appointment.engineer ? appointment.engineer.name : "Unknown Engineer",
+          createdAt: new Date(appointment.createdAt).toLocaleString(),
+        }))
+        .reverse()
+        .slice(0, 3);
+  
+      setNewServiceRequests(newRequests);
+      setRecentActivities(activities);
     } catch (error) {
-        console.error("Appointment Count Error:", error);
+      console.error("Appointment Count Error:", error);
     }
-};
+  };
+  
+  
+  
+  
 
 
 

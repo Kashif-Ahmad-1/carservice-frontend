@@ -2,9 +2,8 @@ import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import logo from './comp-logo.jpeg';
 import {
-  AppBar,
-  Toolbar,
-  Typography,
+  AppBar,Toolbar,
+Typography,
   Box,
   Table,
   TableBody,
@@ -21,8 +20,8 @@ import {
   ListItem,
   ListItemText,
   IconButton,
-  
-  
+  Pagination,
+  TablePagination
 } from "@mui/material";
 import {
   Download,
@@ -81,6 +80,11 @@ function EngineerDetailsPage() {
   const [serviceHistory, setServiceHistory] = useState([]);
   const [error, setError] = useState(null);
   const [sidebarOpen, setSidebarOpen] = useState(false); // State to handle sidebar visibility
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1); // Track current page
+  const appointmentsPerPage = 10; // Number of appointments per page
+  
+ 
 
   useEffect(() => {
     const fetchAppointmentData = async () => {
@@ -127,6 +131,9 @@ function EngineerDetailsPage() {
   if (appointments.length === 0) {
     return <Typography variant="h6">Loading...</Typography>;
   }
+
+
+
 
   const toggleRow = (clientIdentifier) => {
     setExpandedRows((prev) => ({
@@ -208,6 +215,17 @@ function EngineerDetailsPage() {
     });
   };
 
+
+   // Get current appointments to display
+   const indexOfLastAppointment = currentPage * appointmentsPerPage;
+   const indexOfFirstAppointment = indexOfLastAppointment - appointmentsPerPage;
+   const currentAppointments = Object.entries(groupedAppointments).slice(indexOfFirstAppointment, indexOfLastAppointment);
+   const handleChangePage = (event, value) => {
+     setCurrentPage(value); // Update the current page
+   };
+   // Calculate total pages
+   const totalPages = Math.ceil(Object.keys(groupedAppointments).length / appointmentsPerPage);
+
   return (
     <Box sx={{ display: "flex", flexDirection: "row", minHeight: "100vh" }}>
       {sidebarOpen && <Sidebar />} {/* Conditionally render Sidebar */}
@@ -262,8 +280,7 @@ function EngineerDetailsPage() {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {Object.entries(groupedAppointments).map(
-                  ([key, clientAppointments]) => {
+                {currentAppointments.map(([key, clientAppointments]) => {
                     const [clientName, mobileNo] = key.split("-"); // Destructure client name and mobile number
                     const firstAppointment = clientAppointments[0]; // Get the first appointment to display
 
@@ -567,9 +584,16 @@ function EngineerDetailsPage() {
               </TableBody>
             </Table>
           </TableContainer>
+          <Pagination 
+    count={totalPages} 
+    page={currentPage} 
+    onChange={handleChangePage} 
+    color="primary"
+  />
         </Container>
         <Footer />
       </Box>
+    
       
       {/* Modal for Service History */}
       <Modal open={openModal} onClose={handleCloseModal}>
@@ -635,6 +659,8 @@ function EngineerDetailsPage() {
           </Button>
         </Box>
       </Modal>
+
+    
     </Box>
   );
 }
