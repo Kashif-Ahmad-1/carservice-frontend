@@ -1,5 +1,5 @@
 import React, { useState, useContext } from "react";
-import HeroCar from "./../../images/hero/main-car.png";
+import HeroCar from "./../../images/company logo/comp-logo.jpeg";
 import { FaEye, FaEyeSlash } from "react-icons/fa6";
 import styles from './Login.module.css';
 import { useNavigate } from "react-router-dom";

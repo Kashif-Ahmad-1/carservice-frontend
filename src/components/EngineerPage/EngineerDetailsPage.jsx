@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import logo from './comp-logo.jpeg';
 import {
   AppBar,
   Toolbar,
@@ -19,11 +20,16 @@ import {
   Button,
   ListItem,
   ListItemText,
+  IconButton,
+  
+  
 } from "@mui/material";
 import {
   Download,
   Menu,
   CheckCircle,
+  
+  
   History as HistoryIcon,
 } from "@mui/icons-material";
 import Sidebar from "./Sidebar"; // Adjust path if necessary
@@ -35,12 +41,17 @@ const Header = ({ onToggleSidebar }) => (
       <Button color="inherit" onClick={onToggleSidebar}>
         <Menu />
       </Button>
+      <img
+        src={logo}
+        alt="Company Logo"
+        style={{ width: 40, height: 40, marginRight: 10 }} // Adjust size and margin as needed
+      />
       <Typography variant="h6" sx={{ fontWeight: "bold", color: "#ff4081" }}>
         Company Name
       </Typography>
     </Toolbar>
   </AppBar>
-);
+)
 
 // Footer Component
 const Footer = () => (
@@ -134,8 +145,20 @@ function EngineerDetailsPage() {
     return acc;
   }, {});
 
+
+
+  const generateDocumentNumber = (lastDocNumber) => {
+    const docPrefix = "DOC:";
+    const lastNumber = parseInt(lastDocNumber.replace(docPrefix, ""), 10);
+    const nextNumber = isNaN(lastNumber) ? 1 : lastNumber + 1;
+    return `${docPrefix}${nextNumber}`;
+  };
+
   const handleEditClick = (appointment) => {
-    
+
+    const lastDocNumber = appointment.checklists.documentNumber || ""; // Replace with your logic to fetch last number
+    const newDocumentNumber = generateDocumentNumber(lastDocNumber);
+
     navigate(`/checklist`, {
       state: {
         appointmentId: appointment._id,
@@ -145,6 +168,7 @@ function EngineerDetailsPage() {
         address: appointment.clientAddress,
         engineer: appointment.engineer,
         invoiceNo: appointment.invoiceNumber,
+        documentNumber: newDocumentNumber,
       },
     });
   };
@@ -183,7 +207,6 @@ function EngineerDetailsPage() {
       },
     });
   };
-  
 
   return (
     <Box sx={{ display: "flex", flexDirection: "row", minHeight: "100vh" }}>
@@ -243,14 +266,16 @@ function EngineerDetailsPage() {
                   ([key, clientAppointments]) => {
                     const [clientName, mobileNo] = key.split("-"); // Destructure client name and mobile number
                     const firstAppointment = clientAppointments[0]; // Get the first appointment to display
-                   
+
                     return (
                       <React.Fragment key={firstAppointment._id}>
                         <TableRow
                           onClick={() => toggleRow(key)}
                           style={{ cursor: "pointer" }}
                         >
-                          <TableCell>{firstAppointment.invoiceNumber}</TableCell>
+                          <TableCell>
+                            {firstAppointment.invoiceNumber}
+                          </TableCell>
                           <TableCell>{clientName}</TableCell>
                           <TableCell>{mobileNo}</TableCell>
                           <TableCell>
@@ -314,25 +339,42 @@ function EngineerDetailsPage() {
                             </span>
                           </TableCell>
                           <TableCell>
-  {firstAppointment.checklists.length > 0 ? (
-    // Sort checklists by generatedOn in descending order and get the latest one
-    (() => {
-      const sortedChecklists = [...firstAppointment.checklists].sort((a, b) => {
-        return new Date(b.generatedOn) - new Date(a.generatedOn);
-      });
-      const latestChecklist = sortedChecklists[0]; // Get the most recent checklist
-      return latestChecklist.pdfPath ? (
-        <span onClick={() => handleDownloadPDF(latestChecklist.pdfPath)} style={{ cursor: 'pointer' }}>
-          <Download sx={{ color: 'blue' }} />
-        </span>
-      ) : (
-        <Typography variant="body2" color="textSecondary">No Invoice</Typography>
-      );
-    })()
-  ) : (
-    <Typography variant="body2" color="textSecondary">No Checklist</Typography>
-  )}
-</TableCell>
+                            {firstAppointment.checklists.length > 0 ? (
+                              // Sort checklists by generatedOn in descending order and get the latest one
+                              (() => {
+                                const sortedChecklists = [
+                                  ...firstAppointment.checklists,
+                                ].sort((a, b) => {
+                                  return (
+                                    new Date(b.generatedOn) -
+                                    new Date(a.generatedOn)
+                                  );
+                                });
+                                const latestChecklist = sortedChecklists[0]; // Get the most recent checklist
+                                return latestChecklist.pdfPath ? (
+                                  <span
+                                    onClick={() =>
+                                      handleDownloadPDF(latestChecklist.pdfPath)
+                                    }
+                                    style={{ cursor: "pointer" }}
+                                  >
+                                    <Download sx={{ color: "blue" }} />
+                                  </span>
+                                ) : (
+                                  <Typography
+                                    variant="body2"
+                                    color="textSecondary"
+                                  >
+                                    No Invoice
+                                  </Typography>
+                                );
+                              })()
+                            ) : (
+                              <Typography variant="body2" color="textSecondary">
+                                No Checklist
+                              </Typography>
+                            )}
+                          </TableCell>
 
                           <TableCell>
                             <span
@@ -371,7 +413,9 @@ function EngineerDetailsPage() {
                                         appointment // Skip the first appointment
                                       ) => (
                                         <TableRow key={appointment._id}>
-                                          <TableCell>{appointment.invoiceNumber}</TableCell>
+                                          <TableCell>
+                                            {appointment.invoiceNumber}
+                                          </TableCell>
                                           <TableCell>
                                             {appointment.clientName}
                                           </TableCell>
@@ -460,26 +504,53 @@ function EngineerDetailsPage() {
                                             </span>
                                           </TableCell>
                                           <TableCell>
-  {firstAppointment.checklists.length > 0 ? (
-    // Sort checklists by generatedOn in descending order and get the latest one
-    (() => {
-      const sortedChecklists = [...firstAppointment.checklists].sort((a, b) => {
-        return new Date(b.generatedOn) - new Date(a.generatedOn);
-      });
-      const latestChecklist = sortedChecklists[0]; // Get the most recent checklist
-      return latestChecklist.pdfPath ? (
-        <span onClick={() => handleDownloadPDF(latestChecklist.pdfPath)} style={{ cursor: 'pointer' }}>
-          <Download sx={{ color: 'blue' }} />
-        </span>
-      ) : (
-        <Typography variant="body2" color="textSecondary">No Invoice</Typography>
-      );
-    })()
-  ) : (
-    <Typography variant="body2" color="textSecondary">No Checklist</Typography>
-  )}
-</TableCell>
-
+                                            {firstAppointment.checklists
+                                              .length > 0 ? (
+                                              // Sort checklists by generatedOn in descending order and get the latest one
+                                              (() => {
+                                                const sortedChecklists = [
+                                                  ...firstAppointment.checklists,
+                                                ].sort((a, b) => {
+                                                  return (
+                                                    new Date(b.generatedOn) -
+                                                    new Date(a.generatedOn)
+                                                  );
+                                                });
+                                                const latestChecklist =
+                                                  sortedChecklists[0]; // Get the most recent checklist
+                                                return latestChecklist.pdfPath ? (
+                                                  <span
+                                                    onClick={() =>
+                                                      handleDownloadPDF(
+                                                        latestChecklist.pdfPath
+                                                      )
+                                                    }
+                                                    style={{
+                                                      cursor: "pointer",
+                                                    }}
+                                                  >
+                                                    <Download
+                                                      sx={{ color: "blue" }}
+                                                    />
+                                                  </span>
+                                                ) : (
+                                                  <Typography
+                                                    variant="body2"
+                                                    color="textSecondary"
+                                                  >
+                                                    No Invoice
+                                                  </Typography>
+                                                );
+                                              })()
+                                            ) : (
+                                              <Typography
+                                                variant="body2"
+                                                color="textSecondary"
+                                              >
+                                                No Checklist
+                                              </Typography>
+                                            )}
+                                          </TableCell>
                                         </TableRow>
                                       )
                                     )}
@@ -499,17 +570,32 @@ function EngineerDetailsPage() {
         </Container>
         <Footer />
       </Box>
+      
       {/* Modal for Service History */}
       <Modal open={openModal} onClose={handleCloseModal}>
         <Box
           sx={{
-            width: 400,
+            width: 500,
+            maxHeight: '70vh',
+            overflowY: 'auto',
             padding: 4,
             backgroundColor: "white",
             margin: "auto",
             marginTop: "10%",
+            position: 'relative', // Set position relative for positioning the close button
           }}
         >
+          <IconButton
+            onClick={handleCloseModal}
+            sx={{
+              position: 'absolute',
+              top: 8,
+              right: 8,
+            }}
+          >
+            X
+          </IconButton>
+
           <Typography variant="h6">
             {selectedClient}'s Service History
           </Typography>
@@ -517,12 +603,25 @@ function EngineerDetailsPage() {
             {serviceHistory.map((historyItem, index) => (
               <ListItem key={index}>
                 <ListItemText
-                  primary={`Date: ${new Date(
-                    historyItem.appointmentDate
-                  ).toLocaleDateString()} | Amount: ${
-                    historyItem.appointmentAmount || "N/A"
-                  }`}
-                  secondary={`Machine: ${historyItem.machineName}`}
+                  primary={`Date: ${new Date(historyItem.appointmentDate).toLocaleDateString()}`}
+                  secondary={
+                    <>
+                      {`Machine: ${historyItem.machineName}`}<br />
+                      {historyItem.quotations.map((quote, idx) => (
+                        <div key={idx} style={{ display: 'flex', alignItems: 'center' }}>
+                          <span>
+                            Quotation No: {quote.quotationNo}, Amount: ${quote.quotationAmount || "N/A"}
+                          </span>
+                          <IconButton 
+                            onClick={() => handleDownloadPDF(quote.pdfPath)} 
+                            sx={{ marginLeft: 1 }}
+                          >
+                            <Download />
+                          </IconButton>
+                        </div>
+                      ))}
+                    </>
+                  }
                 />
               </ListItem>
             ))}

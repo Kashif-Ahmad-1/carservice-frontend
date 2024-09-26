@@ -9,11 +9,13 @@ import {
   AppBar,
   Toolbar,
   IconButton,
+  TextField,
 } from "@mui/material";
+import logo from './comp-logo.jpeg';
 import { styled } from "@mui/material/styles";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { Download, Menu, Delete } from "@mui/icons-material"; // Import Delete icon
+import { Download, Menu, Delete } from "@mui/icons-material"; 
 import Sidebar from "./Sidebar";
 
 const MainContent = styled("main")(({ theme }) => ({
@@ -54,8 +56,9 @@ const Table = styled("table")(({ theme }) => ({
 const ServiceRequestDocPage = () => {
   const [checklists, setChecklists] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 20; // Items to display per page
+  const itemsPerPage = 20; 
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
 
   const handleToggleSidebar = () => {
     setSidebarOpen((prev) => !prev);
@@ -71,10 +74,12 @@ const ServiceRequestDocPage = () => {
         <IconButton color="inherit" onClick={handleToggleSidebar}>
           <Menu />
         </IconButton>
-        <Typography
-          variant="h6"
-          sx={{ flexGrow: 1, fontWeight: "bold", color: "#ff4081" }}
-        >
+        <img
+        src={logo}
+        alt="Company Logo"
+        style={{ width: 40, height: 40, marginRight: 10 }} // Adjust size and margin as needed
+      />
+        <Typography variant="h6" sx={{ flexGrow: 1, fontWeight: "bold", color: "#ff4081" }}>
           Company Name
         </Typography>
       </Toolbar>
@@ -89,7 +94,6 @@ const ServiceRequestDocPage = () => {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
-          
         },
       });
 
@@ -98,8 +102,6 @@ const ServiceRequestDocPage = () => {
       }
 
       const data = await response.json();
-
-      // Sort checklists by createdAt in descending order
       const sortedChecklists = data.sort((a, b) => new Date(b.generatedOn) - new Date(a.generatedOn));
       setChecklists(sortedChecklists);
     } catch (error) {
@@ -124,7 +126,6 @@ const ServiceRequestDocPage = () => {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
-          
         },
       });
 
@@ -132,22 +133,29 @@ const ServiceRequestDocPage = () => {
         throw new Error("Failed to delete checklist");
       }
 
-      // Update the state to remove the deleted checklist
-      setChecklists((prevChecklists) =>
-        prevChecklists.filter((checklist) => checklist._id !== id)
-      );
-
+      setChecklists((prevChecklists) => prevChecklists.filter((checklist) => checklist._id !== id));
       toast.success("Checklist deleted successfully!");
     } catch (error) {
       toast.error(error.message || "Error deleting checklist!");
     }
   };
 
+  // Search functionality
+  const filteredChecklists = checklists.filter((checklist) => {
+    const lowerCaseTerm = searchTerm.toLowerCase();
+    return (
+      checklist.clientInfo?.name.toLowerCase().includes(lowerCaseTerm) ||
+      checklist.invoiceNo.toLowerCase().includes(lowerCaseTerm) ||
+      checklist.clientInfo?.contactPerson?.toLowerCase().includes(lowerCaseTerm) ||
+      checklist.clientInfo?.phone?.toLowerCase().includes(lowerCaseTerm)
+    );
+  });
+
   // Pagination logic
   const indexOfLastChecklist = currentPage * itemsPerPage;
   const indexOfFirstChecklist = indexOfLastChecklist - itemsPerPage;
-  const currentChecklists = checklists.slice(indexOfFirstChecklist, indexOfLastChecklist);
-  const totalPages = Math.ceil(checklists.length / itemsPerPage);
+  const currentChecklists = filteredChecklists.slice(indexOfFirstChecklist, indexOfLastChecklist);
+  const totalPages = Math.ceil(filteredChecklists.length / itemsPerPage);
 
   const handleNextPage = () => {
     if (currentPage < totalPages) {
@@ -161,6 +169,11 @@ const ServiceRequestDocPage = () => {
     }
   };
 
+  const handleSearchChange = (event) => {
+    setSearchTerm(event.target.value);
+    setCurrentPage(1); // Reset to first page on new search
+  };
+
   return (
     <Box sx={{ display: "flex" }}>
       <CssBaseline />
@@ -169,9 +182,18 @@ const ServiceRequestDocPage = () => {
         <Header />
         <ToolbarSpacer />
         <Container>
-          <SectionTitle variant="h4">Service Request List</SectionTitle>
+          <SectionTitle variant="h4">Service Record List</SectionTitle>
           <Card>
-            <Typography variant="h6">Service Requests</Typography>
+            <TextField
+              variant="outlined"
+              placeholder="Search by Client Name, Invoice No, Contact Person, or Phone"
+              value={searchTerm}
+              onChange={handleSearchChange}
+              fullWidth
+            />
+            <Typography variant="h6" sx={{ marginTop: 2 }}>
+              Service Requests
+            </Typography>
             <Paper sx={{ overflowX: "auto", mt: 2 }}>
               <Table>
                 <thead>
@@ -186,41 +208,49 @@ const ServiceRequestDocPage = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {currentChecklists.map((checklist, index) => (
-                    <tr key={checklist._id}>
-                      <td>{index + 1 + indexOfFirstChecklist}</td>
-                      <td>{checklist.invoiceNo || "N/A"}</td>
-                      <td>{checklist.clientInfo?.name || "N/A"}</td>
-                      <td>{checklist.clientInfo?.contactPerson || "N/A"}</td>
-                      <td>{checklist.clientInfo?.phone || "N/A"}</td>
-                      <td>
-                        <Button
-                          variant="contained"
-                          color="secondary"
-                          onClick={() => handleDownloadPDF(checklist.pdfPath)}
-                        >
-                          <Download /> Download
-                        </Button>
-                      </td>
-                      <td>
-                        <Button
-                          variant="contained"
-                          color="error"
-                          onClick={() => handleDeleteChecklist(checklist._id)}
-                        >
-                          <Delete /> Delete
-                        </Button>
+                  {currentChecklists.length > 0 ? (
+                    currentChecklists.map((checklist, index) => (
+                      <tr key={checklist._id}>
+                        <td>{index + 1 + indexOfFirstChecklist}</td>
+                        <td>{checklist.invoiceNo || "N/A"}</td>
+                        <td>{checklist.clientInfo?.name || "N/A"}</td>
+                        <td>{checklist.clientInfo?.contactPerson || "N/A"}</td>
+                        <td>{checklist.clientInfo?.phone || "N/A"}</td>
+                        <td>
+                          <Button
+                            variant="contained"
+                            color="secondary"
+                            onClick={() => handleDownloadPDF(checklist.pdfPath)}
+                          >
+                            <Download /> Download
+                          </Button>
+                        </td>
+                        <td>
+                          <Button
+                            variant="contained"
+                            color="error"
+                            onClick={() => handleDeleteChecklist(checklist._id)}
+                          >
+                            <Delete /> Delete
+                          </Button>
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan="7" style={{ textAlign: "center" }}>
+                        No results found.
                       </td>
                     </tr>
-                  ))}
+                  )}
                 </tbody>
               </Table>
             </Paper>
             {/* Pagination Controls */}
             <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 2 }}>
-              <Button 
-                variant="contained" 
-                onClick={handlePreviousPage} 
+              <Button
+                variant="contained"
+                onClick={handlePreviousPage}
                 disabled={currentPage === 1}
               >
                 Previous
@@ -228,9 +258,9 @@ const ServiceRequestDocPage = () => {
               <Typography variant="body1">
                 Page {currentPage} of {totalPages}
               </Typography>
-              <Button 
-                variant="contained" 
-                onClick={handleNextPage} 
+              <Button
+                variant="contained"
+                onClick={handleNextPage}
                 disabled={currentPage === totalPages}
               >
                 Next

@@ -18,7 +18,7 @@ import {
 import { jsPDF } from "jspdf";
 import autoTable from "jspdf-autotable";
 import axios from "axios"; // Import axios for API calls
-
+import logo from './comp-logo.jpeg';
 const ChecklistPage = () => {
   const initialChecklist = [
     {
@@ -289,9 +289,21 @@ const ChecklistPage = () => {
   });
   const [authorizedSignature, setAuthorizedSignature] = useState("");
   const [appointmentId, setAppointmentId] = useState("");
+  const [spareParts, setSpareParts] = useState([{ desc: "", partNo: "", qty: "" }]);
  
   const location = useLocation();
-  const { invoiceNo } = location.state || {};
+  const { invoiceNo,documentNumber } = location.state || {};
+
+
+  const handleSparePartChange = (index, event) => {
+    const newSpareParts = [...spareParts];
+    newSpareParts[index][event.target.name] = event.target.value;
+    setSpareParts(newSpareParts);
+  };
+
+  const handleAddSparePart = () => {
+    setSpareParts([...spareParts, { desc: "", partNo: "", qty: "" }]);
+  };
  
   useEffect(() => {
     
@@ -339,11 +351,12 @@ const ChecklistPage = () => {
     const doc = new jsPDF();
   
     // Add logo in the top-right corner
-    const logo = "https://cdn.pixabay.com/photo/2016/12/27/13/10/logo-1933884_640.png"; // Logo URL
+    // const logo = "https://cdn.pixabay.com/photo/2016/12/27/13/10/logo-1933884_640.png"; // Logo URL
     const logoWidth = 40;
     const logoHeight = 40;
+    const imgData = logo;
     doc.addImage(
-      logo,
+      imgData,
       "PNG",
       doc.internal.pageSize.getWidth() - logoWidth - 10,
       10,
@@ -454,6 +467,18 @@ const ChecklistPage = () => {
       },
       margin: { top: 10 },
     });
+
+     // Spare Parts Header
+     doc.setFontSize(12);
+     doc.setFont("helvetica", "bold");
+     doc.text("List of spare parts required for next visit", 14, doc.autoTable.previous.finalY + 20);
+     
+     // Spare Parts Table
+     autoTable(doc, {
+       head: [["Required Parts Descpt.", "Part No.", "Qty."]],
+       body: spareParts.map(part => [part.desc, part.partNo, part.qty]),
+       startY: doc.autoTable.previous.finalY + 25,
+     });
   
     // Add footer
     doc.setFontSize(8);
@@ -478,6 +503,7 @@ const ChecklistPage = () => {
       checklist,
       invoiceNo,
       refrigeratorList,
+      documentNumber
     }));
   
     try {
@@ -491,7 +517,7 @@ const ChecklistPage = () => {
       },
       });
       console.log("Checklist and PDF uploaded successfully", response.data);
-      const { checklist, appointment,invoiceNo } = response.data;
+      const { checklist, appointment,invoiceNo,documentNumber } = response.data;
     
       // You can now use checklist and appointment data as needed
       console.log("Saved Checklist:", checklist);
@@ -517,7 +543,7 @@ const ChecklistPage = () => {
       </Typography>
       <Box sx={{ marginBottom: "10px", padding: "0 10px" }}>
         <Typography variant="h6" sx={{ marginBottom: "5px", fontSize: "16px" }}>
-          Client Information
+          Client Information : Doc Number {documentNumber}
         </Typography>
         <Grid container spacing={1}>
           <Grid item xs={12} md={3}>
@@ -561,7 +587,7 @@ const ChecklistPage = () => {
               fullWidth
               margin="normal"
               size="small"
-              name="invoiceNo" // Fixed the name to "contactPerson"
+              name="invoiceNo" 
               value={invoiceNo}
               onChange={handleClientInfoChange}
               InputProps={{
@@ -780,6 +806,31 @@ const ChecklistPage = () => {
           ))}
         </TableBody>
       </Table>
+
+
+{/* Spare Part */}
+
+      <Box sx={{ marginBottom: "10px", padding: "20px 10px" }}>
+        <Typography variant="h6" sx={{ marginBottom: "5px", fontSize: "16px",fontWeight:"Bold" }}>
+        List of spare parts required for next visit
+        </Typography>
+        {spareParts.map((part, index) => (
+          <Grid container spacing={1} key={index} sx={{ marginBottom: 1 }}>
+            <Grid item xs={12} md={4}>
+              <TextField label="Description" variant="outlined" fullWidth name="desc" value={part.desc} onChange={(e) => handleSparePartChange(index, e)} />
+            </Grid>
+            <Grid item xs={12} md={4}>
+              <TextField label="Part No." variant="outlined" fullWidth name="partNo" value={part.partNo} onChange={(e) => handleSparePartChange(index, e)} />
+            </Grid>
+            <Grid item xs={12} md={2}>
+              <TextField label="Qty" variant="outlined" fullWidth name="qty" value={part.qty} onChange={(e) => handleSparePartChange(index, e)} />
+            </Grid>
+          </Grid>
+        ))}
+        <Button variant="outlined" onClick={handleAddSparePart}>Add Spare Part</Button>
+      </Box>
+
+
 
       <Box
         sx={{ marginTop: "20px", display: "flex", justifyContent: "flex-end" }}

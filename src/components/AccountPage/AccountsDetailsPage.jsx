@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import logo from './comp-logo.jpeg';
 import {
   Table,
   TableBody,
@@ -30,7 +31,7 @@ function AppointmentDetailsPage() {
   const [showAddClientFields, setShowAddClientFields] = useState(false);
   const [showAddMachineField, setShowAddMachineField] = useState(false);
   const [clientData, setClientData] = useState({ name: '', address: '', contact: '', mobileNo: '' });
-  const [machineData, setMachineData] = useState({ name: '' });
+  const [machineData, setMachineData] = useState({ name: '',modelNo: '', partNo: '', qty: '' });
   const [expandedRows, setExpandedRows] = useState([]);
   const navigate = useNavigate();
   const [page, setPage] = useState(0);
@@ -73,6 +74,10 @@ function AppointmentDetailsPage() {
   const handleAddClientClick = () => {
     setShowAddClientFields(!showAddClientFields);
   };
+
+  
+
+
 
   const handleAddMachineClick = () => {
     setShowAddMachineField(!showAddMachineField);
@@ -181,6 +186,11 @@ function AppointmentDetailsPage() {
         <IconButton edge="start" color="inherit" onClick={toggleSidebar} sx={{ mr: 2 }}>
           <Menu />
         </IconButton>
+        <img
+        src={logo}
+        alt="Company Logo"
+        style={{ width: 40, height: 40, marginRight: 10 }} // Adjust size and margin as needed
+      />
         <Typography variant="h6" sx={{ flexGrow: 1, fontWeight: 'bold' }}>
           Company Name
         </Typography>

@@ -4,11 +4,11 @@ import "jspdf-autotable";
 import "./PdfGenerator.css";
 import { useLocation } from "react-router-dom";
 import axios from "axios";
-
+import logo from './comp-logo.jpeg';
 const QuotationGenerator = () => {
   const formRef = useRef();
   const location = useLocation();
-  const { clientName, contactPerson, address, mobileNo,appointmentId } = location.state || {};
+  const { clientName, contactPerson, address, mobileNo, appointmentId } = location.state || {};
 
   const generateQuotationNo = () => "QT" + Math.floor(Math.random() * 100000);
   const formatDate = (date) => date.toLocaleDateString(undefined, { year: "numeric", month: "2-digit", day: "2-digit" });
@@ -24,6 +24,7 @@ const QuotationGenerator = () => {
   const [formData, setFormData] = useState({
     buyerName: clientName || "",
     quotationNo: generateQuotationNo(),
+    quotationAmount: "",  // Store total amount here
     docDate: formatDate(new Date()),
     address: address || "",
     contactPerson: contactPerson || "",
@@ -77,11 +78,14 @@ const QuotationGenerator = () => {
         const updatedItems = [...prevData.items, newItem];
         const totalAmount = calculateTotalAmount(updatedItems);
         const totalWithGST = calculateTotalWithGST(totalAmount, prevData.gst);
+        
+        // Update quotationAmount in formData
         return {
           ...prevData,
           items: updatedItems,
           totalAmount,
           totalWithGST,
+          quotationAmount: totalWithGST // Store total with GST in quotationAmount
         };
       });
       setItemData({ itemName: "", quantity: "", rate: "" });
@@ -104,22 +108,22 @@ const QuotationGenerator = () => {
       ...prevData,
       totalAmount,
       totalWithGST,
+      quotationAmount: totalWithGST // Update quotationAmount when GST changes
     }));
   };
-  const itemRows = formData.items.map((item, index) => [
-    index + 1,
-    item.itemName,
-    item.quantity,
-    item.rate,
-    (item.gstAmount || 0).toFixed(2), // Ensure gstAmount has a default value
-    (item.totalWithGST || 0).toFixed(2), // Ensure totalWithGST has a default value
-  ]);
 
   const generatePDF = async () => {
     const doc = new jsPDF();
-    const logo = "https://cdn.pixabay.com/photo/2016/12/27/13/10/logo-1933884_640.png";
+    const logoWidth = 40;
+    const logoHeight = 40;
+    const imgData = logo;
+    doc.addImage(imgData, 'PNG', 10, 10, 40, 15,logoWidth,
+      logoHeight);
+    // const logo = "https://cdn.pixabay.com/photo/2016/12/27/13/10/logo-1933884_640.png";
 
-     doc.setDrawColor(200);
+    // [PDF generation code goes here]
+
+    doc.setDrawColor(200);
       doc.setFillColor(245, 245, 245);
       doc.rect(60, 10, 100, 25, 'F');
       doc.setFontSize(10);
@@ -229,19 +233,27 @@ const QuotationGenerator = () => {
       doc.text('Thank you for your business!', 15, footerY);
       doc.text('For any queries, please contact us at info@company.com', 15, footerY + 5);
 
+
+      // backend code
+    
     const pdfBlob = doc.output("blob");
     const pdfFile = new File([pdfBlob], "quotation.pdf", { type: "application/pdf" });
 
     const formDatas = new FormData();
     formDatas.append("pdf", pdfFile);
-    formDatas.append("quotationData", JSON.stringify({ clientInfo,appointmentId, quotationNo: formData.quotationNo }));
+    formDatas.append("quotationData", JSON.stringify({ 
+      clientInfo, 
+      appointmentId, 
+      quotationNo: formData.quotationNo, 
+      quotationAmount: formData.quotationAmount // Send the total amount
+    }));
 
     try {
       const token = localStorage.getItem("token");
       await axios.post("http://localhost:5000/api/quotations", formDatas, {
         headers: {
           "Content-Type": "multipart/form-data",
-          Authorization: `Bearer ${token}`, // Set the Authorization header
+          Authorization: `Bearer ${token}`,
         },
       });
       console.log("Checklist and PDF uploaded successfully");

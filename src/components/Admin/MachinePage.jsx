@@ -74,6 +74,8 @@ const MachinePage = () => {
   const [newMachine, setNewMachine] = useState({
     name: '',
     quantity: '',
+    modelNo: '',
+    partNo: '',
   });
   const [editingMachineId, setEditingMachineId] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
@@ -105,7 +107,9 @@ const MachinePage = () => {
     const results = machines
       .filter(machine =>
         (machine.name && machine.name.toLowerCase().includes(searchQuery.toLowerCase())) ||
-        (machine.quantity && machine.quantity.toString().includes(searchQuery))
+        (machine.quantity && machine.quantity.toString().includes(searchQuery)) ||
+        (machine.modelNo && machine.modelNo.toLowerCase().includes(searchQuery.toLowerCase())) ||
+        (machine.partNo && machine.partNo.toLowerCase().includes(searchQuery.toLowerCase()))
       )
       .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)); // Sort latest first
 
@@ -237,10 +241,19 @@ const MachinePage = () => {
                   required
                 />
                 <TextField
-                  label="Quantity"
-                  name="quantity"
-                  type="number"
-                  value={newMachine.quantity}
+                  label="Model No."
+                  name="modelNo"
+                  type="string"
+                  value={newMachine.modelNo}
+                  onChange={handleChange}
+                  sx={{ mb: 1, width: '90%' }}
+                  required
+                />
+                <TextField
+                  label="Part No."
+                  name="partNo"
+                  type="string"
+                  value={newMachine.partNo}
                   onChange={handleChange}
                   sx={{ mb: 1, width: '90%' }}
                   required
@@ -260,7 +273,8 @@ const MachinePage = () => {
                   <tr>
                     <th>SR No</th>
                     <th>Machine Name</th>
-                    <th>Quantity</th>
+                    <th>Model No.</th>
+                    <th>Part No.</th>
                     <th>Actions</th>
                   </tr>
                 </thead>
@@ -269,7 +283,8 @@ const MachinePage = () => {
                     <tr key={machine._id}>
                       <td>{indexOfFirstMachine + index + 1}</td>
                       <td>{machine.name}</td>
-                      <td>{machine.quantity}</td>
+                      <td>{machine.modelNo}</td>
+                      <td>{machine.partNo}</td>
                       <td>
                         <Button variant="contained" color="secondary" sx={{ mr: 1 }} onClick={() => handleEdit(machine)}>
                           Edit

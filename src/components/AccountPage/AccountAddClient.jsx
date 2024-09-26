@@ -13,13 +13,15 @@ function AppointmentPage() {
   const [engineers, setEngineers] = useState([]);
   const [machines, setMachines] = useState([]);
   const [clientName, setClientName] = useState("");
+ 
+  const [invoiceNumber, setInvoiceNumber] = useState("");
   const [clientAddress, setClientAddress] = useState("");
   const [contactPerson, setContactPerson] = useState("");
   const [mobileNo, setMobileNo] = useState("");
   const [appointmentDate, setAppointmentDate] = useState("");
   const [appointmentAmount, setAppointmentAmount] = useState(0);
   const [machineName, setMachineName] = useState("");
-  const [model, setModel] = useState("");
+  const [modelNo, setModelNo] = useState("");
   const [partNo, setPartNo] = useState("");
   const [serialNo, setSerialNo] = useState("");
   const [engineerId, setEngineerId] = useState("");
@@ -30,11 +32,14 @@ function AppointmentPage() {
   useEffect(() => {
     const fetchEngineers = async () => {
       try {
-        const response = await fetch("http://localhost:5000/api/users/engineers", {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-        });
+        const response = await fetch(
+          "http://localhost:5000/api/users/engineers",
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+          }
+        );
         const data = await response.json();
         if (response.ok) {
           setEngineers(data);
@@ -70,6 +75,7 @@ function AppointmentPage() {
   useEffect(() => {
     const draftData = JSON.parse(localStorage.getItem("appointmentDraft"));
     if (draftData) {
+      setInvoiceNumber(draftData.invoiceNumber);
       setClientName(draftData.clientName);
       setClientAddress(draftData.clientAddress);
       setContactPerson(draftData.contactPerson);
@@ -77,7 +83,7 @@ function AppointmentPage() {
       setAppointmentDate(draftData.appointmentDate);
       setAppointmentAmount(draftData.appointmentAmount);
       setMachineName(draftData.machineName);
-      setModel(draftData.model);
+      setModelNo(draftData.modelNo);
       setPartNo(draftData.partNo);
       setSerialNo(draftData.serialNo);
       setInstallationDate(draftData.installationDate);
@@ -93,11 +99,16 @@ function AppointmentPage() {
 
     if (value.length >= 2) {
       try {
-        const response = await fetch(`http://localhost:5000/api/companies/search?name=${encodeURIComponent(value)}`, {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-        });
+        const response = await fetch(
+          `http://localhost:5000/api/companies/search?name=${encodeURIComponent(
+            value
+          )}`,
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+          }
+        );
 
         const data = await response.json();
         setSuggestions(data);
@@ -109,6 +120,32 @@ function AppointmentPage() {
     }
   };
 
+
+  
+  const handleMachineChange = (e) => {
+    const selectedMachineName = e.target.value;
+    const selectedMachine = machines.find(
+      (machine) => machine.name === selectedMachineName
+    );
+
+    console.log("Selected Machine Name:", selectedMachineName); // Debugging line
+    console.log("Selected Machine Data:", selectedMachine); // Debugging line
+
+    if (selectedMachine) {
+      setMachineName(selectedMachine.name);
+      setModelNo(selectedMachine.modelNo); // Update model number
+      setPartNo(selectedMachine.partNo); // Update part number
+      setSerialNo(""); // Optionally reset serial number
+    } else {
+      setMachineName("");
+      setModelNo("");
+      setPartNo("");
+      setSerialNo(""); // Reset serial number if no machine is selected
+    }
+  };
+
+
+ 
   const validateDates = (installDate, invoiceDate) => {
     if (installDate <= invoiceDate) {
       setDateError("Installation date must be greater than the invoice date.");
@@ -124,7 +161,6 @@ function AppointmentPage() {
     setInstallationDate(newInstallDate);
     calculateExpectedServiceDate(newInstallDate, serviceFrequency);
 
-    // Validate the dates
     const invoiceDate = new Date(appointmentDate);
     validateDates(new Date(newInstallDate), invoiceDate);
   };
@@ -133,7 +169,6 @@ function AppointmentPage() {
     const newInvoiceDate = e.target.value;
     setAppointmentDate(newInvoiceDate);
 
-    // Validate the dates
     const installDate = new Date(installationDate);
     validateDates(installDate, new Date(newInvoiceDate));
   };
@@ -146,13 +181,8 @@ function AppointmentPage() {
   const handleSubmit = async (event) => {
     event.preventDefault();
 
-    const installDate = new Date(installationDate);
-    const invoiceDate = new Date(appointmentDate);
-    if (!validateDates(installDate, invoiceDate)) {
-      return; // Stop submission if dates are invalid
-    }
-
     const appointmentData = new FormData();
+    appointmentData.append("invoiceNumber", invoiceNumber);
     appointmentData.append("clientName", clientName);
     appointmentData.append("clientAddress", clientAddress);
     appointmentData.append("contactPerson", contactPerson);
@@ -160,7 +190,7 @@ function AppointmentPage() {
     appointmentData.append("appointmentDate", appointmentDate);
     appointmentData.append("appointmentAmount", appointmentAmount);
     appointmentData.append("machineName", machineName);
-    appointmentData.append("model", model);
+    appointmentData.append("model", modelNo);
     appointmentData.append("partNo", partNo);
     appointmentData.append("serialNo", serialNo);
     appointmentData.append("installationDate", installationDate);
@@ -170,11 +200,11 @@ function AppointmentPage() {
     appointmentData.append("document", document);
 
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem("token");
       const response = await fetch("http://localhost:5000/api/appointments/", {
         method: "POST",
         headers: {
-          'Authorization': `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
         },
         body: appointmentData,
       });
@@ -203,6 +233,7 @@ function AppointmentPage() {
 
   const handleDraftSave = () => {
     const draftData = {
+      invoiceNumber,
       clientName,
       clientAddress,
       contactPerson,
@@ -210,7 +241,7 @@ function AppointmentPage() {
       appointmentDate,
       appointmentAmount,
       machineName,
-      model,
+      modelNo,
       partNo,
       serialNo,
       installationDate,
@@ -232,7 +263,9 @@ function AppointmentPage() {
   const calculateExpectedServiceDate = (installationDate, serviceFrequency) => {
     if (installationDate && serviceFrequency) {
       const installDate = new Date(installationDate);
-      installDate.setDate(installDate.getDate() + parseInt(serviceFrequency, 10));
+      installDate.setDate(
+        installDate.getDate() + parseInt(serviceFrequency, 10)
+      );
       const expectedDate = installDate.toISOString().split("T")[0];
       setExpectedServiceDate(expectedDate);
     }
@@ -245,158 +278,194 @@ function AppointmentPage() {
         <form className="appointment-form" onSubmit={handleSubmit}>
           <div className="form-row">
             <div className="form-group">
+              <label htmlFor="invoiceNumber">Invoice number:</label>
+              <input
+                type="text"
+                id="invoiceNumber"
+                value={invoiceNumber}
+                onChange={(e) => setInvoiceNumber(e.target.value)}
+                required
+              />
+            </div>
+
+            <div className="form-group">
               <label htmlFor="clientName">Enter Client Name:</label>
-              <input 
-                type="text" 
-                id="clientName" 
-                value={clientName} 
-                onChange={handleClientNameChange} 
-                required 
+              <input
+                type="text"
+                id="clientName"
+                value={clientName}
+                onChange={handleClientNameChange}
+                required
               />
               {suggestions.length > 0 && (
                 <ul className="suggestions-list">
                   {suggestions.map((suggestion) => (
-                    <li key={suggestion._id} onClick={() => {
-                      setClientName(suggestion.clientName);
-                      setClientAddress(suggestion.clientAddress);
-                      setContactPerson(suggestion.contactPerson);
-                      setMobileNo(suggestion.mobileNo);
-                      setSuggestions([]);
-                    }}>
+                    <li
+                      key={suggestion._id}
+                      onClick={() => {
+                        setClientName(suggestion.clientName);
+                        setClientAddress(suggestion.clientAddress);
+                        setContactPerson(suggestion.contactPerson);
+                        setMobileNo(suggestion.mobileNo);
+                        setSuggestions([]);
+                      }}
+                    >
                       {suggestion.clientName}
                     </li>
                   ))}
                 </ul>
               )}
             </div>
+
             <div className="form-group">
               <label htmlFor="clientAddress">Client Address:</label>
-              <input 
-                type="text" 
-                id="clientAddress" 
-                value={clientAddress} 
-                onChange={(e) => setClientAddress(e.target.value)} 
-                required 
+              <input
+                type="text"
+                id="clientAddress"
+                value={clientAddress}
+                onChange={(e) => setClientAddress(e.target.value)}
+                required
               />
             </div>
+
             <div className="form-group">
               <label htmlFor="contactPerson">Contact Person:</label>
-              <input 
-                type="text" 
-                id="contactPerson" 
-                value={contactPerson} 
-                onChange={(e) => setContactPerson(e.target.value)} 
-                required 
+              <input
+                type="text"
+                id="contactPerson"
+                value={contactPerson}
+                onChange={(e) => setContactPerson(e.target.value)}
+                required
               />
             </div>
+
             <div className="form-group">
               <label htmlFor="mobileNo">Mobile No.:</label>
-              <input 
-                type="tel" 
-                id="mobileNo" 
-                value={mobileNo} 
-                onChange={(e) => setMobileNo(e.target.value)} 
-                required 
+              <input
+                type="tel"
+                id="mobileNo"
+                value={mobileNo}
+                onChange={(e) => setMobileNo(e.target.value)}
+                required
               />
             </div>
+
             <div className="form-group">
               <label htmlFor="appointmentDate">Invoice Date:</label>
-              <input 
-                type="date" 
-                id="appointmentDate" 
-                value={appointmentDate} 
-                onChange={handleInvoiceDateChange} 
-                required 
+              <input
+                type="date"
+                id="appointmentDate"
+                value={appointmentDate}
+                onChange={handleInvoiceDateChange}
+                required
               />
             </div>
+
             <div className="form-group">
               <label htmlFor="appointmentAmount">Invoice Amount:</label>
-              <input 
-                type="number" 
-                id="appointmentAmount" 
-                value={appointmentAmount} 
-                onChange={(e) => setAppointmentAmount(e.target.value)} 
-                required 
+              <input
+                type="number"
+                id="appointmentAmount"
+                value={appointmentAmount}
+                onChange={(e) => setAppointmentAmount(e.target.value)}
+                required
               />
             </div>
+
             <div className="form-group">
               <label htmlFor="machineName">Machine Name:</label>
-              <select id="machineName" value={machineName} onChange={(e) => setMachineName(e.target.value)} required>
+              <select
+                id="machineName"
+                value={machineName}
+                onChange={handleMachineChange}
+                required
+              >
                 <option value="">Select a Machine</option>
                 {machines.map((machine) => (
                   <option key={machine._id} value={machine.name}>
-                    {machine.name} 
+                    {machine.name}
                   </option>
                 ))}
               </select>
             </div>
+
             <div className="form-group">
               <label htmlFor="model">Model:</label>
-              <input 
-                type="text" 
-                id="model" 
-                value={model} 
-                onChange={(e) => setModel(e.target.value)} 
-                required 
+              <input
+                type="text"
+                id="model"
+                value={modelNo}
+                readOnly // Optional: set to read-only to prevent manual input
+                required
               />
             </div>
+
             <div className="form-group">
               <label htmlFor="partNo">Part No.:</label>
-              <input 
-                type="text" 
-                id="partNo" 
-                value={partNo} 
-                onChange={(e) => setPartNo(e.target.value)} 
-                required 
+              <input
+                type="text"
+                id="partNo"
+                value={partNo}
+                readOnly // Optional: set to read-only to prevent manual input
+                required
               />
             </div>
+
             <div className="form-group">
               <label htmlFor="serialNo">Serial No.:</label>
-              <input 
-                type="text" 
-                id="serialNo" 
-                value={serialNo} 
-                onChange={(e) => setSerialNo(e.target.value)} 
-                required 
+              <input
+                type="text"
+                id="serialNo"
+                value={serialNo}
+                onChange={(e) => setSerialNo(e.target.value)}
+                required
               />
             </div>
+
             <div className="form-group">
               <label htmlFor="installationDate">Installation Date:</label>
-              <input 
-                type="date" 
-                id="installationDate" 
-                value={installationDate} 
-                onChange={handleDateChange} 
-                required 
+              <input
+                type="date"
+                id="installationDate"
+                value={installationDate}
+                onChange={handleDateChange}
+                required
               />
               {dateError && <span className="error-message">{dateError}</span>}
             </div>
+
             <div className="form-group">
-              <label htmlFor="serviceFrequency">Service Frequency (Days):</label>
-              <input 
-                type="number" 
-                id="serviceFrequency" 
-                value={serviceFrequency} 
-                onChange={handleFrequencyChange} 
-                required 
+              <label htmlFor="serviceFrequency">
+                Service Frequency (Days):
+              </label>
+              <input
+                type="number"
+                id="serviceFrequency"
+                value={serviceFrequency}
+                onChange={handleFrequencyChange}
+                required
               />
             </div>
+
             <div className="form-group">
-              <label htmlFor="expectedServiceDate">Expected Service Date:</label>
-              <input 
-                type="date" 
-                id="expectedServiceDate" 
-                value={expectedServiceDate} 
-                readOnly 
+              <label htmlFor="expectedServiceDate">
+                Expected Service Date:
+              </label>
+              <input
+                type="date"
+                id="expectedServiceDate"
+                value={expectedServiceDate}
+                readOnly
               />
             </div>
+
             <div className="form-group">
               <label htmlFor="engineer">Assign Engineer:</label>
-              <select 
-                id="engineer" 
-                value={engineerId} 
-                onChange={(e) => setEngineerId(e.target.value)} 
-                required 
+              <select
+                id="engineer"
+                value={engineerId}
+                onChange={(e) => setEngineerId(e.target.value)}
+                required
               >
                 <option value="">Select Engineer</option>
                 {engineers.map((engineer) => (
@@ -406,22 +475,31 @@ function AppointmentPage() {
                 ))}
               </select>
             </div>
+
             <div className="form-group">
               <label htmlFor="document">Upload Document:</label>
-              <input 
-                type="file" 
-                id="document" 
-                accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" 
-                onChange={(e) => setDocument(e.target.files[0])} 
+              <input
+                type="file"
+                id="document"
+                accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
+                onChange={(e) => setDocument(e.target.files[0])}
               />
             </div>
           </div>
           <div className="form-actions">
             <button type="submit">Submit</button>
-            <button type="button" className="draft-button" onClick={handleDraftSave}>
+            <button
+              type="button"
+              className="draft-button"
+              onClick={handleDraftSave}
+            >
               Save Draft
             </button>
-            <button type="button" className="back-button" onClick={handleBackClick}>
+            <button
+              type="button"
+              className="back-button"
+              onClick={handleBackClick}
+            >
               Back To Home
             </button>
           </div>

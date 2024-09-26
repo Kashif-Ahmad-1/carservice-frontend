@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Box, TextField, Button } from '@mui/material';
 
 function AddMachine({ onSubmit }) {
-  const [machineData, setMachineData] = useState({ name: '', quantity: '' });
+  const [machineData, setMachineData] = useState({ name: '', modelNo: '', partNo: '', quantity: '' });
 
   const handleInputChange = (e) => {
     setMachineData({
@@ -13,7 +13,7 @@ function AddMachine({ onSubmit }) {
 
   const handleSubmit = () => {
     onSubmit(machineData);
-    setMachineData({ name: '', quantity: '' });
+    setMachineData({ name: '', modelNo: '', partNo: '', quantity: '' });
   };
 
   return (
@@ -28,9 +28,18 @@ function AddMachine({ onSubmit }) {
       />
       <TextField
         label="Model"
-        name="quantity"
+        name="modelNo"
         type="string"
-        value={machineData.quantity}
+        value={machineData.modelNo}
+        onChange={handleInputChange}
+        fullWidth
+        sx={{ marginBottom: 2 }}
+      />
+      <TextField
+        label="Part"
+        name="partNo"
+        type="string"
+        value={machineData.partNo}
         onChange={handleInputChange}
         fullWidth
         sx={{ marginBottom: 2 }}

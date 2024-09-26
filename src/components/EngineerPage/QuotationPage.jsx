@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import logo from './comp-logo.jpeg';
 import {
   Box,
   CssBaseline,
@@ -9,6 +10,7 @@ import {
   AppBar,
   Toolbar,
   IconButton,
+  TextField,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { toast, ToastContainer } from "react-toastify";
@@ -53,15 +55,30 @@ const Table = styled("table")(({ theme }) => ({
 
 const QuotationPage = () => {
   const [quotations, setQuotations] = useState([]);
+  const [filteredQuotations, setFilteredQuotations] = useState([]);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 20; // Items per page
+  const [searchTerm, setSearchTerm] = useState("");
 
   const handleToggleSidebar = () => {
-    setSidebarOpen((prev) => !prev); // Toggle sidebar visibility
+    setSidebarOpen((prev) => !prev);
   };
 
   useEffect(() => {
     fetchQuotations();
   }, []);
+
+  useEffect(() => {
+    setFilteredQuotations(
+      quotations.filter((quotation) =>
+        quotation.clientInfo.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        quotation.quotationNo.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        quotation.clientInfo.contactPerson.toLowerCase().includes(searchTerm.toLowerCase())
+      )
+    );
+    setCurrentPage(1); // Reset to first page on search
+  }, [searchTerm, quotations]);
 
   // Header Component
   const Header = () => (
@@ -70,6 +87,11 @@ const QuotationPage = () => {
         <IconButton color="inherit" onClick={handleToggleSidebar}>
           <Menu />
         </IconButton>
+        <img
+        src={logo}
+        alt="Company Logo"
+        style={{ width: 40, height: 40, marginRight: 10 }} // Adjust size and margin as needed
+      />
         <Typography variant="h6" sx={{ flexGrow: 1, fontWeight: "bold", color: "#ff4081" }}>
           Company Name
         </Typography>
@@ -79,7 +101,7 @@ const QuotationPage = () => {
 
   const fetchQuotations = async () => {
     try {
-      const token = localStorage.getItem("token"); // Assuming you store the token in localStorage
+      const token = localStorage.getItem("token");
       if (!token) {
         throw new Error("No token found. Please log in.");
       }
@@ -93,20 +115,18 @@ const QuotationPage = () => {
       });
   
       if (!response.ok) {
-        // Log response status for debugging
         const errorData = await response.json();
         throw new Error(`Failed to fetch quotations: ${response.status} - ${errorData.message}`);
       }
   
       const data = await response.json();
-      setQuotations(data);
+      // Optional: Validate the data structure
+      const validData = data.filter(quotation => quotation.clientInfo); // Only keep valid quotations
+      setQuotations(validData);
     } catch (error) {
       toast.error(error.message || "Error fetching quotations!");
-    } finally {
-      // Optionally handle loading state or cleanup here
     }
   };
-  
 
   const handleStatusUpdate = async (quotation) => {
     try {
@@ -124,7 +144,7 @@ const QuotationPage = () => {
       }
 
       toast.success("Quotation status updated!");
-      fetchQuotations(); // Refresh the list after updating
+      fetchQuotations();
     } catch (error) {
       toast.error(error.message);
     }
@@ -132,11 +152,29 @@ const QuotationPage = () => {
 
   const handleDownloadPDF = (documentPath) => {
     const link = document.createElement("a");
-    link.href = `http://localhost:5000/${documentPath}`; // Point to your server path
-    link.setAttribute("download", documentPath.split("/").pop()); // Use the file name for downloading
+    link.href = `http://localhost:5000/${documentPath}`;
+    link.setAttribute("download", documentPath.split("/").pop());
     document.body.appendChild(link);
     link.click();
     link.remove();
+  };
+
+  // Pagination logic
+  const indexOfLastQuotation = currentPage * itemsPerPage;
+  const indexOfFirstQuotation = indexOfLastQuotation - itemsPerPage;
+  const currentQuotations = filteredQuotations.slice(indexOfFirstQuotation, indexOfLastQuotation);
+  const totalPages = Math.ceil(filteredQuotations.length / itemsPerPage);
+
+  const handleNextPage = () => {
+    if (currentPage < totalPages) {
+      setCurrentPage(currentPage + 1);
+    }
+  };
+
+  const handlePreviousPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+    }
   };
 
   return (
@@ -149,51 +187,91 @@ const QuotationPage = () => {
         <Container>
           <SectionTitle variant="h4">Quotation List</SectionTitle>
           <Card>
-            <Typography variant="h6">Quotations</Typography>
+            <TextField
+              variant="outlined"
+              placeholder="Search by Client Name, Quotation No, or Contact Person"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              fullWidth
+            />
+            <Typography variant="h6" sx={{ marginTop: 2 }}>
+              Quotations
+            </Typography>
             <Paper sx={{ overflowX: "auto", mt: 2 }}>
               <Table>
                 <thead>
                   <tr>
                     <th>SR No</th>
-                    <th>Quotation</th>
+                    <th>Quotation No</th>
                     <th>Client</th>
                     <th>Contact Person</th>
                     <th>Mobile Number</th>
+                    <th>Quotation Amount (Rs)</th>
                     <th>Status</th>
                     <th>Document</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {quotations.map((quotation, index) => (
-                    <tr key={quotation._id}>
-                      <td>{index + 1}</td>
-                      <td>{quotation.quotationNo}</td>
-                      <td>{quotation.clientInfo.name}</td>
-                      <td>{quotation.clientInfo.contactPerson}</td>
-                      <td>{quotation.clientInfo.phone}</td>
-                      <td>
-                        <Button
-                          variant="contained"
-                          color={quotation.status ? "success" : "warning"}
-                          onClick={() => handleStatusUpdate(quotation)}
-                        >
-                          {quotation.status ? "Complete" : "Pending"}
-                        </Button>
-                      </td>
-                      <td>
-                        <Button
-                          variant="contained"
-                          color="secondary"
-                          onClick={() => handleDownloadPDF(quotation.pdfPath)} // Call download on click
-                        >
-                          <Download /> Download
-                        </Button>
+                  {currentQuotations.length > 0 ? (
+                    currentQuotations.map((quotation, index) => (
+                      <tr key={quotation._id}>
+                        <td>{index + 1 + indexOfFirstQuotation}</td>
+                        <td>{quotation.quotationNo}</td>
+                        <td>{quotation.clientInfo.name}</td>
+                        <td>{quotation.clientInfo.contactPerson}</td>
+                        
+                        <td>{quotation.clientInfo.phone}</td>
+                        <td>{quotation.quotationAmount}</td>
+                        <td>
+                          <Button
+                            variant="contained"
+                            color={quotation.status ? "success" : "warning"}
+                            onClick={() => handleStatusUpdate(quotation)}
+                          >
+                            {quotation.status ? "Complete" : "Pending"}
+                          </Button>
+                        </td>
+                        <td>
+                          <Button
+                            variant="contained"
+                            color="secondary"
+                            onClick={() => handleDownloadPDF(quotation.pdfPath)}
+                          >
+                            <Download /> Download
+                          </Button>
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan="7" style={{ textAlign: "center" }}>
+                        No results found.
                       </td>
                     </tr>
-                  ))}
+                  )}
                 </tbody>
               </Table>
             </Paper>
+            {/* Pagination Controls */}
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 2 }}>
+              <Button
+                variant="contained"
+                onClick={handlePreviousPage}
+                disabled={currentPage === 1}
+              >
+                Previous
+              </Button>
+              <Typography variant="body1">
+                Page {currentPage} of {totalPages}
+              </Typography>
+              <Button
+                variant="contained"
+                onClick={handleNextPage}
+                disabled={currentPage === totalPages}
+              >
+                Next
+              </Button>
+            </Box>
           </Card>
         </Container>
       </MainContent>
