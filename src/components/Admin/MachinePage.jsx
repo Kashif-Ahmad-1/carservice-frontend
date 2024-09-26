@@ -235,6 +235,7 @@ const MachinePage = () => {
                 <TextField
                   label="Machine Name"
                   name="name"
+                  type="string"
                   value={newMachine.name}
                   onChange={handleChange}
                   sx={{ mb: 1, width: '90%' }}

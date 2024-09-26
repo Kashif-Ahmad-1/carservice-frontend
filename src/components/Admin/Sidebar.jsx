@@ -136,6 +136,14 @@ const Sidebar = () => {
             <ListItemText primary="Machine List" />
           </ListItemStyled>
 
+
+          <ListItemStyled button component={Link} to="/admin-service-record">
+            <ListItemIcon>
+              <SettingsIcon   />
+            </ListItemIcon>
+            <ListItemText primary="Service Record" />
+          </ListItemStyled>
+
           <Divider />
           <ListItemStyled button component={Link} to="/service-request">
             <ListItemIcon>

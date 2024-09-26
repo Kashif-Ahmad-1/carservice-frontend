@@ -242,27 +242,57 @@ const EngineerPage = () => {
         </ButtonContainer>
 
         {showForm && (
-          <SmallCard sx={{ mb: 2 }}>
+          <SmallCard sx={{ mb: 2 }} >
             <Typography variant="h6" align="center">{editingEngineerId ? 'Edit Engineer' : 'Add New Engineer'}</Typography>
             <form onSubmit={handleSubmit}>
               {/* Existing form fields... */}
               <TextField
-                label="Mobile Number"
-                name="mobileNumber"
-                value={newEngineer.mobileNumber}
-                onChange={handleChange}
-                sx={{ mb: 1, width: '90%' }}
-                required
-              />
-              <TextField
-                label="Password"
-                name="password"
-                type="password"
-                value={newEngineer.password}
-                onChange={handleChange}
-                sx={{ mb: 1, width: '90%' }}
-                required={!editingEngineerId} // Password required only on add
-              />
+              type= 'string'
+                  label="Name"
+                  name="name"
+                  value={newEngineer.name}
+                  onChange={handleChange}
+                  sx={{ mb: 1, width: '90%', m: 2 }} // Custom width and margin
+                 
+                  required
+                />
+                <TextField
+                type= 'string'
+                  label="Email"
+                  name="email"
+                  value={newEngineer.email}
+                  onChange={handleChange}
+                  sx={{ mb: 1, width: '90%' }}
+                  required
+                />
+                <TextField
+                  
+                  label="Password"
+                  name="password"
+                  type="string"
+                  value={newEngineer.password}
+                  onChange={handleChange}
+                  sx={{ mb: 1, width: '90%' }}
+                  required
+                />
+                <TextField
+                type= 'string'
+                  label="Mobile Number"
+                  name="mobileNumber"
+                  value={newEngineer.mobileNumber}
+                  onChange={handleChange}
+                  sx={{ mb: 1, width: '90%' }}
+                  required
+                />
+                <TextField
+                type= 'string'
+                  label="Address"
+                  name="address"
+                  value={newEngineer.address}
+                  onChange={handleChange}
+                  sx={{ mb: 1, width: '90%' }}
+                  required
+                />
               <Button type="submit" variant="contained" color="primary" sx={{ width: '90%' }}>
                 {editingEngineerId ? 'Update Engineer' : 'Add Engineer'}
               </Button>

@@ -13,7 +13,7 @@ function AppointmentPage() {
   const [engineers, setEngineers] = useState([]);
   const [machines, setMachines] = useState([]);
   const [clientName, setClientName] = useState("");
- 
+  const [appointments, setAppointments] = useState([]);
   const [invoiceNumber, setInvoiceNumber] = useState("");
   const [clientAddress, setClientAddress] = useState("");
   const [contactPerson, setContactPerson] = useState("");
@@ -120,8 +120,6 @@ function AppointmentPage() {
     }
   };
 
-
-  
   const handleMachineChange = (e) => {
     const selectedMachineName = e.target.value;
     const selectedMachine = machines.find(
@@ -144,8 +142,6 @@ function AppointmentPage() {
     }
   };
 
-
- 
   const validateDates = (installDate, invoiceDate) => {
     if (installDate <= invoiceDate) {
       setDateError("Installation date must be greater than the invoice date.");
@@ -231,6 +227,31 @@ function AppointmentPage() {
     }
   };
 
+
+  useEffect(() => {
+    const fetchAppointments = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        const response = await fetch('http://localhost:5000/api/appointments/', {
+          method: 'GET',
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        });
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        const data = await response.json();
+        data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+        setAppointments(data);
+      } catch (error) {
+        console.error('Failed to fetch appointment data', error);
+      }
+    };
+
+    fetchAppointments();
+  }, []);
   const handleDraftSave = () => {
     const draftData = {
       invoiceNumber,
@@ -273,6 +294,23 @@ function AppointmentPage() {
 
   return (
     <div className="appointment-page">
+      <div className="left-panel side-panel">
+        <h3>Engineers & Assigned Machines</h3>
+        {appointments.map((appointment, index) => (
+           <React.Fragment key={appointment._id}>
+         
+            <h4>{appointment?.engineer?.name}</h4>
+            <ul>
+             <li>{appointment.machineName}</li>
+              
+                
+              
+            </ul>
+         
+          </React.Fragment>
+        ))}
+       
+      </div>
       <div className="appointment-container">
         <h2>Register Invoice / Assign Engineer</h2>
         <form className="appointment-form" onSubmit={handleSubmit}>
@@ -434,7 +472,7 @@ function AppointmentPage() {
               {dateError && <span className="error-message">{dateError}</span>}
             </div>
 
-            <div className="form-group">
+            <div className="form-group-freq">
               <label htmlFor="serviceFrequency">
                 Service Frequency (Days):
               </label>
@@ -505,6 +543,17 @@ function AppointmentPage() {
           </div>
         </form>
       </div>
+
+      {/* Right Panel */}
+      <div className="right-panel side-panel">
+        <h3>Available Machines</h3>
+        <ul>
+          {machines.map((machine) => (
+            <li key={machine._id}>{machine.name}</li>
+          ))}
+        </ul>
+      </div>
+
       <ToastContainer />
     </div>
   );

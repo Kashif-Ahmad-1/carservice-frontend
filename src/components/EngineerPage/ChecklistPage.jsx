@@ -22,221 +22,264 @@ import logo from './comp-logo.jpeg';
 const ChecklistPage = () => {
   const initialChecklist = [
     {
+      srNo: 1,
       task: "Make safe as instructed in the service manual",
       done: false,
       remark: "",
       inputs: {},
     },
     {
+      srNo: 2,
       task: "Carry out repair (after obtaining authorization, if needed)",
       done: false,
       remark: "",
       inputs: {},
     },
     {
+      srNo: 3,
       task: "Check abnormality in Ambient air like Bad odor / Heavy dust",
       done: false,
       remark: "",
       inputs: {},
     },
     {
+      srNo: 4,
       task: "Check control cabinet / cooler filter mats, clean / replace if necessary",
       done: false,
       remark: "",
       inputs: {},
     },
     {
+      srNo: 5,
       task: "Check / clean cooler, check fan blades and guarding",
       done: false,
       remark: "",
       inputs: {},
     },
     {
+      srNo: 6,
       task: "Check coupling / belt tension, tight if necessary",
       done: false,
       remark: "",
       inputs: {},
     },
     {
+      srNo: 7,
       task: "Check / change oil separator cartridge",
       done: false,
       remark: "",
       inputs: {},
     },
     {
+      srNo: 8,
       task: "Check oil separator cartridge, diff. pressure",
       done: false,
       remark: "",
       inputs: {},
     },
     {
+      srNo: 9,
       task: "Check / change the Air filter",
       done: false,
       remark: "",
       inputs: {},
     },
     {
+      srNo: 10,
       task: "Check Air filter cap, Suction hose for any leak or crack / damage",
       done: false,
       remark: "",
       inputs: {},
     },
     {
+      srNo: 11,
       task: "Check / change the Oil filter",
       done: false,
       remark: "",
       inputs: {},
     },
-    { task: "Check / change the Oil", done: false, remark: "", inputs: {} },
+    { 
+      srNo: 12, 
+      task: "Check / change the Oil", 
+      done: false, 
+      remark: "", 
+      inputs: {} 
+    },
     {
+      srNo: 13,
       task: "Check / change the Valve kits",
       done: false,
       remark: "",
       inputs: {},
     },
     {
+      srNo: 14,
       task: "Check motor bearing lubrication, regrease if necessary",
       done: false,
       remark: "",
       inputs: {},
     },
     {
+      srNo: 15,
       task: "Check electrical connection and tight if necessary",
       done: false,
       remark: "",
       inputs: {},
     },
     {
+      srNo: 16,
       task: "Check motor overcurrent relays and protection switches",
       done: false,
       remark: "",
       inputs: {},
     },
     {
+      srNo: 17,
       task: "Check door and guard interlocks and emergency stop function",
       done: false,
       remark: "",
       inputs: {},
     },
     {
+      srNo: 18,
       task: "Check all sensor connections and tight if necessary",
       done: false,
       remark: "",
       inputs: {},
     },
     {
+      srNo: 19,
       task: "Check and register if any safety device bypassed",
       done: false,
       remark: "",
       inputs: {},
     },
     {
+      srNo: 20,
       task: "Check Control voltage; L1 <strong>TextField</strong> V, Logo Power Output <TextField> V DC.",
       done: false,
       remark: "",
       inputs: {},
     },
     {
+      srNo: 21,
       task: "Check line voltage: L1 <TextField> V, L2 <TextField> V, L3 <TextField> V <TextField>",
       done: false,
       remark: "",
       inputs: {},
     },
     {
+      srNo: 22,
       task: "Check current consumption: Line U1 <TextField> A, V1 <TextField> A, W1 <TextField> A ……..",
       done: false,
       remark: "",
       inputs: {},
     },
     {
+      srNo: 23,
       task: "Check Fan motor current Fan 1 U1 <TextField> A, V1 <TextField> A, W1 <TextField> A",
       done: false,
       remark: "",
       inputs: {},
     },
     {
+      srNo: 24,
       task: "Check Fan motor current Fan 2 U1 <TextField> A, V1 <TextField> A, W1 <TextField> A",
       done: false,
       remark: "",
       inputs: {},
     },
     {
+      srNo: 25,
       task: "Room temp: <TextField> C, Airend discharge temp.: <TextField> C <TextField>",
       done: false,
       remark: "",
       inputs: {},
     },
     {
+      srNo: 26,
       task: "Pressure Setting: SP <TextField> bar, SD <TextField> bar",
       done: false,
       remark: "",
       inputs: {},
     },
     {
+      srNo: 27,
       task: "Check for any Air / Oil leakages in the compressor<TextField>",
       done: false,
       remark: "",
       inputs: {},
     },
     {
+      srNo: 28,
       task: "Check and maintain ZK filter Eco drain Valve <TextField>",
       done: false,
       remark: "",
       inputs: {},
     },
     {
+      srNo: 29,
       task: "Test run, check conditions: start, idle, load and shut-down <TextField>",
       done: false,
       remark: "",
       inputs: {},
     },
   ];
+  
 
   const initialRefrigeratorList = [
-    { task: "Check refrigerant levels", done: false, remark: "", inputs: {} },
+    { srNo: 1, task: "Check refrigerant levels", done: false, remark: "", inputs: {} },
     {
+      srNo: 2,
       task: "Inspect evaporator and condenser coils",
       done: false,
       remark: "",
       inputs: {},
     },
     {
+      srNo: 3,
       task: "Check door seals for damage",
       done: false,
       remark: "",
       inputs: {},
     },
     {
+      srNo: 4,
       task: "Clean drain pan and ensure proper drainage",
       done: false,
       remark: "",
       inputs: {},
     },
     {
+      srNo: 5,
       task: "Verify thermostat operation",
       done: false,
       remark: "",
       inputs: {},
     },
     {
+      srNo: 6,
       task: "Check / clean Air dryer condenser",
       done: false,
       remark: "",
       inputs: {},
     },
     {
+      srNo: 7,
       task: "Check condenser fan motor direction",
       done: false,
       remark: "",
       inputs: {},
     },
     {
+      srNo: 8,
       task: "Check condensate drain function",
       done: false,
       remark: "",
       inputs: {},
     },
     {
+      srNo: 9,
       task: "Check refrigerant circuit and Air circuit for leaks",
       done: false,
       remark: "",
@@ -244,12 +287,14 @@ const ChecklistPage = () => {
       inputs: {},
     },
     {
+      srNo: 10,
       task: "Check compressed air temperature: Inlet <TextField> °C | Outlet <TextField> °C",
       done: false,
       remark: "",
       inputs: {},
     },
     {
+      srNo: 11,
       task: "Check current consumption: Line U1 <TextField> A, V1 <TextField> A, W1 <TextField> A",
       done: false,
       remark: "",
@@ -257,24 +302,28 @@ const ChecklistPage = () => {
       inputs: {},
     },
     {
+      srNo: 12,
       task: "Check Auto On/Off operation; Switching On <TextField> C, Switching Off <TextField> C",
       done: false,
       remark: "",
       inputs: {},
     },
     {
+      srNo: 13,
       task: "Pressure dew point [ ] blue [ ] green [ ] red <TextField> °F/C",
       done: false,
       remark: "",
       inputs: {},
     },
     {
+      srNo: 14,
       task: "Check / Replace Air treatment filter cartridge",
       done: false,
       remark: "",
       inputs: {},
     },
   ];
+  
 
   const [checklist, setChecklist] = useState(initialChecklist);
   const [refrigeratorList, setRefrigeratorList] = useState(
@@ -403,10 +452,11 @@ const ChecklistPage = () => {
   
     // Checklist Table
     autoTable(doc, {
-      head: [["Task", "Done", "Remark"]],
+      head: [["Sr No", "Task", "Done", "Remark"]],
       body: checklist.map((item) => {
         const inputs = Object.values(item.inputs).join(", "); // Join all input values into a string
         return [
+          item.srNo,
           item.task.replace(/<TextField>/g, inputs),
           item.done ? "Yes" : "No",
           item.remark,
@@ -439,10 +489,11 @@ const ChecklistPage = () => {
   
     // Refrigerator Checklist Table
     autoTable(doc, {
-      head: [["Task", "Done", "Remark"]],
+      head: [["Sr No","Task", "Done", "Remark"]],
       body: refrigeratorList.map((item) => {
         const inputs = Object.values(item.inputs).join(", "); // Join all input values into a string
         return [
+          item.srNo,
           item.task.replace(/<TextField>/g, inputs),
           item.done ? "Yes" : "No",
           item.remark,
@@ -644,6 +695,15 @@ const ChecklistPage = () => {
                 backgroundColor: "#f5f5f5",
               }}
             >
+              Sr No
+            </TableCell>
+            <TableCell
+              sx={{
+                fontSize: "14px",
+                fontWeight: "bold",
+                backgroundColor: "#f5f5f5",
+              }}
+            >
               Task
             </TableCell>
             <TableCell
@@ -671,6 +731,9 @@ const ChecklistPage = () => {
         <TableBody>
           {checklist.map((item, index) => (
             <TableRow key={index} hover>
+                <TableCell align="center">
+                {item.srNo}
+              </TableCell>
               <TableCell sx={{ fontSize: "12px" }}>
                 {item.task.split("<TextField>").map((part, i) => (
                   <span key={i}>
@@ -732,6 +795,15 @@ const ChecklistPage = () => {
                 backgroundColor: "#f5f5f5",
               }}
             >
+              Sr No
+            </TableCell>
+            <TableCell
+              sx={{
+                fontSize: "14px",
+                fontWeight: "bold",
+                backgroundColor: "#f5f5f5",
+              }}
+            >
               Task
             </TableCell>
             <TableCell
@@ -759,6 +831,9 @@ const ChecklistPage = () => {
         <TableBody>
           {refrigeratorList.map((item, index) => (
             <TableRow key={index} hover>
+              <TableCell align="center">
+                {item.srNo}
+              </TableCell>
               <TableCell sx={{ fontSize: "12px" }}>
                 {item.task.split("<TextField>").map((part, i) => (
                   <span key={i}>

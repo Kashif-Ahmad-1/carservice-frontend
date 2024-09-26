@@ -231,6 +231,7 @@ const AccountantPage = () => {
               <form onSubmit={handleSubmit}>
                 <TextField
                   label="Name"
+                  type="string"
                   name="name"
                   value={newAccountant.name}
                   onChange={handleChange}
@@ -238,6 +239,7 @@ const AccountantPage = () => {
                   required
                 />
                 <TextField
+                 type="string"
                   label="Email"
                   name="email"
                   value={newAccountant.email}
@@ -248,13 +250,14 @@ const AccountantPage = () => {
                 <TextField
                   label="Password"
                   name="password"
-                  type="password"
+                   type="string"
                   value={newAccountant.password}
                   onChange={handleChange}
                   sx={{ mb: 1, width: '90%' }}
                   required={!editingAccountantId} // Password required only on add
                 />
                 <TextField
+                 type="string"
                   label="Mobile Number"
                   name="mobileNumber"
                   value={newAccountant.mobileNumber}
@@ -263,6 +266,7 @@ const AccountantPage = () => {
                   required
                 />
                 <TextField
+                 type="string"
                   label="Address"
                   name="address"
                   value={newAccountant.address}

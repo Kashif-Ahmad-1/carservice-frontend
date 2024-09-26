@@ -279,7 +279,7 @@ function AppointmentDetailsPage() {
             <TableHead>
               <TableRow>
                 <TableCell sx={{ fontWeight: 'bold', fontSize: '1.1rem',backgroundColor: headerColor }}>SR. No.</TableCell>
-                {['Client Name', 'Client Address', 'Contact Person', 'Mobile No.', 'Appointment Date', 'Appointment Amount', 'Machine Name', 'Model', 'Part No.', 'Serial No.', 'Installation Date', 'Service Frequency', 'Expected Service Date', 'Service Engineer', 'Document'].map((header) => (
+                {['Invoice No','Client Name', 'Client Address', 'Contact Person', 'Mobile No.', 'Appointment Date', 'Appointment Amount', 'Machine Name', 'Model', 'Part No.', 'Serial No.', 'Installation Date', 'Service Frequency', 'Expected Service Date', 'Service Engineer', 'Document'].map((header) => (
                   <TableCell key={header} sx={{ fontWeight: 'bold', fontSize: '1.1rem', backgroundColor: headerColor }}>{header}</TableCell>
                 ))}
               </TableRow>
@@ -289,6 +289,7 @@ function AppointmentDetailsPage() {
                 <React.Fragment key={appointment._id}>
                   <TableRow onClick={() => toggleRow(index)} sx={{ cursor: 'pointer', '&:hover': { backgroundColor: '#f5f5f5' } }}>
                     <TableCell>{page * rowsPerPage + index + 1}</TableCell>
+                    <TableCell>{appointment.invoiceNumber}</TableCell>
                     <TableCell>{appointment.clientName}</TableCell>
                     <TableCell>{appointment.clientAddress}</TableCell>
                     <TableCell>{appointment.contactPerson}</TableCell>
