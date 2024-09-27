@@ -32,7 +32,7 @@ import {
   History as HistoryIcon,
 } from "@mui/icons-material";
 import Sidebar from "./Sidebar"; // Adjust path if necessary
-
+import API_BASE_URL from './../../config';
 // Header Component
 const Header = ({ onToggleSidebar }) => (
   <AppBar position="static">
@@ -91,7 +91,7 @@ function EngineerDetailsPage() {
       try {
         const token = localStorage.getItem("token");
         const response = await fetch(
-          "http://localhost:5000/api/appointments/",
+          "${API_BASE_URL}/appointments/",
           {
             method: "GET",
             headers: {
@@ -157,9 +157,16 @@ function EngineerDetailsPage() {
   const generateDocumentNumber = (lastDocNumber) => {
     const docPrefix = "DOC:";
     const lastNumber = parseInt(lastDocNumber.replace(docPrefix, ""), 10);
-    const nextNumber = isNaN(lastNumber) ? 1 : lastNumber + 1;
+    
+    // Check for NaN and handle it
+    if (isNaN(lastNumber)) {
+        console.warn(`Invalid document number format: ${lastDocNumber}. Starting from 1.`);
+        return `${docPrefix}1`;
+    }
+
+    const nextNumber = lastNumber + 1;
     return `${docPrefix}${nextNumber}`;
-  };
+};
 
   const handleEditClick = (appointment) => {
 
