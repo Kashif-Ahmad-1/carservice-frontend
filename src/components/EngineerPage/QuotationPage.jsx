@@ -168,10 +168,10 @@ const QuotationPage = () => {
     }
   };
 
-  const handleDownloadPDF = (documentPath) => {
+  const handleDownloadPDF = (cloudinaryUrl) => {
     const link = document.createElement("a");
-    link.href = `${API_BASE_URL}/${documentPath}`;
-    link.setAttribute("download", documentPath.split("/").pop());
+    link.href = cloudinaryUrl; // Use the Cloudinary URL directly
+    link.setAttribute("download", cloudinaryUrl.split("/").pop()); // Extract file name from URL
     document.body.appendChild(link);
     link.click();
     link.remove();

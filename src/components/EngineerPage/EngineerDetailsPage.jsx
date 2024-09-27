@@ -187,14 +187,15 @@ function EngineerDetailsPage() {
     });
   };
 
-  const handleDownloadPDF = (documentPath) => {
+  const handleDownloadPDF = (cloudinaryUrl) => {
     const link = document.createElement("a");
-    link.href = `${API_BASE_URL}/${documentPath}`; // Point to your server path
-    link.setAttribute("download", documentPath.split("/").pop()); // Use the file name for downloading
+    link.href = cloudinaryUrl; // Use the Cloudinary URL directly
+    link.setAttribute("download", cloudinaryUrl.split("/").pop()); // Extract file name from URL
     document.body.appendChild(link);
     link.click();
     link.remove();
   };
+  
 
   const handleServiceHistoryClick = (clientName) => {
     const history = appointments.filter((app) => app.clientName === clientName); // Fetch service history for the client
