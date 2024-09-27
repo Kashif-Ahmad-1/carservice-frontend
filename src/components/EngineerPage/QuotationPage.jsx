@@ -46,11 +46,12 @@ const Table = styled("table")(({ theme }) => ({
     padding: theme.spacing(1),
     textAlign: "left",
     borderBottom: `1px solid ${theme.palette.divider}`,
-    fontSize: "1.2rem",
+    fontSize: "1.2rem", // Smaller font for mobile
     fontWeight: "600",
   },
   "& th": {
     backgroundColor: theme.palette.grey[200],
+    
   },
 }));
 
@@ -98,7 +99,7 @@ const QuotationPage = () => {
         <img
           src={logo}
           alt="Company Logo"
-          style={{ width: 40, height: 40, marginRight: 10 }} // Adjust size and margin as needed
+          style={{ width: 40, height: 40, marginRight: 10 }}
         />
         <Typography
           variant="h6"
@@ -133,10 +134,8 @@ const QuotationPage = () => {
       }
 
       const data = await response.json();
-      // Optional: Validate the data structure
-      const validData = data.filter((quotation) => quotation.clientInfo); // Only keep valid quotations
-      // Sort quotations by created date (assuming there is a `createdAt` field)
-    validData.sort((a, b) => new Date(b.generatedOn) - new Date(a.generatedOn));
+      const validData = data.filter((quotation) => quotation.clientInfo);
+      validData.sort((a, b) => new Date(b.generatedOn) - new Date(a.generatedOn));
       setQuotations(validData);
     } catch (error) {
       toast.error(error.message || "Error fetching quotations!");
@@ -170,8 +169,8 @@ const QuotationPage = () => {
 
   const handleDownloadPDF = (cloudinaryUrl) => {
     const link = document.createElement("a");
-    link.href = cloudinaryUrl; // Use the Cloudinary URL directly
-    link.setAttribute("download", cloudinaryUrl.split("/").pop()); // Extract file name from URL
+    link.href = cloudinaryUrl;
+    link.setAttribute("download", cloudinaryUrl.split("/").pop());
     document.body.appendChild(link);
     link.click();
     link.remove();
@@ -214,13 +213,12 @@ const QuotationPage = () => {
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               fullWidth
+              sx={{ marginBottom: 2 }} // Margin for better spacing
             />
-            <Typography variant="h6" sx={{ marginTop: 2 }}>
-              Quotations
-            </Typography>
+            <Typography variant="h6">Quotations</Typography>
             <Paper sx={{ overflowX: "auto", mt: 2 }}>
               <Table>
-                <thead>
+                <thead  >
                   <tr>
                     <th>SR No</th>
                     <th>Quotation No</th>
@@ -240,7 +238,6 @@ const QuotationPage = () => {
                         <td>{quotation.quotationNo}</td>
                         <td>{quotation.clientInfo.name}</td>
                         <td>{quotation.clientInfo.contactPerson}</td>
-
                         <td>{quotation.clientInfo.phone}</td>
                         <td>{quotation.quotationAmount}</td>
                         <td>
@@ -248,6 +245,7 @@ const QuotationPage = () => {
                             variant="contained"
                             color={quotation.status ? "success" : "warning"}
                             onClick={() => handleStatusUpdate(quotation)}
+                            size="small"
                           >
                             {quotation.status ? "Complete" : "Pending"}
                           </Button>
@@ -257,15 +255,16 @@ const QuotationPage = () => {
                             variant="contained"
                             color="secondary"
                             onClick={() => handleDownloadPDF(quotation.pdfPath)}
+                            size="small"
                           >
-                            <Download /> Download
+                            <Download fontSize="small" /> Download
                           </Button>
                         </td>
                       </tr>
                     ))
                   ) : (
                     <tr>
-                      <td colSpan="7" style={{ textAlign: "center" }}>
+                      <td colSpan="8" style={{ textAlign: "center" }}>
                         No results found.
                       </td>
                     </tr>
@@ -275,22 +274,29 @@ const QuotationPage = () => {
             </Paper>
             {/* Pagination Controls */}
             <Box
-              sx={{ display: "flex", justifyContent: "space-between", mt: 2 }}
+              sx={{
+                display: "flex",
+                justifyContent: "space-between",
+                mt: 2,
+                flexWrap: { xs: "wrap", md: "nowrap" },
+              }}
             >
               <Button
                 variant="contained"
                 onClick={handlePreviousPage}
                 disabled={currentPage === 1}
+                sx={{ flexGrow: 1, margin: "0.5rem" }} // Flex properties for responsiveness
               >
                 Previous
               </Button>
-              <Typography variant="body1">
+              <Typography variant="body1" sx={{ margin: "0.5rem" }}>
                 Page {currentPage} of {totalPages}
               </Typography>
               <Button
                 variant="contained"
                 onClick={handleNextPage}
                 disabled={currentPage === totalPages}
+                sx={{ flexGrow: 1, margin: "0.5rem" }} // Flex properties for responsiveness
               >
                 Next
               </Button>

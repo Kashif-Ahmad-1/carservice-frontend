@@ -46,7 +46,7 @@ const Table = styled("table")(({ theme }) => ({
     padding: theme.spacing(1),
     textAlign: "left",
     borderBottom: `1px solid ${theme.palette.divider}`,
-    fontSize: "1.2rem",
+    fontSize: "0.875rem", // Adjusted for better mobile readability
     fontWeight: "600",
   },
   "& th": {
@@ -76,10 +76,10 @@ const ServiceRequestDocPage = () => {
           <Menu />
         </IconButton>
         <img
-        src={logo}
-        alt="Company Logo"
-        style={{ width: 40, height: 40, marginRight: 10 }} // Adjust size and margin as needed
-      />
+          src={logo}
+          alt="Company Logo"
+          style={{ width: 40, height: 40, marginRight: 10 }}
+        />
         <Typography variant="h6" sx={{ flexGrow: 1, fontWeight: "bold", color: "#ff4081" }}>
           Company Name
         </Typography>
@@ -191,6 +191,7 @@ const ServiceRequestDocPage = () => {
               value={searchTerm}
               onChange={handleSearchChange}
               fullWidth
+              sx={{ marginBottom: 2 }} // Spacing for better usability
             />
             <Typography variant="h6" sx={{ marginTop: 2 }}>
               Service Requests
@@ -222,8 +223,9 @@ const ServiceRequestDocPage = () => {
                             variant="contained"
                             color="secondary"
                             onClick={() => handleDownloadPDF(checklist.pdfPath)}
+                            size="small"
                           >
-                            <Download /> Download
+                            <Download fontSize="small" /> Download
                           </Button>
                         </td>
                         <td>
@@ -231,8 +233,9 @@ const ServiceRequestDocPage = () => {
                             variant="contained"
                             color="error"
                             onClick={() => handleDeleteChecklist(checklist._id)}
+                            size="small"
                           >
-                            <Delete /> Delete
+                            <Delete fontSize="small" /> Delete
                           </Button>
                         </td>
                       </tr>
@@ -248,21 +251,23 @@ const ServiceRequestDocPage = () => {
               </Table>
             </Paper>
             {/* Pagination Controls */}
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 2 }}>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 2, flexWrap: 'wrap' }}>
               <Button
                 variant="contained"
                 onClick={handlePreviousPage}
                 disabled={currentPage === 1}
+                sx={{ flexGrow: 1, margin: "0.5rem" }}
               >
                 Previous
               </Button>
-              <Typography variant="body1">
+              <Typography variant="body1" sx={{ margin: "0.5rem" }}>
                 Page {currentPage} of {totalPages}
               </Typography>
               <Button
                 variant="contained"
                 onClick={handleNextPage}
                 disabled={currentPage === totalPages}
+                sx={{ flexGrow: 1, margin: "0.5rem" }}
               >
                 Next
               </Button>
