@@ -8,6 +8,7 @@ import {
   Button,
   TextField,
 } from '@mui/material';
+import API_BASE_URL from './../../config';
 import { styled } from '@mui/material/styles';
 import Navbar from './Navbar';
 import Sidebar from './Sidebar';
@@ -77,7 +78,7 @@ const AdminList = () => {
 
   const fetchAdmins = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/users/admins', {
+      const response = await fetch(`${API_BASE_URL}/api/users/admins`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -120,8 +121,8 @@ const AdminList = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     const url = editingAdminId 
-      ? `http://localhost:5000/api/users/${editingAdminId}`
-      : 'http://localhost:5000/api/auth/register';
+      ? `${API_BASE_URL}/api/users/${editingAdminId}`
+      : `${API_BASE_URL}/api/auth/register`;
     const method = editingAdminId ? 'PUT' : 'POST';
 
     const payload = { ...newAdmin, role: 'admin' };
@@ -169,7 +170,7 @@ const AdminList = () => {
   const handleDelete = async (id) => {
     if (window.confirm('Are you sure you want to delete this admin?')) {
       try {
-        const response = await fetch(`http://localhost:5000/api/users/${id}`, {
+        const response = await fetch(`${API_BASE_URL}/api/users/${id}`, {
           method: 'DELETE',
           headers: {
             'Authorization': `Bearer ${token}`,
@@ -192,7 +193,7 @@ const AdminList = () => {
 
   const handleSendResetLink = async (email) => {
     try {
-      const response = await fetch('http://localhost:5000/api/auth/forgot-password', {
+      const response = await fetch(`${API_BASE_URL}/api/auth/forgot-password`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

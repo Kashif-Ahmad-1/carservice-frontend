@@ -8,6 +8,7 @@ import {
   Button,
   TextField,
 } from '@mui/material';
+import API_BASE_URL from './../../config';
 import { styled } from '@mui/material/styles';
 import Navbar from './Navbar';
 import Sidebar from './Sidebar';
@@ -85,7 +86,7 @@ const MachinePage = () => {
     const fetchMachines = async () => {
       try {
         const token = localStorage.getItem('token');
-        const response = await fetch('http://localhost:5000/api/machines', {
+        const response = await fetch(`${API_BASE_URL}/api/machines`, {
           method: 'GET',
           headers: {
             Authorization: `Bearer ${token}`,
@@ -132,7 +133,7 @@ const MachinePage = () => {
 
     if (editingMachineId) {
       try {
-        const response = await fetch(`http://localhost:5000/api/machines/${editingMachineId}`, {
+        const response = await fetch(`${API_BASE_URL}/api/machines/${editingMachineId}`, {
           method: 'PUT',
           headers: {
             Authorization: `Bearer ${token}`,
@@ -149,7 +150,7 @@ const MachinePage = () => {
       }
     } else {
       try {
-        const response = await fetch('http://localhost:5000/api/machines', {
+        const response = await fetch(`${API_BASE_URL}/api/machines`, {
           method: 'POST',
           headers: {
             Authorization: `Bearer ${token}`,
@@ -182,7 +183,7 @@ const MachinePage = () => {
       const token = localStorage.getItem('token');
 
       try {
-        const response = await fetch(`http://localhost:5000/api/machines/${id}`, {
+        const response = await fetch(`${API_BASE_URL}/api/machines/${id}`, {
           method: 'DELETE',
           headers: {
             Authorization: `Bearer ${token}`,

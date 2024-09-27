@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Box, TextField, Button } from '@mui/material';
-
+import API_BASE_URL from './../../config';
 function AddMachine({ onSubmit }) {
   const [machineData, setMachineData] = useState({ name: '', modelNo: '', partNo: '', quantity: '' });
 

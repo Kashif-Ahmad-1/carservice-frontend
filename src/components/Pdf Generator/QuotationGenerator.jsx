@@ -5,6 +5,7 @@ import "./PdfGenerator.css";
 import { useLocation } from "react-router-dom";
 import axios from "axios";
 import logo from './comp-logo.jpeg';
+import API_BASE_URL from './../../config';
 const QuotationGenerator = () => {
   const formRef = useRef();
   const location = useLocation();
@@ -251,7 +252,7 @@ const QuotationGenerator = () => {
 
     try {
       const token = localStorage.getItem("token");
-      await axios.post("http://localhost:5000/api/quotations", formDatas, {
+      await axios.post(`${API_BASE_URL}/api/quotations`, formDatas, {
         headers: {
           "Content-Type": "multipart/form-data",
           Authorization: `Bearer ${token}`,

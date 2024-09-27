@@ -91,7 +91,7 @@ function EngineerDetailsPage() {
       try {
         const token = localStorage.getItem("token");
         const response = await fetch(
-          "${API_BASE_URL}/appointments/",
+          `${API_BASE_URL}/api/appointments/`,
           {
             method: "GET",
             headers: {

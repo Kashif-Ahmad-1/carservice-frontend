@@ -13,6 +13,7 @@ import Navbar from './Navbar';
 import Sidebar from './Sidebar';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import API_BASE_URL from './../../config';
 
 const MainContent = styled('main')(({ theme }) => ({
   flexGrow: 1,
@@ -77,7 +78,7 @@ const AccountantPage = () => {
 
   const fetchAccountants = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/users/accountants', {
+      const response = await fetch(`${API_BASE_URL}/api/users/accountants`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -119,8 +120,8 @@ const AccountantPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     const url = editingAccountantId
-      ? `http://localhost:5000/api/users/${editingAccountantId}`
-      : 'http://localhost:5000/api/auth/register';
+      ? `${API_BASE_URL}/api/users/${editingAccountantId}`
+      : `${API_BASE_URL}/api/auth/register`;
     const method = editingAccountantId ? 'PUT' : 'POST';
 
     try {
@@ -158,7 +159,7 @@ const AccountantPage = () => {
   const handleDelete = async (id) => {
     if (window.confirm('Are you sure you want to delete this accountant?')) {
       try {
-        const response = await fetch(`http://localhost:5000/api/users/${id}`, {
+        const response = await fetch(`${API_BASE_URL}/api/users/${id}`, {
           method: 'DELETE',
           headers: {
             'Authorization': `Bearer ${token}`,
@@ -181,7 +182,7 @@ const AccountantPage = () => {
 
   const handleSendResetLink = async (email) => {
     try {
-      const response = await fetch('http://localhost:5000/api/auth/forgot-password', {
+      const response = await fetch(`${API_BASE_URL}/api/auth/forgot-password`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

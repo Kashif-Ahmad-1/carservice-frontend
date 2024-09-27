@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "./AccountAddPage.css";
-
+import API_BASE_URL from './../../config';
 function AppointmentPage() {
   const navigate = useNavigate();
 
@@ -33,7 +33,7 @@ function AppointmentPage() {
     const fetchEngineers = async () => {
       try {
         const response = await fetch(
-          "http://localhost:5000/api/users/engineers",
+          `${API_BASE_URL}/api/users/engineers`,
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -57,7 +57,7 @@ function AppointmentPage() {
   useEffect(() => {
     const fetchMachines = async () => {
       try {
-        const response = await fetch("http://localhost:5000/api/machines", {
+        const response = await fetch(`${API_BASE_URL}/api/machines`, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
@@ -100,7 +100,7 @@ function AppointmentPage() {
     if (value.length >= 2) {
       try {
         const response = await fetch(
-          `http://localhost:5000/api/companies/search?name=${encodeURIComponent(
+          `${API_BASE_URL}/api/companies/search?name=${encodeURIComponent(
             value
           )}`,
           {
@@ -197,7 +197,7 @@ function AppointmentPage() {
 
     try {
       const token = localStorage.getItem("token");
-      const response = await fetch("http://localhost:5000/api/appointments/", {
+      const response = await fetch(`${API_BASE_URL}/api/appointments/`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -232,7 +232,7 @@ function AppointmentPage() {
     const fetchAppointments = async () => {
       try {
         const token = localStorage.getItem('token');
-        const response = await fetch('http://localhost:5000/api/appointments/', {
+        const response = await fetch(`${API_BASE_URL}/api/appointments/`, {
           method: 'GET',
           headers: {
             Authorization: `Bearer ${token}`,

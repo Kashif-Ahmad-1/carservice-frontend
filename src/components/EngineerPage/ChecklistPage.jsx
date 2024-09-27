@@ -15,6 +15,7 @@ import {
   Box,
   Grid,
 } from "@mui/material";
+import API_BASE_URL from './../../config';
 import { jsPDF } from "jspdf";
 import autoTable from "jspdf-autotable";
 import axios from "axios"; // Import axios for API calls
@@ -560,7 +561,7 @@ const ChecklistPage = () => {
     try {
       // Send the checklist data and PDF to the backend
       const token = localStorage.getItem("token");
-    const response =  await axios.post("http://localhost:5000/api/checklist", formData, {
+    const response =  await axios.post(`${API_BASE_URL}/api/checklist`, formData, {
       headers: {
         Authorization: `Bearer ${token}`,
         "Content-Type": "multipart/form-data",

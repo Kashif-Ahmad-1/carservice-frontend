@@ -12,6 +12,7 @@ import {
   IconButton,
   TextField,
 } from "@mui/material";
+import API_BASE_URL from './../../config';
 import { styled } from "@mui/material/styles";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -116,7 +117,7 @@ const QuotationPage = () => {
         throw new Error("No token found. Please log in.");
       }
 
-      const response = await fetch("http://localhost:5000/api/quotations", {
+      const response = await fetch(`${API_BASE_URL}/api/quotations`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -146,7 +147,7 @@ const QuotationPage = () => {
     try {
       const token = localStorage.getItem("token");
       const response = await fetch(
-        `http://localhost:5000/api/quotations/${quotation._id}/status`,
+        `${API_BASE_URL}/api/quotations/${quotation._id}/status`,
         {
           method: "PUT",
           headers: {
@@ -169,7 +170,7 @@ const QuotationPage = () => {
 
   const handleDownloadPDF = (documentPath) => {
     const link = document.createElement("a");
-    link.href = `http://localhost:5000/${documentPath}`;
+    link.href = `${API_BASE_URL}/${documentPath}`;
     link.setAttribute("download", documentPath.split("/").pop());
     document.body.appendChild(link);
     link.click();

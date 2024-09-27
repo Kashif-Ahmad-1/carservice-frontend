@@ -9,6 +9,7 @@ import {
   TextField,
   TablePagination,
 } from '@mui/material';
+import API_BASE_URL from './../../config';
 import { styled } from '@mui/material/styles';
 import Navbar from './Navbar';
 import Sidebar from './Sidebar';
@@ -80,7 +81,7 @@ const ClientPage = () => {
     const fetchClients = async () => {
       try {
         const token = localStorage.getItem('token');
-        const response = await fetch('http://localhost:5000/api/companies', {
+        const response = await fetch(`${API_BASE_URL}/api/companies`, {
           method: 'GET',
           headers: {
             Authorization: `Bearer ${token}`,
@@ -123,7 +124,7 @@ const ClientPage = () => {
     if (editingClientId) {
       // Update existing client
       try {
-        const response = await fetch(`http://localhost:5000/api/companies/${editingClientId}`, {
+        const response = await fetch(`${API_BASE_URL}/api/companies/${editingClientId}`, {
           method: 'PUT',
           headers: {
             Authorization: `Bearer ${token}`,
@@ -145,7 +146,7 @@ const ClientPage = () => {
     } else {
       // Add new client
       try {
-        const response = await fetch('http://localhost:5000/api/companies', {
+        const response = await fetch(`${API_BASE_URL}/api/companies`, {
           method: 'POST',
           headers: {
             Authorization: `Bearer ${token}`,
@@ -179,7 +180,7 @@ const ClientPage = () => {
     if (window.confirm('Are you sure you want to delete this client?')) {
       const token = localStorage.getItem('token');
       try {
-        const response = await fetch(`http://localhost:5000/api/companies/${id}`, {
+        const response = await fetch(`${API_BASE_URL}/api/companies/${id}`, {
           method: 'DELETE',
           headers: {
             Authorization: `Bearer ${token}`,

@@ -14,6 +14,7 @@ import {
   TablePagination,
   TextField,
 } from '@mui/material';
+import API_BASE_URL from './../../config';
 import { styled } from '@mui/material/styles';
 import Navbar from './Navbar';
 import Sidebar from './Sidebar';
@@ -71,7 +72,7 @@ const ServiceRequestPage = () => {
 
   const fetchServiceRequests = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/appointments/', {
+      const response = await fetch(`${API_BASE_URL}/api/appointments/`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',

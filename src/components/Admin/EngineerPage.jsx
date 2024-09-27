@@ -8,6 +8,7 @@ import {
   Button,
   TextField,
 } from '@mui/material';
+import API_BASE_URL from './../../config';
 import { styled } from '@mui/material/styles';
 import Navbar from './Navbar';
 import Sidebar from './Sidebar';
@@ -77,7 +78,7 @@ const EngineerPage = () => {
 
   const fetchEngineers = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/users/engineers', {
+      const response = await fetch(`${API_BASE_URL}/api/users/engineers`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -120,8 +121,8 @@ const EngineerPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     const url = editingEngineerId 
-      ? `http://localhost:5000/api/users/${editingEngineerId}`
-      : 'http://localhost:5000/api/auth/register';
+      ? `${API_BASE_URL}/api/users/${editingEngineerId}`
+      : `${API_BASE_URL}/api/auth/register`;
     const method = editingEngineerId ? 'PUT' : 'POST';
 
     const payload = { ...newEngineer, role: 'engineer' };
@@ -169,7 +170,7 @@ const EngineerPage = () => {
   const handleDelete = async (id) => {
     if (window.confirm('Are you sure you want to delete this engineer?')) {
       try {
-        const response = await fetch(`http://localhost:5000/api/users/${id}`, {
+        const response = await fetch(`${API_BASE_URL}/api/users/${id}`, {
           method: 'DELETE',
           headers: {
             'Authorization': `Bearer ${token}`,
@@ -194,7 +195,7 @@ const EngineerPage = () => {
 
   const handleSendResetLink = async (email, mobileNumber, password) => {
     try {
-      const response = await fetch('http://localhost:5000/api/auth/forgot-password', {
+      const response = await fetch(`${API_BASE_URL}/api/auth/forgot-password`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

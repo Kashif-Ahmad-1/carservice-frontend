@@ -13,6 +13,7 @@ import {
   FormControl,
   InputLabel,
 } from "@mui/material";
+import API_BASE_URL from './../../config';
 import { styled } from "@mui/material/styles";
 import { Bar } from "react-chartjs-2";
 import {
@@ -87,7 +88,7 @@ const AdminDashboard = () => {
 
   const fetchUserCounts = async () => {
     try {
-      const response = await fetch("http://localhost:5000/api/users/", {
+      const response = await fetch(`${API_BASE_URL}/api/users/`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -112,7 +113,7 @@ const AdminDashboard = () => {
 
   const fetchAppointmentCounts = async () => {
     try {
-      const response = await fetch("http://localhost:5000/api/appointments/", {
+      const response = await fetch(`${API_BASE_URL}/api/appointments/`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",

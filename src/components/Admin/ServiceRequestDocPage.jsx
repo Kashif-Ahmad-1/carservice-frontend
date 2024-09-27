@@ -11,6 +11,7 @@ import {
   IconButton,
   TextField,
 } from "@mui/material";
+import API_BASE_URL from './../../config';
 import logo from './comp-logo.jpeg';
 import { styled } from "@mui/material/styles";
 import { toast, ToastContainer } from "react-toastify";
@@ -80,7 +81,7 @@ const ServiceRequestDocPage = () => {
   const fetchServiceRequests = async () => {
     try {
       const token = localStorage.getItem("token");
-      const response = await fetch("http://localhost:5000/api/checklist", {
+      const response = await fetch(`${API_BASE_URL}/api/checklist`, {
         method: "GET",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -102,7 +103,7 @@ const ServiceRequestDocPage = () => {
 
   const handleDownloadPDF = (documentPath) => {
     const link = document.createElement("a");
-    link.href = `http://localhost:5000/${documentPath}`;
+    link.href = `${API_BASE_URL}/${documentPath}`;
     link.setAttribute("download", documentPath.split("/").pop());
     document.body.appendChild(link);
     link.click();
@@ -117,7 +118,7 @@ const ServiceRequestDocPage = () => {
         return;
       }
   
-      const response = await fetch(`http://localhost:5000/api/checklist/${id}`, {
+      const response = await fetch(`${API_BASE_URL}/api/checklist/${id}`, {
         method: "DELETE",
         headers: {
           Authorization: `Bearer ${token}`,
