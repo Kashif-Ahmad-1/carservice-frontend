@@ -189,7 +189,7 @@ function EngineerDetailsPage() {
 
   const handleDownloadPDF = (documentPath) => {
     const link = document.createElement("a");
-    link.href = `http://localhost:5000/${documentPath}`; // Point to your server path
+    link.href = `${API_BASE_URL}/${documentPath}`; // Point to your server path
     link.setAttribute("download", documentPath.split("/").pop()); // Use the file name for downloading
     document.body.appendChild(link);
     link.click();
