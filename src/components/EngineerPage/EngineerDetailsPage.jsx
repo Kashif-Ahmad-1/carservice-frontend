@@ -21,13 +21,18 @@ Typography,
   ListItemText,
   IconButton,
   Pagination,
-  TablePagination
+
+  TextField,
+  InputAdornment,
+  Select,
+  MenuItem,
+  FormControl,
 } from "@mui/material";
 import {
   Download,
   Menu,
   CheckCircle,
-  
+  Search,
   
   History as HistoryIcon,
 } from "@mui/icons-material";
@@ -83,7 +88,8 @@ function EngineerDetailsPage() {
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1); // Track current page
   const appointmentsPerPage = 10; // Number of appointments per page
-  
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filter, setFilter] = useState('all');
  
 
   useEffect(() => {
@@ -218,7 +224,8 @@ function EngineerDetailsPage() {
         contactPerson: appointment.contactPerson,
         mobileNo: appointment.mobileNo,
         address: appointment.clientAddress,
-        engineer: appointment.engineer,
+        engineer: appointment.engineer.name,
+        invoiceNumber: appointment.invoiceNumber,
       },
     });
   };
@@ -233,38 +240,110 @@ function EngineerDetailsPage() {
    };
    // Calculate total pages
    const totalPages = Math.ceil(Object.keys(groupedAppointments).length / appointmentsPerPage);
+// ..................Search Functionality ............................//
+const filteredAppointments = currentAppointments.filter(([key, clientAppointments]) => {
+  const [clientName, mobileNo] = key.split("-");
+  const firstAppointment = clientAppointments[0];
 
-   return (
-    <Box sx={{ display: "flex", flexDirection: { xs: "column", md: "row" }, minHeight: "100vh" }}>
-      {sidebarOpen && <Sidebar />}
+  const matchesSearch = (
+    clientName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (firstAppointment.invoiceNumber && firstAppointment.invoiceNumber.toString().includes(searchTerm)) ||
+    (mobileNo && mobileNo.includes(searchTerm)) ||
+    (firstAppointment.clientAddress && firstAppointment.clientAddress.toLowerCase().includes(searchTerm.toLowerCase())) ||
+    (firstAppointment.contactPerson && firstAppointment.contactPerson.toLowerCase().includes(searchTerm.toLowerCase())) ||
+    (firstAppointment.machineName && firstAppointment.machineName.toLowerCase().includes(searchTerm.toLowerCase())) ||
+    (firstAppointment.model && firstAppointment.model.toLowerCase().includes(searchTerm.toLowerCase())) ||
+    (firstAppointment.partNo && firstAppointment.partNo.toLowerCase().includes(searchTerm.toLowerCase())) ||
+    (firstAppointment.serialNo && firstAppointment.serialNo.toLowerCase().includes(searchTerm.toLowerCase()))
+  );
+
+  const matchesFilter = filter === 'all' || (filter === 'completed' && firstAppointment.status === 'completed');
+
+  return matchesSearch && matchesFilter;
+});
+
+// .................................................
+  return (
+    <Box sx={{ display: "flex", flexDirection: "row", minHeight: "100vh",backgroundColor: "#f7f9fc" }}>
+      {sidebarOpen && <Sidebar />} {/* Conditionally render Sidebar */}
       <Box sx={{ flexGrow: 1 }}>
         <Header onToggleSidebar={handleToggleSidebar} />
         <Container sx={{ padding: 4, flexGrow: 1 }} maxWidth="xl">
-          <Typography variant="h4" gutterBottom>
+          <Typography variant="h4" gutterBottom sx={{ fontWeight: "bold" }}>
             Client Details
           </Typography>
-          <Typography variant="h6" paragraph>
-            Here you can find detailed information about the service appointments. This includes service history, machine details, and upcoming service schedules.
+          <Typography variant="h6" paragraph sx={{ color: "#555", fontSize: '1rem' }}>
+            Here you can find detailed information about the service
+            appointments. This includes service history, machine details, and
+            upcoming service schedules.
           </Typography>
           <Divider sx={{ marginY: 2 }} />
-          
-          <TableContainer component={Paper}>
+
+
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', marginBottom: 2 }}>
+            <TextField
+              variant="outlined"
+              placeholder="Search by Client Name"
+              onChange={(e) => setSearchTerm(e.target.value)}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <Search />
+                  </InputAdornment>
+                ),
+              }}
+              sx={{ width: '300px' }}
+            />
+            <FormControl variant="outlined" sx={{ minWidth: 120 }}>
+              <Select
+                value={filter}
+                onChange={(e) => setFilter(e.target.value)}
+                displayEmpty
+              >
+                <MenuItem value="all">All Appointments</MenuItem>
+                <MenuItem value="completed">Completed</MenuItem>
+              </Select>
+            </FormControl>
+          </Box>
+
+
+          <TableContainer component={Paper} elevation={2} sx={{ overflowY: 'normal', overflowX: 'auto', maxHeight: '100vh', }}>
             <Table sx={{ minWidth: 650 }}>
               <TableHead>
                 <TableRow>
                   {[
-                    "Invoice No.", "Client Name", "Mobile No.", "Client Address",
-                    "Contact Person", "Appointment Date", "Invoice Amount", "Machine Name",
-                    "Model", "Part No.", "Serial No.", "Installation Date",
-                    "Service Frequency (Days)", "Expected Service Date", "Document",
-                    "Checklist", "Invoice", "Service History", "Quotation"
+                    "Invoice No.",
+                    "Client Name",
+                    "Mobile No.",
+                    "Client Address",
+                    "Contact Person",
+                    "Appointment Date",
+                    "Invoice Amount",
+                    "Machine Name",
+                    "Model",
+                    "Part No.",
+                    "Serial No.",
+                    "Installation Date",
+                    "Service Frequency (Days)",
+                    "Expected Service Date",
+                    "Document",
+                    "Checklist",
+                    "Invoice",
+                    "Service History",
+                    "Quotation",
                   ].map((header) => (
                     <TableCell
                       key={header}
                       sx={{
-                        fontSize: { xs: "0.9rem", md: "1.1rem" },
+                        fontSize: "0.9rem",
                         fontWeight: "bold",
-                        backgroundColor: headerColor,
+                        backgroundColor: "#007acc",
+                        color: "#fff",
+                        textAlign: "center",
+                        whiteSpace: "normal",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        width: "5%", // Adjust as needed
                       }}
                     >
                       {header}
@@ -273,157 +352,334 @@ function EngineerDetailsPage() {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {currentAppointments.map(([key, clientAppointments]) => {
-                  const [clientName, mobileNo] = key.split("-");
-                  const firstAppointment = clientAppointments[0];
-  
-                  return (
-                    <React.Fragment key={firstAppointment._id}>
-                      <TableRow onClick={() => toggleRow(key)} style={{ cursor: "pointer" }}>
-                        <TableCell>{firstAppointment.invoiceNumber}</TableCell>
-                        <TableCell>{clientName}</TableCell>
-                        <TableCell>{mobileNo}</TableCell>
-                        <TableCell>{firstAppointment.clientAddress}</TableCell>
-                        <TableCell>{firstAppointment.contactPerson}</TableCell>
-                        <TableCell>{new Date(firstAppointment.appointmentDate).toLocaleDateString()}</TableCell>
-                        <TableCell>{typeof firstAppointment.appointmentAmount === "number" ? `$${firstAppointment.appointmentAmount.toFixed(2)}` : "N/A"}</TableCell>
-                        <TableCell>{firstAppointment.machineName}</TableCell>
-                        <TableCell>{firstAppointment.model}</TableCell>
-                        <TableCell>{firstAppointment.partNo}</TableCell>
-                        <TableCell>{firstAppointment.serialNo}</TableCell>
-                        <TableCell>{new Date(firstAppointment.installationDate).toLocaleDateString()}</TableCell>
-                        <TableCell>{firstAppointment.serviceFrequency}</TableCell>
-                        <TableCell>{new Date(firstAppointment.expectedServiceDate).toLocaleDateString()}</TableCell>
-                        <TableCell>
-                          {firstAppointment.document ? (
-                            <span onClick={() => handleDownloadPDF(firstAppointment.document)} style={{ cursor: "pointer" }}>
-                              <Download sx={{ color: "blue" }} />
+                {filteredAppointments.map(([key, clientAppointments]) => {
+                    const [clientName, mobileNo] = key.split("-"); // Destructure client name and mobile number
+                    const firstAppointment = clientAppointments[0]; // Get the first appointment to display
+
+                    return (
+                      <React.Fragment key={firstAppointment._id}>
+                        <TableRow
+                          onClick={() => toggleRow(key)} sx={{ cursor: "pointer", '&:hover': { backgroundColor: '#e1f5fe' } }}
+                        >
+                          <TableCell>
+                            {firstAppointment.invoiceNumber}
+                          </TableCell>
+                          <TableCell>{clientName}</TableCell>
+                          <TableCell>{mobileNo}</TableCell>
+                          <TableCell>
+                            {firstAppointment.clientAddress}
+                          </TableCell>
+                          <TableCell>
+                            {firstAppointment.contactPerson}
+                          </TableCell>
+                          <TableCell>
+                            {new Date(
+                              firstAppointment.appointmentDate
+                            ).toLocaleDateString()}
+                          </TableCell>
+                          <TableCell>
+                            {typeof firstAppointment.appointmentAmount ===
+                            "number"
+                              ? `${firstAppointment.appointmentAmount.toFixed(
+                                  2
+                                )}`
+                              : "N/A"}
+                          </TableCell>
+                          <TableCell>{firstAppointment.machineName}</TableCell>
+                          <TableCell>{firstAppointment.model}</TableCell>
+                          <TableCell>{firstAppointment.partNo}</TableCell>
+                          <TableCell>{firstAppointment.serialNo}</TableCell>
+                          <TableCell>
+                            {new Date(
+                              firstAppointment.installationDate
+                            ).toLocaleDateString()}
+                          </TableCell>
+                          <TableCell>
+                            {firstAppointment.serviceFrequency}
+                          </TableCell>
+                          <TableCell>
+                            {new Date(
+                              firstAppointment.expectedServiceDate
+                            ).toLocaleDateString()}
+                          </TableCell>
+                          <TableCell>
+                            {firstAppointment.document ? (
+                              <span
+                                onClick={() =>
+                                  handleDownloadPDF(firstAppointment.document)
+                                }
+                                style={{ cursor: "pointer" }}
+                              >
+                                <Download sx={{ color: "blue" }} />
+                              </span>
+                            ) : (
+                              <Typography variant="body2" color="textSecondary">
+                                No Document
+                              </Typography>
+                            )}
+                          </TableCell>
+                          <TableCell>
+                            <span
+                              onClick={() => handleEditClick(firstAppointment)}
+                              style={{ cursor: "pointer" }}
+                            >
+                              <CheckCircle sx={{ color: "blue" }} />
                             </span>
-                          ) : (
-                            <Typography variant="body2" color="textSecondary">No Document</Typography>
-                          )}
-                        </TableCell>
-                        <TableCell>
-                          <span onClick={() => handleEditClick(firstAppointment)} style={{ cursor: "pointer" }}>
-                            <CheckCircle sx={{ color: "blue" }} />
-                          </span>
-                        </TableCell>
-                        <TableCell>
-                          {firstAppointment.checklists.length > 0 ? (
-                            (() => {
-                              const latestChecklist = firstAppointment.checklists.sort((a, b) => new Date(b.generatedOn) - new Date(a.generatedOn))[0];
-                              return latestChecklist.pdfPath ? (
-                                <span onClick={() => handleDownloadPDF(latestChecklist.pdfPath)} style={{ cursor: "pointer" }}>
-                                  <Download sx={{ color: "blue" }} />
-                                </span>
-                              ) : (
-                                <Typography variant="body2" color="textSecondary">No Invoice</Typography>
-                              );
-                            })()
-                          ) : (
-                            <Typography variant="body2" color="textSecondary">No Checklist</Typography>
-                          )}
-                        </TableCell>
-                        <TableCell>
-                          <span onClick={() => handleServiceHistoryClick(clientName)} style={{ cursor: "pointer" }}>
-                            <HistoryIcon sx={{ color: "blue" }} />
-                          </span>
-                        </TableCell>
-                        <TableCell>
-                          <span onClick={() => handleQuatation(firstAppointment)} style={{ cursor: "pointer" }}>
-                            <Typography variant="body2" color="blue">View</Typography>
-                          </span>
-                        </TableCell>
-                      </TableRow>
-                      {expandedRows[key] && (
-                        <TableRow>
-                          <TableCell colSpan={17}>
-                            <Box sx={{ padding: 2, backgroundColor: "#f9f9f9" }}>
-                              <Typography variant="subtitle1">Other Appointments:</Typography>
-                              <Table>
-                                <TableBody>
-                                  {clientAppointments.slice(1).map((appointment) => (
-                                    <TableRow key={appointment._id}>
-                                      <TableCell>{appointment.invoiceNumber}</TableCell>
-                                      <TableCell>{appointment.clientName}</TableCell>
-                                      <TableCell>{appointment.mobileNo}</TableCell>
-                                      <TableCell>{appointment.clientAddress}</TableCell>
-                                      <TableCell>{appointment.contactPerson}</TableCell>
-                                      <TableCell>{new Date(appointment.appointmentDate).toLocaleDateString()}</TableCell>
-                                      <TableCell>{typeof appointment.appointmentAmount === "number" ? `$${appointment.appointmentAmount.toFixed(2)}` : "N/A"}</TableCell>
-                                      <TableCell>{appointment.machineName}</TableCell>
-                                      <TableCell>{appointment.model}</TableCell>
-                                      <TableCell>{appointment.partNo}</TableCell>
-                                      <TableCell>{appointment.serialNo}</TableCell>
-                                      <TableCell>{new Date(appointment.installationDate).toLocaleDateString()}</TableCell>
-                                      <TableCell>{appointment.serviceFrequency}</TableCell>
-                                      <TableCell>{new Date(appointment.expectedServiceDate).toLocaleDateString()}</TableCell>
-                                      <TableCell>
-                                        {appointment.document ? (
-                                          <span onClick={() => handleDownloadPDF(appointment.document)} style={{ cursor: "pointer" }}>
-                                            <Download sx={{ color: "blue" }} />
-                                          </span>
-                                        ) : (
-                                          <Typography variant="body2" color="textSecondary">No Document</Typography>
-                                        )}
-                                      </TableCell>
-                                      <TableCell>
-                                        <span onClick={() => handleEditClick(firstAppointment)} style={{ cursor: "pointer" }}>
-                                          <CheckCircle sx={{ color: "blue" }} />
-                                        </span>
-                                      </TableCell>
-                                      <TableCell>
-                                        {firstAppointment.checklists.length > 0 ? (
-                                          (() => {
-                                            const latestChecklist = firstAppointment.checklists.sort((a, b) => new Date(b.generatedOn) - new Date(a.generatedOn))[0];
-                                            return latestChecklist.pdfPath ? (
-                                              <span onClick={() => handleDownloadPDF(latestChecklist.pdfPath)} style={{ cursor: "pointer" }}>
-                                                <Download sx={{ color: "blue" }} />
-                                              </span>
-                                            ) : (
-                                              <Typography variant="body2" color="textSecondary">No Invoice</Typography>
-                                            );
-                                          })()
-                                        ) : (
-                                          <Typography variant="body2" color="textSecondary">No Checklist</Typography>
-                                        )}
-                                      </TableCell>
-                                    </TableRow>
-                                  ))}
-                                </TableBody>
-                              </Table>
-                            </Box>
+                          </TableCell>
+                          <TableCell>
+                            {firstAppointment.checklists.length > 0 ? (
+                              // Sort checklists by generatedOn in descending order and get the latest one
+                              (() => {
+                                const sortedChecklists = [
+                                  ...firstAppointment.checklists,
+                                ].sort((a, b) => {
+                                  return (
+                                    new Date(b.generatedOn) -
+                                    new Date(a.generatedOn)
+                                  );
+                                });
+                                const latestChecklist = sortedChecklists[0]; // Get the most recent checklist
+                                return latestChecklist.pdfPath ? (
+                                  <span
+                                    onClick={() =>
+                                      handleDownloadPDF(latestChecklist.pdfPath)
+                                    }
+                                    style={{ cursor: "pointer" }}
+                                  >
+                                    <Download sx={{ color: "blue" }} />
+                                  </span>
+                                ) : (
+                                  <Typography
+                                    variant="body2"
+                                    color="textSecondary"
+                                  >
+                                    No Invoice
+                                  </Typography>
+                                );
+                              })()
+                            ) : (
+                              <Typography variant="body2" color="textSecondary">
+                                No Checklist
+                              </Typography>
+                            )}
+                          </TableCell>
+
+                          <TableCell>
+                            <span
+                              onClick={() =>
+                                handleServiceHistoryClick(clientName)
+                              }
+                              style={{ cursor: "pointer" }}
+                            >
+                              <HistoryIcon sx={{ color: "blue" }} />
+                            </span>
+                          </TableCell>
+                          <TableCell>
+                            <span
+                              onClick={() => handleQuatation(firstAppointment)}
+                              style={{ cursor: "pointer" }}
+                            >
+                              <Typography variant="body2" color="blue">
+                                View
+                              </Typography>
+                            </span>
                           </TableCell>
                         </TableRow>
-                      )}
-                    </React.Fragment>
-                  );
-                })}
+                        {expandedRows[key] && (
+                          <TableRow>
+                            <TableCell colSpan={17}>
+                              <Box
+                                sx={{ padding: 2, backgroundColor: "#f9f9f9" }}
+                              >
+                                <Typography variant="subtitle1">
+                                  Other Appointments:
+                                </Typography>
+                                <Table>
+                                  <TableBody>
+                                    {clientAppointments.slice(1).map(
+                                      (
+                                        appointment // Skip the first appointment
+                                      ) => (
+                                        <TableRow key={appointment._id}>
+                                          <TableCell>
+                                            {appointment.invoiceNumber}
+                                          </TableCell>
+                                          <TableCell>
+                                            {appointment.clientName}
+                                          </TableCell>
+                                          <TableCell>
+                                            {appointment.mobileNo}
+                                          </TableCell>
+                                          <TableCell>
+                                            {appointment.clientAddress}
+                                          </TableCell>
+                                          <TableCell>
+                                            {appointment.contactPerson}
+                                          </TableCell>
+                                          <TableCell>
+                                            {new Date(
+                                              appointment.appointmentDate
+                                            ).toLocaleDateString()}
+                                          </TableCell>
+                                          <TableCell>
+                                            {typeof appointment.appointmentAmount ===
+                                            "number"
+                                              ? `${appointment.appointmentAmount.toFixed(
+                                                  2
+                                                )}`
+                                              : "N/A"}
+                                          </TableCell>
+                                          <TableCell>
+                                            {appointment.machineName}
+                                          </TableCell>
+                                          <TableCell>
+                                            {appointment.model}
+                                          </TableCell>
+                                          <TableCell>
+                                            {appointment.partNo}
+                                          </TableCell>
+                                          <TableCell>
+                                            {appointment.serialNo}
+                                          </TableCell>
+                                          <TableCell>
+                                            {new Date(
+                                              appointment.installationDate
+                                            ).toLocaleDateString()}
+                                          </TableCell>
+                                          <TableCell>
+                                            {appointment.serviceFrequency}
+                                          </TableCell>
+                                          <TableCell>
+                                            {new Date(
+                                              appointment.expectedServiceDate
+                                            ).toLocaleDateString()}
+                                          </TableCell>
+                                          <TableCell>
+                                            {appointment.document ? (
+                                              <span
+                                                onClick={() =>
+                                                  handleDownloadPDF(
+                                                    appointment.document
+                                                  )
+                                                }
+                                                style={{ cursor: "pointer" }}
+                                              >
+                                                <Download
+                                                  sx={{ color: "blue" }}
+                                                />
+                                              </span>
+                                            ) : (
+                                              <Typography
+                                                variant="body2"
+                                                color="textSecondary"
+                                              >
+                                                No Document
+                                              </Typography>
+                                            )}
+                                          </TableCell>
+                                          <TableCell>
+                                            <span
+                                              onClick={() =>
+                                                handleEditClick(
+                                                  firstAppointment
+                                                )
+                                              }
+                                              style={{ cursor: "pointer" }}
+                                            >
+                                              <CheckCircle
+                                                sx={{ color: "blue" }}
+                                              />
+                                            </span>
+                                          </TableCell>
+                                          <TableCell>
+                                            {firstAppointment.checklists
+                                              .length > 0 ? (
+                                              // Sort checklists by generatedOn in descending order and get the latest one
+                                              (() => {
+                                                const sortedChecklists = [
+                                                  ...firstAppointment.checklists,
+                                                ].sort((a, b) => {
+                                                  return (
+                                                    new Date(b.generatedOn) -
+                                                    new Date(a.generatedOn)
+                                                  );
+                                                });
+                                                const latestChecklist =
+                                                  sortedChecklists[0]; // Get the most recent checklist
+                                                return latestChecklist.pdfPath ? (
+                                                  <span
+                                                    onClick={() =>
+                                                      handleDownloadPDF(
+                                                        latestChecklist.pdfPath
+                                                      )
+                                                    }
+                                                    style={{
+                                                      cursor: "pointer",
+                                                    }}
+                                                  >
+                                                    <Download
+                                                      sx={{ color: "blue" }}
+                                                    />
+                                                  </span>
+                                                ) : (
+                                                  <Typography
+                                                    variant="body2"
+                                                    color="textSecondary"
+                                                  >
+                                                    No Invoice
+                                                  </Typography>
+                                                );
+                                              })()
+                                            ) : (
+                                              <Typography
+                                                variant="body2"
+                                                color="textSecondary"
+                                              >
+                                                No Checklist
+                                              </Typography>
+                                            )}
+                                          </TableCell>
+                                        </TableRow>
+                                      )
+                                    )}
+                                  </TableBody>
+                                </Table>
+                              </Box>
+                            </TableCell>
+                          </TableRow>
+                        )}
+                      </React.Fragment>
+                    );
+                  }
+                )}
               </TableBody>
             </Table>
           </TableContainer>
-          
           <Pagination 
-            count={totalPages} 
-            page={currentPage} 
-            onChange={handleChangePage} 
-            color="primary" 
-            sx={{ marginY: 3 }} // Add margin for better spacing
-          />
+    count={totalPages} 
+    page={currentPage} 
+    onChange={handleChangePage} 
+    color="primary"
+    sx={{ marginY: 3, display: 'flex', justifyContent: 'center' }}
+  />
         </Container>
         <Footer />
-  
-        {/* Modal for Service History */}
-        <Modal open={openModal} onClose={handleCloseModal}>
+      </Box>
+    
+      
+      {/* Modal for Service History */}
+      <Modal open={openModal} onClose={handleCloseModal}>
           <Box
             sx={{
-              width: { xs: '90%', sm: 500 }, // Responsive width
+              width: { xs: '90%', sm: 500 },
               maxHeight: '70vh',
               overflowY: 'auto',
               padding: 4,
               backgroundColor: "white",
               margin: "auto",
               marginTop: "10%",
+              borderRadius: 2,
+              boxShadow: 24,
               position: 'relative',
             }}
           >
@@ -437,7 +693,7 @@ function EngineerDetailsPage() {
             >
               X
             </IconButton>
-  
+
             <Typography variant="h6">{selectedClient}'s Service History</Typography>
             <List>
               {serviceHistory.map((historyItem, index) => (
@@ -452,8 +708,8 @@ function EngineerDetailsPage() {
                             <span>
                               Quotation No: {quote.quotationNo}, Amount: ${quote.quotationAmount || "N/A"}
                             </span>
-                            <IconButton 
-                              onClick={() => handleDownloadPDF(quote.pdfPath)} 
+                            <IconButton
+                              onClick={() => handleDownloadPDF(quote.pdfPath)}
                               sx={{ marginLeft: 1 }}
                             >
                               <Download />
@@ -475,7 +731,8 @@ function EngineerDetailsPage() {
             </Button>
           </Box>
         </Modal>
-      </Box>
+
+    
     </Box>
   );
 }

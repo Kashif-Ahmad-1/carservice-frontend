@@ -222,7 +222,7 @@ function AppointmentDetailsPage() {
         <Typography variant="h4" gutterBottom sx={{ marginTop: 2, fontWeight: 'bold' }}>
           Clients Details
         </Typography>
-        <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, justifyContent: 'space-between', marginBottom: 2 }}>
+        <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, justifyContent: 'space-between', marginBottom: 2,backgroundColor: "#f7f9fc" }}>
           <Button variant="contained" color="primary" onClick={handleBackClick} sx={{ marginBottom: { xs: 1, sm: 0 }, marginRight: 2 }} startIcon={<Add />}>
             Create Invoice
           </Button>
@@ -279,16 +279,26 @@ function AppointmentDetailsPage() {
           <Table sx={{ minWidth: 650 }}>
             <TableHead>
               <TableRow>
-                <TableCell sx={{ fontWeight: 'bold', fontSize: '1.1rem',backgroundColor: headerColor }}>SR. No.</TableCell>
-                {['Invoice No','Client Name', 'Client Address', 'Contact Person', 'Mobile No.', 'Appointment Date', 'Appointment Amount', 'Machine Name', 'Model', 'Part No.', 'Serial No.', 'Installation Date', 'Service Frequency', 'Expected Service Date', 'Service Engineer', 'Document'].map((header) => (
-                  <TableCell key={header} sx={{ fontWeight: 'bold', fontSize: '1.1rem', backgroundColor: headerColor }}>{header}</TableCell>
+               
+                {['SR.No','Invoice No','Client Name', 'Client Address', 'Contact Person', 'Mobile No.', 'Appointment Date', 'Appointment Amount', 'Machine Name', 'Model', 'Part No.', 'Serial No.', 'Installation Date', 'Service Frequency', 'Expected Service Date', 'Service Engineer', 'Document'].map((header) => (
+                  <TableCell key={header}  sx={{
+                    fontSize: "0.9rem",
+                    fontWeight: "bold",
+                    backgroundColor: "#007acc",
+                    color: "#fff",
+                    textAlign: "center",
+                    whiteSpace: "normal",
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    width: "5%", // Adjust as needed
+                  }}>{header}</TableCell>
                 ))}
               </TableRow>
             </TableHead>
             <TableBody>
               {appointments.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((appointment, index) => (
                 <React.Fragment key={appointment._id}>
-                  <TableRow onClick={() => toggleRow(index)} sx={{ cursor: 'pointer', '&:hover': { backgroundColor: '#f5f5f5' } }}>
+                  <TableRow onClick={() => toggleRow(index)} sx={{ cursor: "pointer", '&:hover': { backgroundColor: '#e1f5fe' } }}>
                     <TableCell>{page * rowsPerPage + index + 1}</TableCell>
                     <TableCell>{appointment.invoiceNumber}</TableCell>
                     <TableCell>{appointment.clientName}</TableCell>

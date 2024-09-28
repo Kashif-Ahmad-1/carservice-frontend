@@ -9,7 +9,7 @@ import API_BASE_URL from './../../config';
 const QuotationGenerator = () => {
   const formRef = useRef();
   const location = useLocation();
-  const { clientName, contactPerson, address, mobileNo, appointmentId } = location.state || {};
+  const { clientName, contactPerson, address, mobileNo, appointmentId,invoiceNumber,engineer } = location.state || {};
 
   const generateQuotationNo = () => "QT" + Math.floor(Math.random() * 100000);
   const formatDate = (date) => date.toLocaleDateString(undefined, { year: "numeric", month: "2-digit", day: "2-digit" });
@@ -22,23 +22,7 @@ const QuotationGenerator = () => {
     appointmentId: appointmentId || "",
   });
 
-  const [formData, setFormData] = useState({
-    buyerName: clientName || "",
-    quotationNo: generateQuotationNo(),
-    quotationAmount: "",  // Store total amount here
-    docDate: formatDate(new Date()),
-    address: address || "",
-    contactPerson: contactPerson || "",
-    mobileNo: mobileNo || "",
-    email: "",
-    items: [],
-    gst: 18,
-    totalAmount: 0,
-    totalWithGST: 0,
-    advance: "",
-    validity: "",
-    authorisedSignatory: "",
-  });
+ 
 
   const [itemData, setItemData] = useState({
     itemName: "",
@@ -113,157 +97,176 @@ const QuotationGenerator = () => {
     }));
   };
 
-  const generatePDF = async () => {
-    const doc = new jsPDF();
-    const logoWidth = 40;
-    const logoHeight = 40;
-    const imgData = logo;
-    doc.addImage(imgData, 'PNG', 10, 10, 40, 15,logoWidth,
-      logoHeight);
-    // const logo = "https://cdn.pixabay.com/photo/2016/12/27/13/10/logo-1933884_640.png";
 
-    // [PDF generation code goes here]
-
-    doc.setDrawColor(200);
-      doc.setFillColor(245, 245, 245);
-      doc.rect(60, 10, 100, 25, 'F');
-      doc.setFontSize(10);
-      doc.setFont("helvetica", "bold");
-      doc.text('Company Information', 65, 16);
-      doc.setFont("helvetica", "normal");
-      doc.setFontSize(8);
-      doc.text('Works: B-2 Sara Industrial Estate, Dehradun-248197', 65, 22);
-      doc.text('Office: C-111/112 New Multan Nagar, New Delhi-110056', 65, 26);
-      doc.text('GST NO: 05AAACA1814D1ZI', 65, 30);
-
-      doc.setFontSize(24);
-      doc.setFont("helvetica", "bold");
-      doc.setTextColor(50, 50, 100);
-      doc.text('QUOTATION', 105, 55, null, null, 'center');
-
-      doc.setDrawColor(200);
-      doc.setFillColor(240, 240, 240);
-      doc.rect(10, 60, 190, 40, 'F');
-      doc.setFontSize(10);
-      doc.setFont("helvetica", "bold");
-      doc.setTextColor(0);
-      doc.text(`BILL TO:`, 15, 67);
-
-      const buyerDetails = [
-        [`Quotation No: ${formData.quotationNo}`, `Invoice Date: ${formData.docDate}`],
-        [`Customer: ${formData.buyerName}`, `Address: ${formData.address}`],
-        [`Contact: ${formData.contactPerson}`, `Mobile: ${formData.mobileNo}`],
-        // [`Email: ${formData.email}`, '']
-      ];
-
-      const buyerStartY = 73;
-      buyerDetails.forEach((line, index) => {
-        doc.setFont("helvetica", "normal");
-        doc.setTextColor(60, 60, 60);
-        doc.text(line[0], 15, buyerStartY + index * 6);
-        if (line[1]) {
-          doc.text(line[1], 110, buyerStartY + index * 6);
-        }
-      });
-
-      const itemColumns = ['Sr. No', 'Item Name', 'Qty', 'Rate','GST Amount', 'Amount'];
-      const itemRows = formData.items.map((item, index) => [
-        index + 1,
-        item.itemName,
-        item.quantity,
-        !isNaN(item.rate) ? Number(item.rate).toFixed(2) : '0.00',
-        !isNaN(item.gstAmount)?Number(item.gstAmount).toFixed(2) : '0.00',
-        
-        
-        !isNaN(item.totalWithGST) ? Number(item.totalWithGST).toFixed(2) : '0.00'
-      ]);
-
-      for (let i = itemRows.length; i < 10; i++) {
-        itemRows.push([i + 1, '', '', '', '', '', '']);
-      }
-
-      doc.autoTable(itemColumns, itemRows, {
-        startY: 110,
-        theme: 'striped',
-        headStyles: { fillColor: [150, 150, 255], textColor: [255, 255, 255], fontSize: 10, fontStyle: 'bold' },
-        styles: { cellPadding: 2, fontSize: 9, halign: 'center', fillColor: [240, 240, 240] }
-      });
-
-      const amountSummaryY = doc.lastAutoTable.finalY + 10;
-      doc.setDrawColor(200);
-      doc.setFillColor(240, 240, 240);
-      doc.rect(10, amountSummaryY, 190, 50, 'F');
-      doc.setFontSize(10);
-      doc.setFont("helvetica", "bold");
-      doc.setTextColor(0);
-      doc.text(`AMOUNT PAYABLE`, 15, amountSummaryY + 10);
-
-      doc.setFont("helvetica", "normal");
-      doc.setFontSize(9);
-      doc.setTextColor(60, 60, 60);
-      // doc.text(`Total Amount: ${formData.totalAmount.toFixed(2)}`, 15, amountSummaryY + 20);
-      // doc.text(`GST (18%): ${(formData.totalAmount * 0.18).toFixed(2)}`, 15, amountSummaryY + 26);
-      doc.text(`Total Amount(Incl. GST): ${(formData.totalAmount * 1.18).toFixed(2)}`, 15, amountSummaryY + 32);
-      // doc.text(`Amount In Words: ${formData.amountInWords}`, 15, amountSummaryY + 38);
-
-      const signatoryY = amountSummaryY + 55;
-      doc.setDrawColor(200);
-      doc.setFillColor(240, 240, 240);
-      doc.rect(10, signatoryY, 190, 30, 'F');
-      doc.setFontSize(9);
-      doc.setFont("helvetica", "bold");
-      doc.text('Authorised Signatory:', 15, signatoryY + 10);
-      doc.setFont("helvetica", "normal");
-      doc.setTextColor(60, 60, 60);
-      doc.text(formData.authorisedSignatory, 15, signatoryY + 18);
-
-      const paymentY = signatoryY + 40;
-      doc.setFontSize(10);
-      doc.setFont("helvetica", "bold");
-      doc.setTextColor(0);
-      doc.text('Payment Instructions:', 15, paymentY);
-      doc.setFontSize(9);
-      doc.setFont("helvetica", "normal");
-      doc.setTextColor(60, 60, 60);
-      doc.text('Please make the payment within 30 days of receipt of this invoice.', 15, paymentY + 6);
-      doc.text('Bank Details: XYZ Bank, Account No: 123456789, IFSC: XYZ1234', 15, paymentY + 12);
-
-      const footerY = paymentY + 30;
-      doc.setFontSize(8);
-      doc.setFont("helvetica", "italic");
-      doc.setTextColor(100);
-      doc.text('Thank you for your business!', 15, footerY);
-      doc.text('For any queries, please contact us at info@company.com', 15, footerY + 5);
+  const [formData, setFormData] = useState({
+    buyerName: clientName || "",
+    quotationNo: generateQuotationNo(),
+    quotationAmount: "",  // Store total amount here
+    docDate: formatDate(new Date()),
+    address: address || "",
+    contactPerson: contactPerson || "",
+    mobileNo: mobileNo || "",
+    invoiceNumber: invoiceNumber || "",
+    email: "",
+    items: [],
+    gst: 18,
+    totalAmount: 0,
+    totalWithGST: 0,
+    advance: "",
+    validity: "",
+    authorisedSignatory: engineer || "",
+  });
 
 
-      // backend code
-    
-    const pdfBlob = doc.output("blob");
-    const pdfFile = new File([pdfBlob], "quotation.pdf", { type: "application/pdf" });
+ const generatePDF = async () => {
+  const doc = new jsPDF();
+  const logoWidth = 40;
+  const logoHeight = 40;
+  const imgData = logo;
 
-    const formDatas = new FormData();
-    formDatas.append("pdf", pdfFile);
-    formDatas.append("quotationData", JSON.stringify({ 
-      clientInfo, 
-      appointmentId, 
-      quotationNo: formData.quotationNo, 
-      quotationAmount: formData.quotationAmount // Send the total amount
-    }));
+  doc.addImage(imgData, 'PNG', 10, 10, logoWidth, logoHeight);
 
-    try {
-      const token = localStorage.getItem("token");
-      await axios.post(`${API_BASE_URL}/api/quotations`, formDatas, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      console.log("Checklist and PDF uploaded successfully");
-    } catch (error) {
-      console.error("Error uploading checklist and PDF:", error);
+  // Company Information
+  doc.setDrawColor(200);
+  doc.setFillColor(240, 240, 240);
+  doc.rect(60, 10, 100, 25, 'F');
+  doc.setFontSize(10);
+  doc.setFont("helvetica", "bold");
+  doc.text('Company Information', 65, 16);
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(8);
+  doc.text('Works: B-2 Sara Industrial Estate, Dehradun-248197', 65, 22);
+  doc.text('Office: C-111/112 New Multan Nagar, New Delhi-110056', 65, 26);
+  doc.text('GST NO: 05AAACA1814D1ZI', 65, 30);
+
+  // Quotation Title
+  doc.setFontSize(24);
+  doc.setFont("helvetica", "bold");
+  doc.setTextColor(50, 50, 100);
+  doc.text('QUOTATION', 105, 55, null, null, 'center');
+
+  // Bill To Section
+  doc.setDrawColor(200);
+  doc.setFillColor(240, 240, 240);
+  doc.rect(10, 60, 190, 40, 'F');
+  doc.setFontSize(10);
+  doc.setFont("helvetica", "bold");
+  doc.setTextColor(0);
+  doc.text(`BILL TO:`, 15, 67);
+
+  const buyerDetails = [
+    [`Quotation No: ${formData.quotationNo}`, `Invoice: ${formData.invoiceNumber}`],
+    [`Customer: ${formData.buyerName}`, `Invoice Date: ${formData.docDate}`],
+    [`Contact: ${formData.contactPerson}`, `Mobile: ${formData.mobileNo}`],
+    [`Address: ${formData.address}`, '']
+  ];
+
+  const buyerStartY = 73;
+  buyerDetails.forEach((line, index) => {
+    doc.setFont("helvetica", "normal");
+    doc.setTextColor(60, 60, 60);
+    doc.text(line[0], 15, buyerStartY + index * 6);
+    if (line[1]) {
+      doc.text(line[1], 110, buyerStartY + index * 6);
     }
-    doc.save("quotation.pdf");
-  };
+  });
+
+  // Item Table
+  const itemColumns = ['Sr. No', 'Item Name', 'Qty', 'Rate', 'GST Amount', 'Amount'];
+  const itemRows = formData.items.map((item, index) => [
+    index + 1,
+    item.itemName,
+    item.quantity,
+    !isNaN(item.rate) ? Number(item.rate).toFixed(2) : '0.00',
+    !isNaN(item.gstAmount) ? Number(item.gstAmount).toFixed(2) : '0.00',
+    !isNaN(item.totalWithGST) ? Number(item.totalWithGST).toFixed(2) : '0.00'
+  ]);
+
+  for (let i = itemRows.length; i < 10; i++) {
+    itemRows.push([i + 1, '', '', '', '', '']);
+  }
+
+  doc.autoTable(itemColumns, itemRows, {
+    startY: 110,
+    theme: 'striped',
+    headStyles: { fillColor: [150, 150, 255], textColor: [255, 255, 255], fontSize: 10, fontStyle: 'bold' },
+    styles: { cellPadding: 2, fontSize: 9, halign: 'center', fillColor: [240, 240, 240] }
+  });
+
+  // Amount Summary
+  const amountSummaryY = doc.lastAutoTable.finalY + 10;
+  doc.setDrawColor(200);
+  doc.setFillColor(240, 240, 240);
+  doc.rect(10, amountSummaryY, 190, 50, 'F');
+  doc.setFontSize(10);
+  doc.setFont("helvetica", "bold");
+  doc.setTextColor(0);
+  doc.text(`AMOUNT PAYABLE`, 15, amountSummaryY + 10);
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(9);
+  doc.setTextColor(60, 60, 60);
+  doc.text(`Total Amount(Incl. GST): ${(formData.totalAmount * 1.18).toFixed(2)}`, 15, amountSummaryY + 32);
+
+  // Authorised Signatory
+  const signatoryY = amountSummaryY + 55;
+  doc.setDrawColor(200);
+  doc.setFillColor(240, 240, 240);
+  doc.rect(10, signatoryY, 190, 30, 'F');
+  doc.setFontSize(9);
+  doc.setFont("helvetica", "bold");
+  doc.text('Authorised Signatory:', 15, signatoryY + 10);
+  doc.setFont("helvetica", "normal");
+  doc.setTextColor(60, 60, 60);
+  doc.text(formData.authorisedSignatory, 15, signatoryY + 18);
+
+  // Payment Instructions
+  const paymentY = signatoryY + 40;
+  doc.setFontSize(10);
+  doc.setFont("helvetica", "bold");
+  doc.setTextColor(0);
+  doc.text('Payment Instructions:', 15, paymentY);
+  doc.setFontSize(9);
+  doc.setFont("helvetica", "normal");
+  doc.setTextColor(60, 60, 60);
+  doc.text('Please make the payment within 30 days of receipt of this invoice.', 15, paymentY + 6);
+  doc.text('Bank Details: XYZ Bank, Account No: 123456789, IFSC: XYZ1234', 15, paymentY + 12);
+
+  // Footer
+  const footerY = paymentY + 30;
+  doc.setFontSize(8);
+  doc.setFont("helvetica", "italic");
+  doc.setTextColor(100);
+  doc.text('Thank you for your business!', 15, footerY);
+  doc.text('For any queries, please contact us at info@company.com', 15, footerY + 5);
+
+  // Finalize PDF
+  const pdfBlob = doc.output("blob");
+  const pdfFile = new File([pdfBlob], "quotation.pdf", { type: "application/pdf" });
+
+  const formDatas = new FormData();
+  formDatas.append("pdf", pdfFile);
+  formDatas.append("quotationData", JSON.stringify({ 
+    clientInfo, 
+    appointmentId, 
+    quotationNo: formData.quotationNo, 
+    quotationAmount: formData.quotationAmount 
+  }));
+
+  try {
+    const token = localStorage.getItem("token");
+    await axios.post(`${API_BASE_URL}/api/quotations`, formDatas, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    console.log("Checklist and PDF uploaded successfully");
+  } catch (error) {
+    console.error("Error uploading checklist and PDF:", error);
+  }
+  doc.save("quotation.pdf");
+};
+
 
   return (
     <div className="container-pdf" ref={formRef}>

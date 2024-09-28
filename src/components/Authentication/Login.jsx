@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 import AuthContext from "./../../Store/AuthContext";
 import ForgotPasswordModal from "./ForgotPasswordModal";
 import API_BASE_URL from './../../config';
+
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -26,7 +27,6 @@ const Login = () => {
       });
 
       const data = await response.json();
-      console.log("the data is ", data);
       if (response.ok) {
         login(data.token, data.role);
         
@@ -51,6 +51,7 @@ const Login = () => {
       alert("An error occurred, please try again.");
     }
   };
+
   return (
     <div className={styles.loginMain}>
       <div className={styles.loginLeft}>
@@ -86,7 +87,7 @@ const Login = () => {
               </div>
               <div className={styles.loginCenterButtons}>
                 <button className="login-button" type="submit">Log In</button>
-                <button  className="forgot-button" onClick={() => setIsModalOpen(true)}>
+                <button className="forgot-button" type="button" onClick={() => setIsModalOpen(true)}>
                   Forgot Password?
                 </button>
               </div>
