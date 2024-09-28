@@ -79,7 +79,8 @@ const AdminDashboard = () => {
   const [newServiceRequests, setNewServiceRequests] = useState(0);
   const [recentActivities, setRecentActivities] = useState([]);
   const [serviceRequestsData, setServiceRequestsData] = useState({ labels: [], data: [] });
-  const [viewMode, setViewMode] = useState("day"); // New state for dropdown
+  const [quotationStatusData, setQuotationStatusData] = useState({ labels: [], data: [] }); // New state for quotation status
+  const [viewMode, setViewMode] = useState("day");
   const token = localStorage.getItem("token");
 
   const handleDrawerToggle = () => {
@@ -127,47 +128,38 @@ const AdminDashboard = () => {
   
       const appointments = await response.json();
       const newRequests = appointments.filter((appointment) => !appointment.completed).length;
-  
-      // Initialize counts
+
       const requestCountByDay = Array(7).fill(0);
       const requestCountByMonth = Array(12).fill(0);
       const monthsOfYear = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-  
-      // Calculate service requests by day
+
       const daysOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
       const today = new Date();
       const todayIndex = today.getDay();
-      
+
       const dayLabels = Array(7).fill("").map((_, index) => {
         const date = new Date();
         date.setDate(today.getDate() - (todayIndex - index));
         return `${daysOfWeek[index]} (${date.getDate()}/${date.getMonth() + 1})`;
       });
-  
+
       appointments.forEach((appointment) => {
         const date = new Date(appointment.createdAt);
         const day = date.getDay();
         const month = date.getMonth();
-  
-        // Count requests for each day
         requestCountByDay[day]++;
-        
-        // Count requests for each month
         requestCountByMonth[month]++;
       });
-  
-      // Set upcoming days (after today) to zero
+
       for (let i = todayIndex + 1; i < 7; i++) {
         requestCountByDay[i] = 0;
       }
-  
-      // Set initial data based on current viewMode
+
       setServiceRequestsData({
         labels: viewMode === "day" ? dayLabels : monthsOfYear,
         data: viewMode === "day" ? requestCountByDay : requestCountByMonth,
       });
-  
-      // Reverse the activities to show the latest first
+
       const activities = appointments
         .map((appointment) => ({
           accountant: appointment.createdBy ? appointment.createdBy.name : "Unknown Accountant",
@@ -176,28 +168,49 @@ const AdminDashboard = () => {
         }))
         .reverse()
         .slice(0, 3);
-  
+
       setNewServiceRequests(newRequests);
       setRecentActivities(activities);
     } catch (error) {
       console.error("Appointment Count Error:", error);
     }
   };
-  
-  
-  
-  
 
-
-
+  const fetchQuotationCounts = async () => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/quotations/`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+  
+      if (!response.ok) {
+        throw new Error("Failed to fetch quotation counts");
+      }
+  
+      const quotations = await response.json();
+      const completedCount = quotations.filter(q => q.status === true).length; // Completed quotations
+      const pendingCount = quotations.filter(q => q.status === false).length; // Pending quotations
+  
+      setQuotationStatusData({
+        labels: ["Completed", "Pending"],
+        data: [completedCount, pendingCount],
+      });
+    } catch (error) {
+      console.error("Quotation Count Error:", error);
+    }
+  };
   useEffect(() => {
     fetchUserCounts();
     fetchAppointmentCounts();
+    fetchQuotationCounts(); // Fetch quotation counts on mount
   }, [token]);
 
   useEffect(() => {
     fetchAppointmentCounts(); // Re-fetch data when viewMode changes
-  }, [viewMode]); // Depend on viewMode
+  }, [viewMode]);
 
   const data = {
     labels: serviceRequestsData.labels,
@@ -210,11 +223,22 @@ const AdminDashboard = () => {
     ],
   };
 
+  const quotationData = {
+    labels: quotationStatusData.labels,
+    datasets: [
+      {
+        label: "Quotation Status",
+        data: quotationStatusData.data,
+        backgroundColor: ["#4caf50", "#ff9800"],
+      },
+    ],
+  };
+
   return (
     <Box sx={{ display: "flex" }}>
       <CssBaseline />
       <Navbar onMenuClick={handleDrawerToggle} />
-      <Sidebar open={drawerOpen} onClose={handleDrawerToggle} />
+      <Sidebar open={true} />
       <MainContent>
         <ToolbarSpacer />
         <Container>
@@ -273,25 +297,24 @@ const AdminDashboard = () => {
             </Grid>
           </Grid>
           <SectionTitle variant="h4" sx={{ mt: 4 }}>
-            Service Requests Trend
+            Service Requests Trend & Quotation Status
           </SectionTitle>
-          <FormControl variant="outlined" sx={{ minWidth: 120, mb: 2 }}>
-            <InputLabel>View Mode</InputLabel>
-            <Select
-              value={viewMode}
-              onChange={(e) => {
-                setViewMode(e.target.value);
-              }}
-            >
-              <MenuItem value="day">Day Wise</MenuItem>
-              <MenuItem value="month">Month Wise</MenuItem>
-            </Select>
-          </FormControl>
-          <Paper sx={{ p: 2, borderRadius: 2, boxShadow: 2, width: '100%' }}>
-            <div style={{ height: "380px", display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-              <Bar data={data} options={{ responsive: true }} />
-            </div>
-          </Paper>
+          <Grid container spacing={3}>
+            <Grid item xs={12} sm={6}>
+              <Paper sx={{ p: 2, borderRadius: 2, boxShadow: 2 }}>
+                <div style={{ height: "380px" }}>
+                  <Bar data={data} options={{ responsive: true }} />
+                </div>
+              </Paper>
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <Paper sx={{ p: 2, borderRadius: 2, boxShadow: 2 }}>
+                <div style={{ height: "380px" }}>
+                  <Bar data={quotationData} options={{ responsive: true }} />
+                </div>
+              </Paper>
+            </Grid>
+          </Grid>
           <SectionTitle variant="h4" sx={{ mt: 4 }}>
             Recent Activity
           </SectionTitle>

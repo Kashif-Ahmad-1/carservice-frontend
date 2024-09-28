@@ -18,7 +18,8 @@ import { styled } from "@mui/material/styles";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { Download, Menu ,Delete,Edit} from "@mui/icons-material";
-import Sidebar from "./Sidebar";
+import Navbar from './Navbar';
+import Sidebar from './Sidebar';
 
 const MainContent = styled("main")(({ theme }) => ({
   flexGrow: 1,
@@ -56,7 +57,7 @@ const Table = styled("table")(({ theme }) => ({
   },
 }));
 
-const QuotationPage = () => {
+const QuotationAdminPage = () => {
   const [quotations, setQuotations] = useState([]);
   const [filteredQuotations, setFilteredQuotations] = useState([]);
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -64,6 +65,7 @@ const QuotationPage = () => {
   const itemsPerPage = 20; // Items per page
   const [searchTerm, setSearchTerm] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
+  const [drawerOpen, setDrawerOpen] = useState(false);
   const [currentQuotation, setCurrentQuotation] = useState(null);
   const [formData, setFormData] = useState({
     quotationNo: "",
@@ -73,8 +75,14 @@ const QuotationPage = () => {
     amount: "",
     status: false,
   });
-  const handleToggleSidebar = () => {
+ // Function to toggle the sidebar visibility
+ const handleToggleSidebar = () => {
     setSidebarOpen((prev) => !prev);
+  };
+
+  // Function to handle drawer toggle
+  const handleDrawerToggle = () => {
+    setDrawerOpen((prev) => !prev);
   };
 
   useEffect(() => {
@@ -99,27 +107,7 @@ const QuotationPage = () => {
     setCurrentPage(1); // Reset to first page on search
   }, [searchTerm, quotations]);
 
-  // Header Component
-  const Header = () => (
-    <AppBar position="static">
-      <Toolbar>
-        <IconButton color="inherit" onClick={handleToggleSidebar}>
-          <Menu />
-        </IconButton>
-        <img
-          src={logo}
-          alt="Company Logo"
-          style={{ width: 40, height: 40, marginRight: 10 }}
-        />
-        <Typography
-          variant="h6"
-          sx={{ flexGrow: 1, fontWeight: "bold", color: "#ff4081" }}
-        >
-          Company Name
-        </Typography>
-      </Toolbar>
-    </AppBar>
-  );
+ 
 
   const fetchQuotations = async () => {
     try {
@@ -293,9 +281,10 @@ const QuotationPage = () => {
   return (
     <Box sx={{ display: "flex" }}>
       <CssBaseline />
-      {sidebarOpen && <Sidebar />}
+      <Navbar onMenuClick={handleDrawerToggle} />
+      <Sidebar open={drawerOpen} onClose={handleDrawerToggle} />
       <MainContent>
-        <Header />
+      
         <ToolbarSpacer />
         <Container>
           <SectionTitle variant="h4">Quotation List</SectionTitle>
@@ -482,4 +471,4 @@ const QuotationPage = () => {
   );
 };
 
-export default QuotationPage;
+export default QuotationAdminPage;

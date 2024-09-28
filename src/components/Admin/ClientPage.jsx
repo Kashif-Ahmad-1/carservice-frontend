@@ -67,6 +67,8 @@ const ClientPage = () => {
   const [filteredClients, setFilteredClients] = useState([]);
   const [showForm, setShowForm] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [newClient, setNewClient] = useState({
     clientName: '',
     contactPerson: '',
@@ -77,6 +79,15 @@ const ClientPage = () => {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(15);
 
+
+  const handleToggleSidebar = () => {
+    setSidebarOpen((prev) => !prev);
+  };
+
+  // Function to handle drawer toggle
+  const handleDrawerToggle = () => {
+    setDrawerOpen((prev) => !prev);
+  };
   useEffect(() => {
     const fetchClients = async () => {
       try {
@@ -210,8 +221,8 @@ const ClientPage = () => {
   return (
     <Box sx={{ display: 'flex' }}>
       <CssBaseline />
-      <Navbar />
-      <Sidebar />
+      <Navbar onMenuClick={handleDrawerToggle} />
+      <Sidebar open={drawerOpen} onClose={handleDrawerToggle} />
       <MainContent>
         <ToolbarSpacer />
         <Container>

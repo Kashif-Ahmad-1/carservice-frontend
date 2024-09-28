@@ -78,10 +78,20 @@ const MachinePage = () => {
     modelNo: '',
     partNo: '',
   });
+  
   const [editingMachineId, setEditingMachineId] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [machinesPerPage] = useState(15);
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const handleToggleSidebar = () => {
+    setSidebarOpen((prev) => !prev);
+  };
 
+  // Function to handle drawer toggle
+  const handleDrawerToggle = () => {
+    setDrawerOpen((prev) => !prev);
+  };
   useEffect(() => {
     const fetchMachines = async () => {
       try {
@@ -208,8 +218,8 @@ const MachinePage = () => {
   return (
     <Box sx={{ display: 'flex' }}>
       <CssBaseline />
-      <Navbar />
-      <Sidebar />
+      <Navbar onMenuClick={handleDrawerToggle} />
+      <Sidebar open={drawerOpen} onClose={handleDrawerToggle} />
       <MainContent>
         <ToolbarSpacer />
         <Container>

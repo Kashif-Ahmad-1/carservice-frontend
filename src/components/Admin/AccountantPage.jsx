@@ -66,6 +66,8 @@ const AccountantPage = () => {
   const [filteredAccountants, setFilteredAccountants] = useState([]);
   const [showForm, setShowForm] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [newAccountant, setNewAccountant] = useState({
     name: '',
     email: '',
@@ -76,6 +78,14 @@ const AccountantPage = () => {
   const [editingAccountantId, setEditingAccountantId] = useState(null);
   const token = localStorage.getItem('token');
 
+  const handleToggleSidebar = () => {
+    setSidebarOpen((prev) => !prev);
+  };
+
+  // Function to handle drawer toggle
+  const handleDrawerToggle = () => {
+    setDrawerOpen((prev) => !prev);
+  };
   const fetchAccountants = async () => {
     try {
       const response = await fetch(`${API_BASE_URL}/api/users/accountants`, {
@@ -205,8 +215,8 @@ const AccountantPage = () => {
   return (
     <Box sx={{ display: 'flex' }}>
       <CssBaseline />
-      <Navbar />
-      <Sidebar />
+      <Navbar onMenuClick={handleDrawerToggle} />
+      <Sidebar open={drawerOpen} onClose={handleDrawerToggle} />
       <MainContent>
         <ToolbarSpacer />
         <Container>

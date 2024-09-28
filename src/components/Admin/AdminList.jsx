@@ -66,6 +66,8 @@ const AdminList = () => {
   const [filteredAdmins, setFilteredAdmins] = useState([]);
   const [showForm, setShowForm] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [newAdmin, setNewAdmin] = useState({ 
     name: '', 
     email: '', 
@@ -75,7 +77,14 @@ const AdminList = () => {
   });
   const [editingAdminId, setEditingAdminId] = useState(null);
   const token = localStorage.getItem('token');
+  const handleToggleSidebar = () => {
+    setSidebarOpen((prev) => !prev);
+  };
 
+  // Function to handle drawer toggle
+  const handleDrawerToggle = () => {
+    setDrawerOpen((prev) => !prev);
+  };
   const fetchAdmins = async () => {
     try {
       const response = await fetch(`${API_BASE_URL}/api/users/admins`, {
@@ -216,8 +225,8 @@ const AdminList = () => {
   return (
     <Box sx={{ display: 'flex' }}>
       <CssBaseline />
-      <Navbar />
-      <Sidebar />
+      <Navbar onMenuClick={handleDrawerToggle} />
+      <Sidebar open={drawerOpen} onClose={handleDrawerToggle} />
       <MainContent>
         <ToolbarSpacer />
         <Container>

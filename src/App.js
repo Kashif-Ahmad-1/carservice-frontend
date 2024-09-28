@@ -22,6 +22,7 @@ import QuotationPage from "./components/EngineerPage/QuotationPage";
 import ServiceRequestDocPage from "./components/EngineerPage/ServiceRequestDocPage";
 import ServiceadminRequestDocPage from "./components/Admin/ServiceRequestDocPage";
 import ServiceReportForm from "./ServiceReportForm";
+import QuotationAdminPage from "./components/Admin/QuotationAdminPage";
 function App() {
   // const role = localStorage.getItem("role");
   // console.log(role);
@@ -54,6 +55,10 @@ function App() {
           <Route
             path="/admin-service-record"
             element={<PrivateRoute element={ServiceadminRequestDocPage} roles={["admin"]} />}
+          />
+          <Route
+            path="/admin-quotation-record"
+            element={<PrivateRoute element={QuotationAdminPage} roles={["admin"]} />}
           />
 
           {/* Accountant */}

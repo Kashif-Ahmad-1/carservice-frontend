@@ -64,7 +64,7 @@ const LogoutButton = styled(Button)(({ theme }) => ({
   },
 }));
 
-const Sidebar = () => {
+const Sidebar = ({ open, onClose }) => {
   const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -88,7 +88,7 @@ const Sidebar = () => {
   };
 
   return (
-    <DrawerStyled variant="permanent">
+    <DrawerStyled variant={onClose ? "temporary" : "permanent"} open={open} onClose={onClose}>
       <ToolbarSpacer />
       <div>
         <SidebarTitle variant="h6">Admin Panel</SidebarTitle>
@@ -142,6 +142,14 @@ const Sidebar = () => {
               <SettingsIcon   />
             </ListItemIcon>
             <ListItemText primary="Service Record" />
+          </ListItemStyled>
+
+
+          <ListItemStyled button component={Link} to="/admin-quotation-record">
+            <ListItemIcon>
+              <SettingsIcon   />
+            </ListItemIcon>
+            <ListItemText primary="Quotation Record" />
           </ListItemStyled>
 
           <Divider />

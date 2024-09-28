@@ -15,13 +15,11 @@ const AppBarStyled = styled(AppBar)(({ theme }) => ({
 const Navbar = ({ onMenuClick }) => {
   const navigate = useNavigate();
 
-  const clickhandle = () =>{
-   navigate('/admin')
-  }
+
   return (
     <AppBarStyled position="fixed">
       <Toolbar>
-        <IconButton edge="start" color="inherit" aria-label="menu" onClick={clickhandle}>
+        <IconButton edge="start" color="inherit" aria-label="menu" onClick={onMenuClick}>
           <MenuIcon />
         </IconButton>
         <Typography variant="h6">Car Service Center - Admin Dashboard</Typography>
@@ -29,5 +27,6 @@ const Navbar = ({ onMenuClick }) => {
     </AppBarStyled>
   );
 };
+
 
 export default Navbar;

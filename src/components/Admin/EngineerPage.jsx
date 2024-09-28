@@ -66,6 +66,8 @@ const EngineerPage = () => {
   const [filteredEngineers, setFilteredEngineers] = useState([]);
   const [showForm, setShowForm] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [newEngineer, setNewEngineer] = useState({ 
     name: '', 
     email: '', 
@@ -75,7 +77,14 @@ const EngineerPage = () => {
   });
   const [editingEngineerId, setEditingEngineerId] = useState(null);
   const token = localStorage.getItem('token');
+  const handleToggleSidebar = () => {
+    setSidebarOpen((prev) => !prev);
+  };
 
+  // Function to handle drawer toggle
+  const handleDrawerToggle = () => {
+    setDrawerOpen((prev) => !prev);
+  };
   const fetchEngineers = async () => {
     try {
       const response = await fetch(`${API_BASE_URL}/api/users/engineers`, {
@@ -220,8 +229,8 @@ const EngineerPage = () => {
   return (
     <Box sx={{ display: 'flex' }}>
     <CssBaseline />
-    <Navbar />
-    <Sidebar />
+    <Navbar onMenuClick={handleDrawerToggle} />
+    <Sidebar open={drawerOpen} onClose={handleDrawerToggle} />
     <MainContent>
       <ToolbarSpacer />
       <Container>
