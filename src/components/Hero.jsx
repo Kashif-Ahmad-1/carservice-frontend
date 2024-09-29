@@ -54,13 +54,7 @@ function Hero() {
                   Sign In &nbsp;
                   <i className="fa-solid fa-circle-check"></i>
                 </Link>
-                <Link
-                  className="hero-content__text__btns__login"
-                  to="/login"
-                >
-                  Login &nbsp;
-                  <i className="fa-solid fa-user"></i>
-                </Link>
+                
               </div>
             </div>
 

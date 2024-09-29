@@ -20,6 +20,7 @@ const QuotationGenerator = () => {
     phone: mobileNo || "",
     address: address || "",
     appointmentId: appointmentId || "",
+    engineer: engineer || "",
   });
 
  
@@ -115,6 +116,7 @@ const QuotationGenerator = () => {
     advance: "",
     validity: "",
     authorisedSignatory: engineer || "",
+    engineer: engineer || "",
   });
 
 
@@ -248,7 +250,8 @@ const QuotationGenerator = () => {
   formDatas.append("quotationData", JSON.stringify({ 
     clientInfo, 
     appointmentId, 
-    quotationNo: formData.quotationNo, 
+    quotationNo: formData.quotationNo,
+   
     quotationAmount: formData.quotationAmount 
   }));
 

@@ -144,8 +144,8 @@ const ServiceRequestPage = () => {
                     <TableCell>Phone</TableCell>
                     <TableCell>Accountant Name</TableCell>
                     <TableCell>Engineer Assigned</TableCell>
-                    <TableCell>Status</TableCell>
-                    <TableCell>Payment</TableCell>
+                    {/* <TableCell>Status</TableCell> */}
+                    <TableCell>Invoice Amount</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -159,7 +159,7 @@ const ServiceRequestPage = () => {
                         <TableCell>{request.mobileNo}</TableCell>
                         <TableCell>{request.createdBy?.name || 'N/A'}</TableCell>
                         <TableCell>{request.engineer?.name || 'N/A'}</TableCell>
-                        <TableCell>{request.status}</TableCell>
+                        {/* <TableCell>{request.status}</TableCell> */}
                         <TableCell>{request.appointmentAmount}</TableCell>
                       </TableRow>
                     ))

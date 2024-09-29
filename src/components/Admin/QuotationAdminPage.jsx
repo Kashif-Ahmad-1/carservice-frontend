@@ -308,8 +308,9 @@ const QuotationAdminPage = () => {
                     <th>Contact Person</th>
                     <th>Mobile Number</th>
                     <th>Quotation Amount (Rs)</th>
-                    <th>Status</th>
-                    <th>Document</th>
+                    <th>Engineer</th>
+                    <th>Status/Quotation Document</th>
+                    {/* <th>Document</th> */}
                     <th>Actions</th> 
                   </tr>
                 </thead>
@@ -323,6 +324,7 @@ const QuotationAdminPage = () => {
                         <td>{quotation.clientInfo.contactPerson}</td>
                         <td>{quotation.clientInfo.phone}</td>
                         <td>{quotation.quotationAmount}</td>
+                        <td>{quotation.clientInfo.engineer}</td>
                         <td>
                           <Button
                             variant="contained"
@@ -332,8 +334,6 @@ const QuotationAdminPage = () => {
                           >
                             {quotation.status ? "Complete" : "Pending"}
                           </Button>
-                        </td>
-                        <td>
                           <Button
                             variant="contained"
                             color="secondary"
@@ -343,6 +343,16 @@ const QuotationAdminPage = () => {
                             <Download fontSize="small" /> Download
                           </Button>
                         </td>
+                        {/* <td>
+                          <Button
+                            variant="contained"
+                            color="secondary"
+                            onClick={() => handleDownloadPDF(quotation.pdfPath)}
+                            size="small"
+                          >
+                            <Download fontSize="small" /> Download
+                          </Button>
+                        </td> */}
 
                         <td>
                         <Button

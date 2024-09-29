@@ -319,8 +319,8 @@ const QuotationPage = () => {
                     <th>Contact Person</th>
                     <th>Mobile Number</th>
                     <th>Quotation Amount (Rs)</th>
-                    <th>Status</th>
-                    <th>Document</th>
+                    <th >Status</th>
+                    {/* <th>Document</th> */}
                     <th>Actions</th> 
                   </tr>
                 </thead>
@@ -343,8 +343,7 @@ const QuotationPage = () => {
                           >
                             {quotation.status ? "Complete" : "Pending"}
                           </Button>
-                        </td>
-                        <td>
+
                           <Button
                             variant="contained"
                             color="secondary"
@@ -354,6 +353,7 @@ const QuotationPage = () => {
                             <Download fontSize="small" /> Download
                           </Button>
                         </td>
+                        
 
                         <td>
                         <Button

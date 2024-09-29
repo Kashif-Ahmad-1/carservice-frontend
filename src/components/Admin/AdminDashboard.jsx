@@ -73,7 +73,7 @@ const RecentActivityCard = styled(Card)(({ theme }) => ({
 }));
 
 const AdminDashboard = () => {
-  const [drawerOpen, setDrawerOpen] = useState(true);
+  const [drawerOpen, setDrawerOpen] = useState(false);
   const [mechanicCount, setMechanicCount] = useState(0);
   const [accountantCount, setAccountantCount] = useState(0);
   const [newServiceRequests, setNewServiceRequests] = useState(0);
@@ -238,7 +238,7 @@ const AdminDashboard = () => {
     <Box sx={{ display: "flex" }}>
       <CssBaseline />
       <Navbar onMenuClick={handleDrawerToggle} />
-      <Sidebar open={true} />
+      <Sidebar open={drawerOpen} onClose={handleDrawerToggle} />
       <MainContent>
         <ToolbarSpacer />
         <Container>

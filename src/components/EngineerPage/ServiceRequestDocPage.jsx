@@ -46,7 +46,7 @@ const Table = styled("table")(({ theme }) => ({
     padding: theme.spacing(1),
     textAlign: "left",
     borderBottom: `1px solid ${theme.palette.divider}`,
-    fontSize: "0.875rem", // Adjusted for better mobile readability
+    fontSize: "1.2rem", // Adjusted for better mobile readability
     fontWeight: "600",
   },
   "& th": {

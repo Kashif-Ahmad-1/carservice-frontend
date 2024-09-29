@@ -90,7 +90,45 @@ function EngineerDetailsPage() {
   const appointmentsPerPage = 10; // Number of appointments per page
   const [searchTerm, setSearchTerm] = useState('');
   const [filter, setFilter] = useState('all');
- 
+  const [nextServiceDates, setNextServiceDates] = useState({});
+
+
+  const handleNextServiceDateChange = (appointmentId, newDate) => {
+    setNextServiceDates(prev => ({
+      ...prev,
+      [appointmentId]: newDate
+    }));
+  
+    // Assuming you have a way to get the auth token
+    const token = localStorage.getItem('token'); // or however you store the token
+  
+    fetch(`${API_BASE_URL}/api/appointments/${appointmentId}`, {
+      method: 'PUT',
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}` // Add the authorization header
+      },
+      body: JSON.stringify({ nextServiceDate: newDate }),
+    })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('Failed to update the appointment');
+      }
+      return response.json();
+    })
+    .then(data => {
+      console.log('Updated appointment:', data);
+      window.location.reload();
+      setAppointments(prevAppointments => {
+        return prevAppointments.map(appointment => 
+          appointment._id === appointmentId ? { ...appointment, nextServiceDate: newDate } : appointment
+        );
+      });
+    })
+    .catch(error => {
+      console.error('Error updating appointment:', error);
+    });
+  };
 
   useEffect(() => {
     const fetchAppointmentData = async () => {
@@ -110,17 +148,18 @@ function EngineerDetailsPage() {
           throw new Error("Network response was not ok");
         }
         const data = await response.json();
-        // Sort appointments by creation date descending
-        data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+        // Sort appointments by expected service date ascending
+        data.sort((a, b) => new Date(a.expectedServiceDate) - new Date(b.expectedServiceDate));
         setAppointments(data);
       } catch (error) {
         console.error("Failed to fetch appointment data", error);
         setError(error);
       }
     };
-
+  
     fetchAppointmentData();
   }, [engineerId]);
+  
 
   const handleToggleSidebar = () => {
     setSidebarOpen((prev) => !prev); // Toggle sidebar visibility
@@ -137,9 +176,6 @@ function EngineerDetailsPage() {
   if (appointments.length === 0) {
     return <Typography variant="h6">Loading...</Typography>;
   }
-
-
-
 
   const toggleRow = (clientIdentifier) => {
     setExpandedRows((prev) => ({
@@ -262,6 +298,10 @@ const filteredAppointments = currentAppointments.filter(([key, clientAppointment
   return matchesSearch && matchesFilter;
 });
 
+
+
+
+
 // .................................................
   return (
     <Box sx={{ display: "flex", flexDirection: "row", minHeight: "100vh",backgroundColor: "#f7f9fc" }}>
@@ -306,8 +346,8 @@ const filteredAppointments = currentAppointments.filter(([key, clientAppointment
             </FormControl>
           </Box>
 
-
-          <TableContainer component={Paper} elevation={2} sx={{ overflowY: 'normal', overflowX: 'auto', maxHeight: '100vh', }}>
+{/* normal auto hidden */}
+          <TableContainer component={Paper} elevation={2} sx={{ overflowY: 'hidden', overflowX: 'auto', maxHeight: '1000vh' }}>
             <Table sx={{ minWidth: 650 }}>
               <TableHead>
                 <TableRow>
@@ -326,6 +366,7 @@ const filteredAppointments = currentAppointments.filter(([key, clientAppointment
                     "Installation Date",
                     "Service Frequency (Days)",
                     "Expected Service Date",
+                    "Next Service Date",
                     "Document",
                     "Checklist",
                     "Invoice",
@@ -402,6 +443,18 @@ const filteredAppointments = currentAppointments.filter(([key, clientAppointment
                               firstAppointment.expectedServiceDate
                             ).toLocaleDateString()}
                           </TableCell>
+
+                          <TableCell>
+                          <TextField
+                            type="date"
+                            variant="outlined"
+                            size="small"
+                            value={nextServiceDates[firstAppointment._id] || new Date(firstAppointment.expectedServiceDate).toISOString().split("T")[0]} // Default to expected service date
+                            onChange={(e) => handleNextServiceDateChange(firstAppointment._id, e.target.value)}
+                          />
+                        </TableCell>
+
+
                           <TableCell>
                             {firstAppointment.document ? (
                               <span
@@ -706,7 +759,7 @@ const filteredAppointments = currentAppointments.filter(([key, clientAppointment
                         {historyItem.quotations.map((quote, idx) => (
                           <div key={idx} style={{ display: 'flex', alignItems: 'center' }}>
                             <span>
-                              Quotation No: {quote.quotationNo}, Amount: ${quote.quotationAmount || "N/A"}
+                              Quotation No: {quote.quotationNo}, Amount: {quote.quotationAmount || "N/A"}
                             </span>
                             <IconButton
                               onClick={() => handleDownloadPDF(quote.pdfPath)}
@@ -739,26 +792,3 @@ const filteredAppointments = currentAppointments.filter(([key, clientAppointment
 
 export default EngineerDetailsPage;
 
-{
-  /* <Modal open={openModal} onClose={handleCloseModal}>
-        <Box sx={{ bgcolor: 'white', padding: 4, borderRadius: 2, width: 600, margin: 'auto', marginTop: '15%' }}>
-          <Typography variant="h6" gutterBottom>Service History for {selectedClient}</Typography>
-          {serviceHistory.map((history) => (
-            <Box key={history._id} sx={{ marginBottom: 2 }}>
-              <ListItem>
-                <ListItemText
-                  primary={`Date: ${new Date(history.appointmentDate).toLocaleDateString()}`}
-                  secondary={`Amount: ${history.appointmentAmount.toFixed(2)}`}
-                />
-              </ListItem>
-              {history.document && (
-                <span onClick={() => handleDownloadPDF(history.document)} style={{ cursor: 'pointer' }}>
-                  <Download />
-                </span>
-              )}
-            </Box>
-          ))}
-          <Button variant="contained" color="primary" size="small" onClick={handleCloseModal}>Close</Button>
-        </Box>
-      </Modal> */
-}
