@@ -50,8 +50,8 @@ const Header = ({ onToggleSidebar }) => (
         alt="Company Logo"
         style={{ width: 40, height: 40, marginRight: 10 }} // Adjust size and margin as needed
       />
-      <Typography variant="h6" sx={{ fontWeight: "bold", color: "#ff4081" }}>
-        Company Name
+      <Typography variant="h6" sx={{ flexGrow: 1, fontWeight: 'bold' }}>
+        ADHUNIK YANTRA UDYOG PVT. LTD.
       </Typography>
     </Toolbar>
   </AppBar>

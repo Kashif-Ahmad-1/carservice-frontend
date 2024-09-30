@@ -6,6 +6,7 @@ import { useLocation } from "react-router-dom";
 import axios from "axios";
 import logo from './comp-logo.jpeg';
 import API_BASE_URL from './../../config';
+import { toast } from 'react-toastify';
 const QuotationGenerator = () => {
   const formRef = useRef();
   const location = useLocation();
@@ -257,19 +258,48 @@ const QuotationGenerator = () => {
 
   try {
     const token = localStorage.getItem("token");
-    await axios.post(`${API_BASE_URL}/api/quotations`, formDatas, {
+    const response = await axios.post(`${API_BASE_URL}/api/quotations`, formDatas, {
       headers: {
         "Content-Type": "multipart/form-data",
         Authorization: `Bearer ${token}`,
       },
     });
-    console.log("Checklist and PDF uploaded successfully");
+    console.log("Quotation and PDF uploaded successfully", response.data);
+
+    const pdfUrl = response.data.quotation.pdfPath; // Get pdfPath from the first checklist object
+    console.log("Extracted PDF URL:", pdfUrl); // Log the extracted URL
+   
+   
+         // Send the PDF URL to WhatsApp
+         console.log("Sending PDF to mobile:", pdfUrl, "to", clientInfo.phone); // Debugging line
+         await handleSendPdfToMobile(pdfUrl, clientInfo.phone);
+         toast.success("PDF sent to mobile successfully!");
   } catch (error) {
     console.error("Error uploading checklist and PDF:", error);
   }
-  doc.save("quotation.pdf");
+  // doc.save("quotation.pdf");
 };
 
+
+const handleSendPdfToMobile = async (pdfUrl, mobileNumber) => {
+  try {
+    const whatsappAuth = 'Basic ' + btoa('kashif2789:test@123');
+    const response = await axios.post('http://localhost:8080/https://app.messageautosender.com/api/v1/message/create', {
+      receiverMobileNo: mobileNumber,
+      message: [`Here is your PDF: ${pdfUrl}`],
+    }, {
+      headers: {
+        'Authorization': whatsappAuth,
+        'Content-Type': 'application/json',
+      }
+    });
+
+    toast.success("PDF sent to mobile successfully!");
+  } catch (error) {
+    toast.error("Error sending PDF to mobile!");
+    console.error("WhatsApp Error:", error);
+  }
+};
 
   return (
     <div className="container-pdf" ref={formRef}>
@@ -384,6 +414,7 @@ const QuotationGenerator = () => {
             Generate PDF
           </button>
         </div>
+       
       </form>
     </div>
   );

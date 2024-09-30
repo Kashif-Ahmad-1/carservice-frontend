@@ -193,7 +193,7 @@ function AppointmentDetailsPage() {
         style={{ width: 40, height: 40, marginRight: 10 }} // Adjust size and margin as needed
       />
         <Typography variant="h6" sx={{ flexGrow: 1, fontWeight: 'bold' }}>
-          Company Name
+        ADHUNIK YANTRA UDYOG PVT. LTD.
         </Typography>
       </Toolbar>
     </AppBar>

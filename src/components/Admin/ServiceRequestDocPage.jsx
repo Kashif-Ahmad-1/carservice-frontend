@@ -19,7 +19,7 @@ import "react-toastify/dist/ReactToastify.css";
 import { Download, Menu, Delete } from "@mui/icons-material"; 
 import Navbar from './Navbar';
 import Sidebar from './Sidebar';
-
+import axios from "axios";
 const MainContent = styled("main")(({ theme }) => ({
   flexGrow: 1,
   padding: theme.spacing(3),
@@ -101,15 +101,14 @@ const ServiceRequestDocPage = () => {
     }
   };
 
-  const handleDownloadPDF = (documentPath) => {
+  const handleDownloadPDF = (cloudinaryUrl) => {
     const link = document.createElement("a");
-    link.href = `${API_BASE_URL}/${documentPath}`;
-    link.setAttribute("download", documentPath.split("/").pop());
+    link.href = cloudinaryUrl; // Use the Cloudinary URL directly
+    link.setAttribute("download", cloudinaryUrl.split("/").pop()); // Extract file name from URL
     document.body.appendChild(link);
     link.click();
     link.remove();
   };
-
   const handleDeleteChecklist = async (id) => {
     try {
       const token = localStorage.getItem("token");
@@ -173,6 +172,26 @@ const ServiceRequestDocPage = () => {
     setCurrentPage(1); // Reset to first page on new search
   };
 
+  const handleSendPdfToMobile = async (pdfPath, mobileNumber) => {
+    try {
+      const whatsappAuth = 'Basic ' + btoa('kashif2789:test@123');
+      const response = await axios.post('http://localhost:8080/https://app.messageautosender.com/api/v1/message/create', {
+        receiverMobileNo: mobileNumber,
+        message: [`Here is your PDF: ${pdfPath}`],
+      }, {
+        headers: {
+          'Authorization': whatsappAuth,
+          'Content-Type': 'application/json',
+        }
+      });
+
+      toast.success("PDF sent to mobile successfully!");
+    } catch (error) {
+      toast.error("Error sending PDF to mobile!");
+      console.error(error);
+    }
+  };
+
   return (
     <Box sx={{ display: "flex" }}>
       <CssBaseline />
@@ -205,6 +224,7 @@ const ServiceRequestDocPage = () => {
                     <th>Mobile Number</th>
                     <th>Document</th>
                     <th>Actions</th>
+                    <th>Send</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -232,6 +252,17 @@ const ServiceRequestDocPage = () => {
                             onClick={() => handleDeleteChecklist(checklist._id)}
                           >
                             <Delete /> Delete
+                          </Button>
+                        </td>
+
+                        <td>
+                          <Button
+                            variant="contained"
+                            color="primary"
+                            onClick={() => handleSendPdfToMobile(checklist.pdfPath, checklist.clientInfo?.phone)}
+                            size="small"
+                          >
+                            Send
                           </Button>
                         </td>
                       </tr>

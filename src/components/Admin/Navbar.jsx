@@ -22,7 +22,7 @@ const Navbar = ({ onMenuClick }) => {
         <IconButton edge="start" color="inherit" aria-label="menu" onClick={onMenuClick}>
           <MenuIcon />
         </IconButton>
-        <Typography variant="h6">Car Service Center - Admin Dashboard</Typography>
+        <Typography variant="h6">ADHUNIK YANTRA UDYOG PVT. LTD.</Typography>
       </Toolbar>
     </AppBarStyled>
   );
