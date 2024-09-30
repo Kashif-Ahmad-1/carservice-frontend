@@ -20,7 +20,7 @@ import "react-toastify/dist/ReactToastify.css";
 import { Download, Menu ,Delete,Edit} from "@mui/icons-material";
 import Navbar from './Navbar';
 import Sidebar from './Sidebar';
-
+import axios from "axios";
 const MainContent = styled("main")(({ theme }) => ({
   flexGrow: 1,
   padding: theme.spacing(3),
@@ -278,6 +278,26 @@ const QuotationAdminPage = () => {
     }
   };
 
+  const handleSendPdfToMobile = async (pdfPath, mobileNumber) => {
+    try {
+      const whatsappAuth = 'Basic ' + btoa('kashif2789:test@123');
+      const response = await axios.post('http://localhost:8080/https://app.messageautosender.com/api/v1/message/create', {
+        receiverMobileNo: mobileNumber,
+        message: [`Here is your PDF: ${pdfPath}`],
+      }, {
+        headers: {
+          'Authorization': whatsappAuth,
+          'Content-Type': 'application/json',
+        }
+      });
+
+      toast.success("PDF sent to mobile successfully!");
+    } catch (error) {
+      toast.error("Error sending PDF to mobile!");
+      console.error(error);
+    }
+  };
+
   return (
     <Box sx={{ display: "flex" }}>
       <CssBaseline />
@@ -310,7 +330,7 @@ const QuotationAdminPage = () => {
                     <th>Quotation Amount (Rs)</th>
                     <th>Engineer</th>
                     <th>Status/Quotation Document</th>
-                    {/* <th>Document</th> */}
+                    <th>Send</th>
                     <th>Actions</th> 
                   </tr>
                 </thead>
@@ -343,16 +363,17 @@ const QuotationAdminPage = () => {
                             <Download fontSize="small" /> Download
                           </Button>
                         </td>
-                        {/* <td>
+
+                        <td>
                           <Button
                             variant="contained"
-                            color="secondary"
-                            onClick={() => handleDownloadPDF(quotation.pdfPath)}
+                            color="primary"
+                            onClick={() => handleSendPdfToMobile(quotation.pdfPath, quotation.clientInfo?.phone)}
                             size="small"
                           >
-                            <Download fontSize="small" /> Download
+                            Send
                           </Button>
-                        </td> */}
+                        </td>
 
                         <td>
                         <Button

@@ -18,6 +18,7 @@ import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { Download, Menu, Delete } from "@mui/icons-material"; 
 import Sidebar from "./Sidebar";
+import axios from 'axios';
 
 const MainContent = styled("main")(({ theme }) => ({
   flexGrow: 1,
@@ -46,7 +47,7 @@ const Table = styled("table")(({ theme }) => ({
     padding: theme.spacing(1),
     textAlign: "left",
     borderBottom: `1px solid ${theme.palette.divider}`,
-    fontSize: "1.2rem", // Adjusted for better mobile readability
+    fontSize: "1.2rem",
     fontWeight: "600",
   },
   "& th": {
@@ -75,13 +76,9 @@ const ServiceRequestDocPage = () => {
         <IconButton color="inherit" onClick={handleToggleSidebar}>
           <Menu />
         </IconButton>
-        <img
-          src={logo}
-          alt="Company Logo"
-          style={{ width: 40, height: 40, marginRight: 10 }}
-        />
-        <Typography variant="h6" sx={{ flexGrow: 1, fontWeight: "bold", color: "#ff4081" }}>
-          Company Name
+        <img src={logo} alt="Company Logo" style={{ width: 40, height: 40, marginRight: 10 }} />
+        <Typography variant="h6" sx={{ flexGrow: 1, fontWeight: 'bold' }}>
+        ADHUNIK YANTRA UDYOG PVT. LTD.
         </Typography>
       </Toolbar>
     </AppBar>
@@ -110,10 +107,10 @@ const ServiceRequestDocPage = () => {
     }
   };
 
-  const handleDownloadPDF = (documentPath) => {
+  const handleDownloadPDF = (cloudinaryUrl) => {
     const link = document.createElement("a");
-    link.href = `${API_BASE_URL}/${documentPath}`;
-    link.setAttribute("download", documentPath.split("/").pop());
+    link.href = cloudinaryUrl; // Use the Cloudinary URL directly
+    link.setAttribute("download", cloudinaryUrl.split("/").pop()); // Extract file name from URL
     document.body.appendChild(link);
     link.click();
     link.remove();
@@ -141,7 +138,26 @@ const ServiceRequestDocPage = () => {
     }
   };
 
-  // Search functionality
+  const handleSendPdfToMobile = async (pdfPath, mobileNumber) => {
+    try {
+      const whatsappAuth = 'Basic ' + btoa('kashif2789:test@123');
+      const response = await axios.post('http://localhost:8080/https://app.messageautosender.com/api/v1/message/create', {
+        receiverMobileNo: mobileNumber,
+        message: [`Here is your PDF: ${pdfPath}`],
+      }, {
+        headers: {
+          'Authorization': whatsappAuth,
+          'Content-Type': 'application/json',
+        }
+      });
+
+      toast.success("PDF sent to mobile successfully!");
+    } catch (error) {
+      toast.error("Error sending PDF to mobile!");
+      console.error(error);
+    }
+  };
+
   const filteredChecklists = checklists.filter((checklist) => {
     const lowerCaseTerm = searchTerm.toLowerCase();
     return (
@@ -152,7 +168,6 @@ const ServiceRequestDocPage = () => {
     );
   });
 
-  // Pagination logic
   const indexOfLastChecklist = currentPage * itemsPerPage;
   const indexOfFirstChecklist = indexOfLastChecklist - itemsPerPage;
   const currentChecklists = filteredChecklists.slice(indexOfFirstChecklist, indexOfLastChecklist);
@@ -172,7 +187,7 @@ const ServiceRequestDocPage = () => {
 
   const handleSearchChange = (event) => {
     setSearchTerm(event.target.value);
-    setCurrentPage(1); // Reset to first page on new search
+    setCurrentPage(1);
   };
 
   return (
@@ -191,7 +206,7 @@ const ServiceRequestDocPage = () => {
               value={searchTerm}
               onChange={handleSearchChange}
               fullWidth
-              sx={{ marginBottom: 2 }} // Spacing for better usability
+              sx={{ marginBottom: 2 }}
             />
             <Typography variant="h6" sx={{ marginTop: 2 }}>
               Service Requests
@@ -207,6 +222,7 @@ const ServiceRequestDocPage = () => {
                     <th>Mobile Number</th>
                     <th>Document</th>
                     <th>Actions</th>
+                    <th>Send</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -238,11 +254,21 @@ const ServiceRequestDocPage = () => {
                             <Delete fontSize="small" /> Delete
                           </Button>
                         </td>
+                        <td>
+                          <Button
+                            variant="contained"
+                            color="primary"
+                            onClick={() => handleSendPdfToMobile(checklist.pdfPath, checklist.clientInfo?.phone)}
+                            size="small"
+                          >
+                            Send
+                          </Button>
+                        </td>
                       </tr>
                     ))
                   ) : (
                     <tr>
-                      <td colSpan="7" style={{ textAlign: "center" }}>
+                      <td colSpan="8" style={{ textAlign: "center" }}>
                         No results found.
                       </td>
                     </tr>
@@ -250,7 +276,6 @@ const ServiceRequestDocPage = () => {
                 </tbody>
               </Table>
             </Paper>
-            {/* Pagination Controls */}
             <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 2, flexWrap: 'wrap' }}>
               <Button
                 variant="contained"
