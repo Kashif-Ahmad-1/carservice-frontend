@@ -284,7 +284,7 @@ const QuotationGenerator = () => {
 const handleSendPdfToMobile = async (pdfUrl, mobileNumber) => {
   try {
     const whatsappAuth = 'Basic ' + btoa('kashif2789:test@123');
-    const response = await axios.post('http://localhost:8080/https://app.messageautosender.com/api/v1/message/create', {
+    const response = await axios.post('https://cors-anywhere.herokuapp.com/http://localhost:8080/https://app.messageautosender.com/api/v1/message/create', {
       receiverMobileNo: mobileNumber,
       message: [`Here is your PDF: ${pdfUrl}`],
     }, {
