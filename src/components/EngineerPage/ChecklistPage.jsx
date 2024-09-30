@@ -586,7 +586,8 @@ const ChecklistPage = () => {
       const whatsappAuth = 'Basic ' + btoa('kashif2789:test@123');
       const response = await axios.post('https://cors-anywhere.herokuapp.com/https://app.messageautosender.com/api/v1/message/create', {
         receiverMobileNo: mobileNumber,
-        message: [`Here is your PDF: ${pdfUrl}`],
+        message: [`Here is your PDF: ${pdfUrl}`]
+       
       }, {
         headers: {
           'Authorization': whatsappAuth,

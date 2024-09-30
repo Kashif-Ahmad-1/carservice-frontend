@@ -21,7 +21,7 @@ import AdminList from "./components/Admin/AdminList";
 import QuotationPage from "./components/EngineerPage/QuotationPage";
 import ServiceRequestDocPage from "./components/EngineerPage/ServiceRequestDocPage";
 import ServiceadminRequestDocPage from "./components/Admin/ServiceRequestDocPage";
-import ServiceReportForm from "./ServiceReportForm";
+
 import QuotationAdminPage from "./components/Admin/QuotationAdminPage";
 function App() {
   // const role = localStorage.getItem("role");
@@ -101,7 +101,7 @@ function App() {
           <Route path="/machine-list" element={<MachinePage />} />
           <Route path="/admin-list" element={<AdminList />} />
           <Route path="/reset/:token" element={<ResetPassword />} />
-          <Route path="/servicereportform" element={<ServiceReportForm />} />
+          
         </Routes>
       </div>
     </AuthProvider>

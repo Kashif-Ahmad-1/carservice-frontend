@@ -33,27 +33,33 @@ const ToolbarSpacer = styled('div')(({ theme }) => ({
 
 const SectionTitle = styled(Typography)(({ theme }) => ({
   marginBottom: theme.spacing(2),
+  color: theme.palette.primary.main,
 }));
 
 const Card = styled(Paper)(({ theme }) => ({
   padding: theme.spacing(2),
-  textAlign: 'center',
-  color: theme.palette.text.secondary,
-  overflowX: 'auto',
+  textAlign: 'left',
+  color: theme.palette.text.primary,
+  boxShadow: theme.shadows[5],
+  borderRadius: theme.shape.borderRadius,
 }));
 
-const StyledTable = styled('table')(({ theme }) => ({
-  width: '100%',
-  borderCollapse: 'collapse',
+const StyledTable = styled(Table)(({ theme }) => ({
   '& th, & td': {
-    padding: theme.spacing(1),
+    padding: theme.spacing(1.5),
     textAlign: 'left',
     borderBottom: `1px solid ${theme.palette.divider}`,
-    fontSize: '1.2rem',
-    fontWeight: '600',
   },
   '& th': {
     backgroundColor: theme.palette.grey[200],
+    fontWeight: 'bold',
+    fontSize: '1.1rem', // Increased font size for header
+  },
+  '& td': {
+    fontSize: '1rem', // Set a standard font size for table data
+  },
+  '& tr:hover': {
+    backgroundColor: theme.palette.action.hover,
   },
 }));
 
@@ -87,7 +93,7 @@ const ServiceRequestPage = () => {
       const data = await response.json();
       const sortedData = data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
       setServiceRequests(sortedData);
-      setFilteredRequests(sortedData); // Initialize filteredRequests
+      setFilteredRequests(sortedData);
     } catch (error) {
       console.error("Fetch Error:", error);
       toast.error("Failed to fetch service requests.");
@@ -144,7 +150,6 @@ const ServiceRequestPage = () => {
                     <TableCell>Phone</TableCell>
                     <TableCell>Accountant Name</TableCell>
                     <TableCell>Engineer Assigned</TableCell>
-                    {/* <TableCell>Status</TableCell> */}
                     <TableCell>Invoice Amount</TableCell>
                   </TableRow>
                 </TableHead>
@@ -159,13 +164,12 @@ const ServiceRequestPage = () => {
                         <TableCell>{request.mobileNo}</TableCell>
                         <TableCell>{request.createdBy?.name || 'N/A'}</TableCell>
                         <TableCell>{request.engineer?.name || 'N/A'}</TableCell>
-                        {/* <TableCell>{request.status}</TableCell> */}
                         <TableCell>{request.appointmentAmount}</TableCell>
                       </TableRow>
                     ))
                   ) : (
                     <TableRow>
-                      <TableCell colSpan={9} align="center">
+                      <TableCell colSpan={8} align="center">
                         No service requests available.
                       </TableCell>
                     </TableRow>

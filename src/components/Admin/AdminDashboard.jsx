@@ -8,14 +8,11 @@ import {
   Typography,
   Button,
   Card as MuiCard,
-  Select,
-  MenuItem,
-  FormControl,
-  InputLabel,
+  Modal,
 } from "@mui/material";
 import API_BASE_URL from './../../config';
 import { styled } from "@mui/material/styles";
-import { Bar } from "react-chartjs-2";
+import { Bar, Pie } from "react-chartjs-2";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -24,12 +21,13 @@ import {
   Title,
   Tooltip,
   Legend,
+  ArcElement,
 } from "chart.js";
 import { Link } from "react-router-dom";
 import Sidebar from "./Sidebar";
 import Navbar from "./Navbar";
 
-ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
+ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ArcElement);
 
 // Styled components
 const MainContent = styled("main")(({ theme }) => ({
@@ -79,12 +77,23 @@ const AdminDashboard = () => {
   const [newServiceRequests, setNewServiceRequests] = useState(0);
   const [recentActivities, setRecentActivities] = useState([]);
   const [serviceRequestsData, setServiceRequestsData] = useState({ labels: [], data: [] });
-  const [quotationStatusData, setQuotationStatusData] = useState({ labels: [], data: [] }); // New state for quotation status
+  const [quotationStatusData, setQuotationStatusData] = useState({ labels: [], data: [] });
   const [viewMode, setViewMode] = useState("day");
+  const [modalOpen, setModalOpen] = useState(false);
+  const [quotationSummary, setQuotationSummary] = useState({});
   const token = localStorage.getItem("token");
 
   const handleDrawerToggle = () => {
     setDrawerOpen((prev) => !prev);
+  };
+
+  const handleModalOpen = () => {
+    fetchQuotationSummary();
+    setModalOpen(true);
+  };
+
+  const handleModalClose = () => {
+    setModalOpen(false);
   };
 
   const fetchUserCounts = async () => {
@@ -132,7 +141,6 @@ const AdminDashboard = () => {
       const requestCountByDay = Array(7).fill(0);
       const requestCountByMonth = Array(12).fill(0);
       const monthsOfYear = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-
       const daysOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
       const today = new Date();
       const todayIndex = today.getDay();
@@ -191,8 +199,8 @@ const AdminDashboard = () => {
       }
   
       const quotations = await response.json();
-      const completedCount = quotations.filter(q => q.status === true).length; // Completed quotations
-      const pendingCount = quotations.filter(q => q.status === false).length; // Pending quotations
+      const completedCount = quotations.filter(q => q.status === true).length;
+      const pendingCount = quotations.filter(q => q.status === false).length;
   
       setQuotationStatusData({
         labels: ["Completed", "Pending"],
@@ -202,14 +210,15 @@ const AdminDashboard = () => {
       console.error("Quotation Count Error:", error);
     }
   };
+
   useEffect(() => {
     fetchUserCounts();
     fetchAppointmentCounts();
-    fetchQuotationCounts(); // Fetch quotation counts on mount
+    fetchQuotationCounts();
   }, [token]);
 
   useEffect(() => {
-    fetchAppointmentCounts(); // Re-fetch data when viewMode changes
+    fetchAppointmentCounts();
   }, [viewMode]);
 
   const data = {
@@ -232,6 +241,39 @@ const AdminDashboard = () => {
         backgroundColor: ["#4caf50", "#ff9800"],
       },
     ],
+  };
+
+  const fetchQuotationSummary = async () => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/quotations/admin/summary`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch quotation summary");
+      }
+
+      const summary = await response.json();
+      setQuotationSummary(summary);
+    } catch (error) {
+      console.error("Quotation Summary Error:", error);
+    }
+  };
+
+  const pieChartData = {
+    labels: ['Total Amount', 'Pending Amount', 'Completed Amount'],
+    datasets: [{
+      data: [
+        quotationSummary.totalAmount || 0,
+        quotationSummary.pendingAmount || 0,
+        quotationSummary.completedAmount || 0,
+      ],
+      backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56'],
+    }],
   };
 
   return (
@@ -300,21 +342,75 @@ const AdminDashboard = () => {
             Service Requests Trend & Quotation Status
           </SectionTitle>
           <Grid container spacing={3}>
-            <Grid item xs={12} sm={6}>
-              <Paper sx={{ p: 2, borderRadius: 2, boxShadow: 2 }}>
-                <div style={{ height: "380px" }}>
-                  <Bar data={data} options={{ responsive: true }} />
-                </div>
-              </Paper>
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <Paper sx={{ p: 2, borderRadius: 2, boxShadow: 2 }}>
-                <div style={{ height: "380px" }}>
-                  <Bar data={quotationData} options={{ responsive: true }} />
-                </div>
-              </Paper>
-            </Grid>
-          </Grid>
+  <Grid item xs={12} sm={6}>
+    <Paper sx={{ p: 2, borderRadius: 2, boxShadow: 2, height: '100%' }}>
+      <div style={{ height: "100%", display: 'flex', flexDirection: 'column' }}>
+        <div style={{ flex: 1 }}>
+          <Bar data={data} options={{ responsive: true }} />
+        </div>
+      </div>
+    </Paper>
+  </Grid>
+  <Grid item xs={12} sm={6}>
+    <Paper sx={{ p: 2, borderRadius: 2, boxShadow: 2, height: '100%' }}>
+      <div style={{ height: "100%", display: 'flex', flexDirection: 'column' }}>
+        <div style={{ flex: 1 }}>
+          <Bar data={quotationData} options={{ responsive: true }} />
+        </div>
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={handleModalOpen}
+          sx={{ mt: 2, width: '100%' }}
+        >
+          View Quotation Summary
+        </Button>
+      </div>
+    </Paper>
+  </Grid>
+</Grid>
+
+
+          <Modal
+            open={modalOpen}
+            onClose={handleModalClose}
+            aria-labelledby="quotation-summary-title"
+            aria-describedby="quotation-summary-description"
+          >
+            <Box
+              sx={{
+                position: 'absolute',
+                top: '50%',
+                left: '50%',
+                transform: 'translate(-50%, -50%)',
+                bgcolor: 'white',
+                borderRadius: 2,
+                boxShadow: 3,
+                p: 4,
+                width: '90%',
+                maxWidth: '500px',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <Typography id="quotation-summary-title" variant="h6" component="h2" sx={{ mb: 2 }}>
+                Quotation Amount Summary
+              </Typography>
+              <div style={{ height: "300px", width: "100%", display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                {quotationSummary.totalAmount || quotationSummary.pendingAmount || quotationSummary.completedAmount ? (
+                  <Pie data={pieChartData} options={{ responsive: true }} />
+                ) : (
+                  <Typography>No Data Available</Typography>
+                )}
+              </div>
+              <Button variant="contained" color="primary" onClick={handleModalClose} sx={{ mt: 2 }}>
+                Close
+              </Button>
+            </Box>
+          </Modal>
+
           <SectionTitle variant="h4" sx={{ mt: 4 }}>
             Recent Activity
           </SectionTitle>
@@ -329,17 +425,11 @@ const AdminDashboard = () => {
                     <Paper sx={{ p: 2, textAlign: "center" }}>
                       <Typography variant="body1">
                         A new request has been assigned by{" "}
-                        <Typography
-                          component="span"
-                          sx={{ fontWeight: "bold", color: "primary.main" }}
-                        >
+                        <Typography component="span" sx={{ fontWeight: "bold", color: "primary.main" }}>
                           {activity.accountant}
                         </Typography>{" "}
                         to{" "}
-                        <Typography
-                          component="span"
-                          sx={{ fontWeight: "bold", color: "secondary.main" }}
-                        >
+                        <Typography component="span" sx={{ fontWeight: "bold", color: "secondary.main" }}>
                           {activity.engineer}
                         </Typography>{" "}
                         on {activity.createdAt}.
