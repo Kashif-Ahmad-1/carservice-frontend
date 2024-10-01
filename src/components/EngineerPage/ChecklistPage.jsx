@@ -450,10 +450,23 @@ const ChecklistPage = () => {
     autoTable(doc, {
       head: [["Sr No", "Task", "Done", "Remark"]],
       body: checklist.map((item) => {
-        const inputs = Object.values(item.inputs).join(", ");
+        const inputs = Object.values(item.inputs || {});
+        let inputIndex = 0;
+
+        const taskWithInputs = item.task.replace(/<TextField>/g, () => {
+          if (inputIndex < inputs.length) {
+            const inputValue = inputs[inputIndex++];
+            // Set font to bold for the input value
+            doc.setFont("helvetica", "bold");
+            return inputValue;
+          }
+          return "";
+        });
+        // Reset font to normal for the rest of the task text
+      doc.setFont("helvetica", "normal");
         return [
           item.srNo,
-          item.task.replace(/<TextField>/g, inputs),
+          taskWithInputs || "No task provided",
           item.done ? "Yes" : "No",
           item.remark,
         ];
@@ -487,10 +500,15 @@ const ChecklistPage = () => {
     autoTable(doc, {
       head: [["Sr No","Task", "Done", "Remark"]],
       body: refrigeratorList.map((item) => {
-        const inputs = Object.values(item.inputs).join(", ");
+        const inputs = Object.values(item.inputs || {});
+        let inputIndex = 0;
+
+        const taskWithInputs = item.task.replace(/<TextField>/g, () => {
+          return inputIndex < inputs.length ? inputs[inputIndex++] : "";
+        });
         return [
           item.srNo,
-          item.task.replace(/<TextField>/g, inputs),
+          taskWithInputs || "No task provided",
           item.done ? "Yes" : "No",
           item.remark,
         ];
@@ -617,7 +635,7 @@ const ChecklistPage = () => {
         align="center"
         sx={{ marginBottom: "10px", fontSize: "20px" }}
       >
-        Screw Compressor Checklist
+        Service Checklist
       </Typography>
       <Box sx={{ marginBottom: "10px", padding: "0 10px" }}>
         <Typography variant="h6" sx={{ marginBottom: "5px", fontSize: "16px" }}>
