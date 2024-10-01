@@ -21,6 +21,7 @@ import autoTable from "jspdf-autotable";
 import axios from "axios"; // Import axios for API calls
 import logo from './comp-logo.jpeg';
 import { toast } from 'react-toastify';
+import MessageTemplate from "./../MessageTemplate";
 const ChecklistPage = () => {
   const initialChecklist = [
     {
@@ -410,7 +411,8 @@ const ChecklistPage = () => {
     // Company Name
     doc.setFontSize(14);
     doc.setFont("helvetica", "bold");
-    doc.text("XYZ Company", 14, 20);
+    doc.text("AEROLUBE ENGINEERS", 14, 20);
+  
 
     // Service Title
     doc.setFontSize(12);
@@ -584,17 +586,20 @@ const ChecklistPage = () => {
   const handleSendPdfToMobile = async (pdfUrl, mobileNumber) => {
     try {
       const whatsappAuth = 'Basic ' + btoa('kashif2789:test@123');
+  
+      // Use the message template function
+      const message = MessageTemplate(pdfUrl);
+  
       const response = await axios.post('https://cors-anywhere.herokuapp.com/https://app.messageautosender.com/api/v1/message/create', {
         receiverMobileNo: mobileNumber,
-        message: [`Here is your PDF: ${pdfUrl}`]
-       
+        message: [message]
       }, {
         headers: {
           'Authorization': whatsappAuth,
           'Content-Type': 'application/json',
         }
       });
-
+  
       toast.success("PDF sent to mobile successfully!");
     } catch (error) {
       toast.error("Error sending PDF to mobile!");

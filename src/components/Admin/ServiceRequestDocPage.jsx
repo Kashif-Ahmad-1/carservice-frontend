@@ -11,6 +11,7 @@ import {
   IconButton,
   TextField,
 } from "@mui/material";
+import MessageTemplate from "../MessageTemplate";
 import API_BASE_URL from './../../config';
 import logo from './comp-logo.jpeg';
 import { styled } from "@mui/material/styles";
@@ -172,23 +173,27 @@ const ServiceRequestDocPage = () => {
     setCurrentPage(1); // Reset to first page on new search
   };
 
-  const handleSendPdfToMobile = async (pdfPath, mobileNumber) => {
+  const handleSendPdfToMobile = async (pdfUrl, mobileNumber) => {
     try {
       const whatsappAuth = 'Basic ' + btoa('kashif2789:test@123');
+  
+      // Use the message template function
+      const message = MessageTemplate(pdfUrl);
+  
       const response = await axios.post('https://cors-anywhere.herokuapp.com/https://app.messageautosender.com/api/v1/message/create', {
         receiverMobileNo: mobileNumber,
-        message: [`Here is your PDF: ${pdfPath}`],
+        message: [message]
       }, {
         headers: {
           'Authorization': whatsappAuth,
           'Content-Type': 'application/json',
         }
       });
-
+  
       toast.success("PDF sent to mobile successfully!");
     } catch (error) {
       toast.error("Error sending PDF to mobile!");
-      console.error(error);
+      console.error("WhatsApp Error:", error);
     }
   };
 

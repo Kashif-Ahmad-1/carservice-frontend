@@ -11,12 +11,13 @@ import {
   IconButton,
   TextField,
 } from "@mui/material";
+import MessageTemplate from "../MessageTemplate";
 import API_BASE_URL from './../../config';
 import logo from './comp-logo.jpeg';
 import { styled } from "@mui/material/styles";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { Download, Menu, Delete } from "@mui/icons-material"; 
+import { Download, Menu, Delete,Send } from "@mui/icons-material"; 
 import Sidebar from "./Sidebar";
 import axios from 'axios';
 
@@ -71,14 +72,14 @@ const ServiceRequestDocPage = () => {
   }, []);
 
   const Header = () => (
-    <AppBar position="static">
+    <AppBar position="static" sx={{ backgroundColor: 'gray',margin: '-25px',width: '105%' }}>
       <Toolbar>
         <IconButton color="inherit" onClick={handleToggleSidebar}>
           <Menu />
         </IconButton>
         <img src={logo} alt="Company Logo" style={{ width: 40, height: 40, marginRight: 10 }} />
         <Typography variant="h6" sx={{ flexGrow: 1, fontWeight: 'bold' }}>
-        ADHUNIK YANTRA UDYOG PVT. LTD.
+        AEROLUBE ENGINEERS
         </Typography>
       </Toolbar>
     </AppBar>
@@ -138,26 +139,29 @@ const ServiceRequestDocPage = () => {
     }
   };
 
-  const handleSendPdfToMobile = async (pdfPath, mobileNumber) => {
+  const handleSendPdfToMobile = async (pdfUrl, mobileNumber) => {
     try {
       const whatsappAuth = 'Basic ' + btoa('kashif2789:test@123');
+  
+      // Use the message template function
+      const message = MessageTemplate(pdfUrl);
+  
       const response = await axios.post('https://cors-anywhere.herokuapp.com/https://app.messageautosender.com/api/v1/message/create', {
         receiverMobileNo: mobileNumber,
-        message: [`Here is your PDF: ${pdfPath}`],
+        message: [message]
       }, {
         headers: {
           'Authorization': whatsappAuth,
           'Content-Type': 'application/json',
         }
       });
-
+  
       toast.success("PDF sent to mobile successfully!");
     } catch (error) {
       toast.error("Error sending PDF to mobile!");
-      console.error(error);
+      console.error("WhatsApp Error:", error);
     }
   };
-
   const filteredChecklists = checklists.filter((checklist) => {
     const lowerCaseTerm = searchTerm.toLowerCase();
     return (
@@ -235,34 +239,34 @@ const ServiceRequestDocPage = () => {
                         <td>{checklist.clientInfo?.contactPerson || "N/A"}</td>
                         <td>{checklist.clientInfo?.phone || "N/A"}</td>
                         <td>
-                          <Button
-                            variant="contained"
-                            color="secondary"
+                          <IconButton
+                            
+                             color="secondary"
                             onClick={() => handleDownloadPDF(checklist.pdfPath)}
                             size="small"
                           >
-                            <Download fontSize="small" /> Download
-                          </Button>
+                             <Download fontSize="small" />
+                          </IconButton>
                         </td>
                         <td>
-                          <Button
+                          <IconButton
                             variant="contained"
                             color="error"
                             onClick={() => handleDeleteChecklist(checklist._id)}
                             size="small"
                           >
-                            <Delete fontSize="small" /> Delete
-                          </Button>
+                            <Delete fontSize="small" /> 
+                          </IconButton>
                         </td>
                         <td>
-                          <Button
+                          <IconButton
                             variant="contained"
                             color="primary"
                             onClick={() => handleSendPdfToMobile(checklist.pdfPath, checklist.clientInfo?.phone)}
                             size="small"
                           >
-                            Send
-                          </Button>
+                           <Send fontSize="small" />
+                          </IconButton>
                         </td>
                       </tr>
                     ))

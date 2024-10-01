@@ -322,7 +322,7 @@ const AdminDashboard = () => {
             </Grid>
             <Grid item xs={12} sm={6} md={4}>
               <Card>
-                <CardHeaderStyled>New Service Requests</CardHeaderStyled>
+                <CardHeaderStyled>Service Record</CardHeaderStyled>
                 <Paper sx={{ p: 2, textAlign: "center" }}>
                   <Typography variant="h4">{newServiceRequests}</Typography>
                   <Button
@@ -332,7 +332,7 @@ const AdminDashboard = () => {
                     component={Link}
                     to="/service-request"
                   >
-                    View Requests
+                    View Record
                   </Button>
                 </Paper>
               </Card>
@@ -363,7 +363,7 @@ const AdminDashboard = () => {
           onClick={handleModalOpen}
           sx={{ mt: 2, width: '100%' }}
         >
-          View Quotation Summary
+          Total Quotation Amount
         </Button>
       </div>
     </Paper>
@@ -396,7 +396,7 @@ const AdminDashboard = () => {
               }}
             >
               <Typography id="quotation-summary-title" variant="h6" component="h2" sx={{ mb: 2 }}>
-                Quotation Amount Summary
+               Total Quotation Amount
               </Typography>
               <div style={{ height: "300px", width: "100%", display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
                 {quotationSummary.totalAmount || quotationSummary.pendingAmount || quotationSummary.completedAmount ? (

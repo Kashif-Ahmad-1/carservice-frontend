@@ -7,6 +7,7 @@ import axios from "axios";
 import logo from './comp-logo.jpeg';
 import API_BASE_URL from './../../config';
 import { toast } from 'react-toastify';
+import MessageTemplate from "../MessageTemplate";
 const QuotationGenerator = () => {
   const formRef = useRef();
   const location = useLocation();
@@ -135,12 +136,12 @@ const QuotationGenerator = () => {
   doc.rect(60, 10, 100, 25, 'F');
   doc.setFontSize(10);
   doc.setFont("helvetica", "bold");
-  doc.text('Company Information', 65, 16);
+  doc.text('AEROLUBE ENGINEERS', 65, 16);
   doc.setFont("helvetica", "normal");
   doc.setFontSize(8);
-  doc.text('Works: B-2 Sara Industrial Estate, Dehradun-248197', 65, 22);
-  doc.text('Office: C-111/112 New Multan Nagar, New Delhi-110056', 65, 26);
-  doc.text('GST NO: 05AAACA1814D1ZI', 65, 30);
+  doc.text('Works: LANE NO. 09, 264 A, KASIDIH, SAKCHI', 65, 22);
+  doc.text('           East Singhbhum,Jharkhand, 831001', 65, 26);
+  doc.text('GST NO: 20CJOPS0713D1ZM', 65, 30);
 
   // Quotation Title
   doc.setFontSize(24);
@@ -284,9 +285,13 @@ const QuotationGenerator = () => {
 const handleSendPdfToMobile = async (pdfUrl, mobileNumber) => {
   try {
     const whatsappAuth = 'Basic ' + btoa('kashif2789:test@123');
+
+    // Use the message template function
+    const message = MessageTemplate(pdfUrl);
+
     const response = await axios.post('https://cors-anywhere.herokuapp.com/https://app.messageautosender.com/api/v1/message/create', {
       receiverMobileNo: mobileNumber,
-      message: [`Here is your PDF: ${pdfUrl}`],
+      message: [message]
     }, {
       headers: {
         'Authorization': whatsappAuth,

@@ -39,7 +39,7 @@ import Sidebar from "./Sidebar"; // Adjust path if necessary
 import API_BASE_URL from "./../../config";
 // Header Component
 const Header = ({ onToggleSidebar }) => (
-  <AppBar position="static">
+  <AppBar position="static" sx={{ backgroundColor: "gray" }}>
     <Toolbar>
       <Button color="inherit" onClick={onToggleSidebar}>
         <Menu />
@@ -50,7 +50,7 @@ const Header = ({ onToggleSidebar }) => (
         style={{ width: 40, height: 40, marginRight: 10 }} // Adjust size and margin as needed
       />
       <Typography variant="h6" sx={{ flexGrow: 1, fontWeight: "bold" }}>
-        ADHUNIK YANTRA UDYOG PVT. LTD.
+      AEROLUBE ENGINEERS
       </Typography>
     </Toolbar>
   </AppBar>
@@ -78,20 +78,20 @@ function EngineerDetailsPage() {
   const { engineerId } = useParams();
   const navigate = useNavigate();
   const [appointments, setAppointments] = useState([]);
-  // const [expandedRows, setExpandedRows] = useState({});
+
   const [openModal, setOpenModal] = useState(false);
   const [selectedClient, setSelectedClient] = useState(null);
   const [serviceHistory, setServiceHistory] = useState([]);
   const [error, setError] = useState(null);
-  const [sidebarOpen, setSidebarOpen] = useState(false); // State to handle sidebar visibility
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   // Pagination state
-  const [currentPage, setCurrentPage] = useState(1); // Track current page
+  const [currentPage, setCurrentPage] = useState(1);
   const appointmentsPerPage = 10; // Number of appointments per page
   const [searchTerm, setSearchTerm] = useState("");
   const [filter, setFilter] = useState("all");
   const [nextServiceDates, setNextServiceDates] = useState({});
 
-  const [expandedRows, setExpandedRows] = useState(null);
+  const [expandedRows, setExpandedRows] = useState([]);
 
   const handleNextServiceDateChange = (appointmentId, newDate) => {
     setNextServiceDates((prev) => ({
@@ -99,14 +99,13 @@ function EngineerDetailsPage() {
       [appointmentId]: newDate,
     }));
 
-    // Assuming you have a way to get the auth token
-    const token = localStorage.getItem("token"); // or however you store the token
+    const token = localStorage.getItem("token");
 
     fetch(`${API_BASE_URL}/api/appointments/${appointmentId}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`, // Add the authorization header
+        Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify({ nextServiceDate: newDate }),
     })
@@ -147,7 +146,6 @@ function EngineerDetailsPage() {
           throw new Error("Network response was not ok");
         }
         const data = await response.json();
-        // Sort appointments by expected service date ascending
         data.sort(
           (a, b) =>
             new Date(a.expectedServiceDate) - new Date(b.expectedServiceDate)
@@ -163,7 +161,7 @@ function EngineerDetailsPage() {
   }, [engineerId]);
 
   const handleToggleSidebar = () => {
-    setSidebarOpen((prev) => !prev); // Toggle sidebar visibility
+    setSidebarOpen((prev) => !prev);
   };
 
   if (error) {
@@ -178,37 +176,31 @@ function EngineerDetailsPage() {
     return <Typography variant="h6">Loading...</Typography>;
   }
 
-  const toggleRow = (clientName) => {
-    setExpandedRows((prev) => (prev === clientName ? null : clientName));
+  const toggleRow = (index) => {
+    setExpandedRows((prev) => {
+      if (prev.includes(index)) {
+        return prev.filter((i) => i !== index);
+      } else {
+        return [...prev, index];
+      }
+    });
   };
-  // Group appointments by client name and mobile number
-  const groupedAppointments = appointments.reduce((acc, appointment) => {
-    const key = `${appointment.clientName}-${appointment.mobileNo}`;
-    if (!acc[key]) {
-      acc[key] = [];
-    }
-    acc[key].push(appointment);
-    return acc;
-  }, {});
 
   const generateDocumentNumber = (lastDocNumber) => {
     const docPrefix = "DOC:";
     const lastNumber = parseInt(lastDocNumber.replace(docPrefix, ""), 10);
-
-    // Check for NaN and handle it
     if (isNaN(lastNumber)) {
       console.warn(
         `Invalid document number format: ${lastDocNumber}. Starting from 1.`
       );
       return `${docPrefix}1`;
     }
-
     const nextNumber = lastNumber + 1;
     return `${docPrefix}${nextNumber}`;
   };
 
   const handleEditClick = (appointment) => {
-    const lastDocNumber = appointment.checklists.documentNumber || ""; // Replace with your logic to fetch last number
+    const lastDocNumber = appointment.checklists.documentNumber || "";
     const newDocumentNumber = generateDocumentNumber(lastDocNumber);
 
     navigate(`/checklist`, {
@@ -227,15 +219,15 @@ function EngineerDetailsPage() {
 
   const handleDownloadPDF = (cloudinaryUrl) => {
     const link = document.createElement("a");
-    link.href = cloudinaryUrl; // Use the Cloudinary URL directly
-    link.setAttribute("download", cloudinaryUrl.split("/").pop()); // Extract file name from URL
+    link.href = cloudinaryUrl;
+    link.setAttribute("download", cloudinaryUrl.split("/").pop());
     document.body.appendChild(link);
     link.click();
     link.remove();
   };
 
   const handleServiceHistoryClick = (clientName) => {
-    const history = appointments.filter((app) => app.clientName === clientName); // Fetch service history for the client
+    const history = appointments.filter((app) => app.clientName === clientName);
     setServiceHistory(history);
     setSelectedClient(clientName);
     setOpenModal(true);
@@ -247,7 +239,7 @@ function EngineerDetailsPage() {
     setSelectedClient(null);
   };
 
-  const handleQuatation = (appointment) => {
+  const handleQuotation = (appointment) => {
     navigate(`/pdfcheck`, {
       state: {
         appointmentId: appointment._id,
@@ -261,62 +253,40 @@ function EngineerDetailsPage() {
     });
   };
 
-  // Get current appointments to display
+  const handleChangePage = (event, value) => {
+    setCurrentPage(value);
+  };
+  const filteredAppointments = appointments.filter((appointment) => {
+    const clientName = appointment.clientName.toLowerCase();
+    const matchesSearch =
+      clientName.includes(searchTerm.toLowerCase()) ||
+      (appointment.invoiceNumber &&
+        appointment.invoiceNumber.toString().includes(searchTerm)) ||
+      (appointment.mobileNo && appointment.mobileNo.includes(searchTerm)) ||
+      (appointment.clientAddress &&
+        appointment.clientAddress
+          .toLowerCase()
+          .includes(searchTerm.toLowerCase())) ||
+      (appointment.contactPerson &&
+        appointment.contactPerson
+          .toLowerCase()
+          .includes(searchTerm.toLowerCase()));
+
+    const matchesFilter =
+      filter === "all" ||
+      (filter === "completed" && appointment.status === "completed");
+
+    return matchesSearch && matchesFilter;
+  });
+
   const indexOfLastAppointment = currentPage * appointmentsPerPage;
   const indexOfFirstAppointment = indexOfLastAppointment - appointmentsPerPage;
-  const currentAppointments = Object.entries(groupedAppointments).slice(
+  const currentAppointments = filteredAppointments.slice(
     indexOfFirstAppointment,
     indexOfLastAppointment
   );
-  const handleChangePage = (event, value) => {
-    setCurrentPage(value); // Update the current page
-  };
-  // Calculate total pages
   const totalPages = Math.ceil(
-    Object.keys(groupedAppointments).length / appointmentsPerPage
-  );
-  // ..................Search Functionality ............................//
-  const filteredAppointments = currentAppointments.filter(
-    ([key, clientAppointments]) => {
-      const [clientName, mobileNo] = key.split("-");
-      const firstAppointment = clientAppointments[0];
-
-      const matchesSearch =
-        clientName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (firstAppointment.invoiceNumber &&
-          firstAppointment.invoiceNumber.toString().includes(searchTerm)) ||
-        (mobileNo && mobileNo.includes(searchTerm)) ||
-        (firstAppointment.clientAddress &&
-          firstAppointment.clientAddress
-            .toLowerCase()
-            .includes(searchTerm.toLowerCase())) ||
-        (firstAppointment.contactPerson &&
-          firstAppointment.contactPerson
-            .toLowerCase()
-            .includes(searchTerm.toLowerCase())) ||
-        (firstAppointment.machineName &&
-          firstAppointment.machineName
-            .toLowerCase()
-            .includes(searchTerm.toLowerCase())) ||
-        (firstAppointment.model &&
-          firstAppointment.model
-            .toLowerCase()
-            .includes(searchTerm.toLowerCase())) ||
-        (firstAppointment.partNo &&
-          firstAppointment.partNo
-            .toLowerCase()
-            .includes(searchTerm.toLowerCase())) ||
-        (firstAppointment.serialNo &&
-          firstAppointment.serialNo
-            .toLowerCase()
-            .includes(searchTerm.toLowerCase()));
-
-      const matchesFilter =
-        filter === "all" ||
-        (filter === "completed" && firstAppointment.status === "completed");
-
-      return matchesSearch && matchesFilter;
-    }
+    filteredAppointments.length / appointmentsPerPage
   );
 
   // .................................................
@@ -326,7 +296,7 @@ function EngineerDetailsPage() {
         display: "flex",
         flexDirection: "row",
         minHeight: "100vh",
-        backgroundColor: "#f7f9fc",
+        backgroundColor: "white",
       }}
     >
       {sidebarOpen && <Sidebar />}
@@ -356,7 +326,10 @@ function EngineerDetailsPage() {
             <TextField
               variant="outlined"
               placeholder="Search by Client Name"
-              onChange={(e) => setSearchTerm(e.target.value)}
+              onChange={(e) => {
+                setSearchTerm(e.target.value);
+                setCurrentPage(1); // Reset to the first page on new search
+              }}
               InputProps={{
                 startAdornment: (
                   <InputAdornment position="start">
@@ -372,7 +345,7 @@ function EngineerDetailsPage() {
                 onChange={(e) => setFilter(e.target.value)}
                 displayEmpty
               >
-                <MenuItem value="all">All Appointments</MenuItem>
+                <MenuItem value="all">All Invoices</MenuItem>
                 <MenuItem value="completed">Completed</MenuItem>
               </Select>
             </FormControl>
@@ -383,7 +356,7 @@ function EngineerDetailsPage() {
             elevation={2}
             sx={{ overflowY: "hidden", overflowX: "auto" }}
           >
-            <Table sx={{ minWidth: 650 }}>
+            <Table sx={{ minWidth: 350 }}>
               <TableHead>
                 <TableRow>
                   {[
@@ -408,7 +381,7 @@ function EngineerDetailsPage() {
                   {/* Additional headers visible only on larger screens */}
                   {[
                     "Contact Person",
-                    "Appointment Date",
+                    "Invoice Date",
                     "Invoice Amount",
                     "Machine Name",
                     "Model",
@@ -442,12 +415,12 @@ function EngineerDetailsPage() {
               </TableHead>
 
               <TableBody>
-                {appointments.map((appointment) => (
+                {currentAppointments.map((appointment,index) => (
                   <React.Fragment key={appointment._id}>
                     {/* Desktop View */}
 
                     <TableRow
-                      onClick={() => toggleRow(appointment.clientName)}
+                      onClick={() => toggleRow(index)}
                       sx={{
                         cursor: "pointer",
                         "&:hover": { backgroundColor: "#e1f5fe" },
@@ -673,7 +646,7 @@ function EngineerDetailsPage() {
                         sx={{ display: { xs: "none", md: "table-cell" } }}
                       >
                         <span
-                          onClick={() => handleQuatation(appointment)}
+                          onClick={() => handleQuotation(appointment)}
                           style={{ cursor: "pointer" }}
                         >
                           <Typography
@@ -688,7 +661,7 @@ function EngineerDetailsPage() {
                     </TableRow>
 
                     {/* Desktop view End */}
-                    {expandedRows === appointment.clientName && (
+                    {expandedRows.includes(index) && (
                       <TableRow>
                         <TableCell colSpan={4}>
                           {/* Mobile Data */}
@@ -722,7 +695,7 @@ function EngineerDetailsPage() {
                               variant="body2"
                               sx={{ color: "#555", fontSize: "1.1rem", mb: 1 }}
                             >
-                              <strong>Appointment Date:</strong>{" "}
+                              <strong>Invoice Date:</strong>{" "}
                               {new Date(
                                 appointment.appointmentDate
                               ).toLocaleDateString()}
@@ -864,7 +837,7 @@ function EngineerDetailsPage() {
                               variant="body2"
                               sx={{ fontSize: "1.1rem", mb: 1 }}
                             >
-                              <strong>Edit:</strong>
+                              <strong>Checklist:</strong>
                               <span
                                 onClick={() => handleEditClick(appointment)}
                                 style={{
@@ -882,7 +855,7 @@ function EngineerDetailsPage() {
                               variant="body2"
                               sx={{ fontSize: "1.1rem", mb: 1 }}
                             >
-                              <strong>Checklist:</strong>
+                              <strong>Checklist PDF download:</strong>
                               {appointment.checklists.length > 0
                                 ? (() => {
                                     const sortedChecklists = [
@@ -943,7 +916,7 @@ function EngineerDetailsPage() {
                             >
                               <strong>Quotation:</strong>
                               <span
-                                onClick={() => handleQuatation(appointment)}
+                                onClick={() => handleQuotation(appointment)}
                                 style={{
                                   cursor: "pointer",
                                   color: "#007acc",
@@ -964,13 +937,31 @@ function EngineerDetailsPage() {
             </Table>
           </TableContainer>
 
-          <Pagination
-            count={totalPages}
-            page={currentPage}
-            onChange={handleChangePage}
-            color="primary"
-            sx={{ marginY: 3, display: "flex", justifyContent: "center" }}
-          />
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "space-between",
+              marginTop: 2,
+            }}
+          >
+            <IconButton
+              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+              disabled={currentPage === 1}
+            >
+              Previous
+            </IconButton>
+            <Typography>
+              Page {currentPage} of {totalPages}
+            </Typography>
+            <IconButton
+              onClick={() =>
+                setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+              }
+              disabled={currentPage === totalPages}
+            >
+              Next
+            </IconButton>
+          </Box>
         </Container>
       </Box>
 

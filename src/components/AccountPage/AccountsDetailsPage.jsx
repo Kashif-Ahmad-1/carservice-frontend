@@ -36,7 +36,7 @@ function AppointmentDetailsPage() {
   const [expandedRows, setExpandedRows] = useState([]);
   const navigate = useNavigate();
   const [page, setPage] = useState(0);
-  const [rowsPerPage] = useState(5);
+  const [rowsPerPage] = useState(10);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const headerColor = '#ff4d30'; 
   const handleChangePage = (event, newPage) => {
@@ -153,18 +153,13 @@ function AppointmentDetailsPage() {
     }
   };
 
-  const handleDownloadPDF = (appointment) => {
-    const documentPath = appointment.document;
-    if (documentPath) {
-      const link = document.createElement('a');
-      link.href = `${API_BASE_URL}/${documentPath}`;
-      link.setAttribute('download', documentPath.split('/').pop());
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-    } else {
-      toast.error('No document available for download.');
-    }
+  const handleDownloadPDF = (cloudinaryUrl) => {
+    const link = document.createElement("a");
+    link.href = cloudinaryUrl;
+    link.setAttribute("download", cloudinaryUrl.split("/").pop());
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
   };
 
   const toggleRow = (index) => {
@@ -182,7 +177,7 @@ function AppointmentDetailsPage() {
   };
 
   const Header = () => (
-    <AppBar position="static" sx={{ backgroundColor: "#1976d2" }}>
+    <AppBar position="static" sx={{ backgroundColor: 'gray',width: '105%' }}>
       <Toolbar>
         <IconButton edge="start" color="inherit" onClick={toggleSidebar} sx={{ mr: 2 }}>
           <Menu />
@@ -193,7 +188,7 @@ function AppointmentDetailsPage() {
         style={{ width: 40, height: 40, marginRight: 10 }} // Adjust size and margin as needed
       />
         <Typography variant="h6" sx={{ flexGrow: 1, fontWeight: 'bold' }}>
-        ADHUNIK YANTRA UDYOG PVT. LTD.
+        AEROLUBE ENGINEERS
         </Typography>
       </Toolbar>
     </AppBar>
@@ -222,19 +217,41 @@ function AppointmentDetailsPage() {
         <Typography variant="h4" gutterBottom sx={{ marginTop: 2, fontWeight: 'bold' }}>
           Clients Details
         </Typography>
-        <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, justifyContent: 'space-between', marginBottom: 2,backgroundColor: "#f7f9fc" }}>
-          <Button variant="contained" color="primary" onClick={handleBackClick} sx={{ marginBottom: { xs: 1, sm: 0 }, marginRight: 2 }} startIcon={<Add />}>
-            Create Invoice
-          </Button>
-          <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' } }}>
-            <Button variant="contained" color="secondary" onClick={handleAddClientClick} sx={{ marginBottom: { xs: 1, sm: 0 }, marginRight: 2 }} startIcon={<Add />}>
-              Add Client
-            </Button>
-            <Button variant="contained" color="success" onClick={handleAddMachineClick} startIcon={<Add />}>
-              Add Machine
-            </Button>
-          </Box>
-        </Box>
+        <Box sx={{ 
+  display: 'flex', 
+  flexDirection: 'row', // Keep all buttons in one row
+  justifyContent: 'space-between', 
+  marginBottom: 2, 
+
+}}>
+  <Button 
+    variant="contained" 
+    color="primary" 
+    onClick={handleBackClick} 
+    sx={{ marginRight: 2 }} // No marginBottom needed
+    startIcon={<Add />}
+  >
+    Create Invoice
+  </Button>
+  <Box sx={{ display: 'flex', flexDirection: 'row' }}> {/* Set to 'row' */}
+    <Button 
+      variant="contained" 
+      color="secondary" 
+      onClick={handleAddClientClick} 
+      sx={{ marginRight: 2 }} // Maintain spacing between buttons
+    >
+      Add Client
+    </Button>
+    <Button 
+      variant="contained" 
+      color="success" 
+      onClick={handleAddMachineClick} 
+    >
+      Add Machine
+    </Button>
+  </Box>
+</Box>
+
         {showAddClientFields && (
           <Box sx={{ marginBottom: 2, p: 2, borderRadius: 1, boxShadow: 1, backgroundColor: '#f9f9f9' }}>
             <Typography variant="h6">Add New Client</Typography>
@@ -276,46 +293,135 @@ function AppointmentDetailsPage() {
         {showAddMachineField && <AddMachine onSubmit={handleAddMachineSubmit} />}
         <Divider sx={{ marginY: 2 }} />
         <TableContainer component={Paper}>
-          <Table sx={{ minWidth: 650 }}>
+          <Table sx={{ minWidth: 350 }}>
             <TableHead>
-              <TableRow>
-               
-                {['SR.No','Invoice No','Client Name', 'Client Address', 'Contact Person', 'Mobile No.', 'Appointment Date', 'Appointment Amount', 'Machine Name', 'Model', 'Part No.', 'Serial No.', 'Installation Date', 'Service Frequency', 'Expected Service Date', 'Service Engineer', 'Document'].map((header) => (
-                  <TableCell key={header}  sx={{
-                    fontSize: "0.9rem",
-                    fontWeight: "bold",
-                    backgroundColor: "#007acc",
-                    color: "#fff",
-                    textAlign: "center",
-                    whiteSpace: "normal",
-                    overflow: "hidden",
-                    textOverflow: "ellipsis",
-                    width: "5%", // Adjust as needed
-                  }}>{header}</TableCell>
-                ))}
-              </TableRow>
+            <TableRow>
+                  {[
+                    'SR.No',
+                    "Invoice No.",
+                    "Client Name",
+                    "Client Address",
+                    'Contact Person',
+                    
+                  ].map((header) => (
+                    <TableCell
+                      key={header}
+                      sx={{
+                        fontSize: "1rem",
+                        fontWeight: "bold",
+                        backgroundColor: "#007acc",
+                        color: "#fff",
+                        textAlign: "center",
+                      }}
+                    >
+                      {header}
+                    </TableCell>
+                  ))}
+                  {/* Additional headers visible only on larger screens */}
+                  {[
+                    'Mobile No.',
+                    "Invoice Date",
+                    "Invoice Amount",
+                    "Machine Name",
+                    "Model",
+                    "Part No.",
+                    "Serial No.",
+                    "Installation Date",
+                    "Service Frequency (Days)",
+                    "Expected Service Date",
+                   'Service Engineer',
+                    "Document",
+                    
+                  ].map((header) => (
+                    <TableCell
+                      key={header}
+                      sx={{
+                        display: { xs: "none", md: "table-cell" },
+                        fontSize: "1rem",
+                        fontWeight: "bold",
+                        backgroundColor: "#007acc",
+                        color: "#fff",
+                        textAlign: "center",
+                      }}
+                    >
+                      {header}
+                    </TableCell>
+                  ))}
+                </TableRow>
             </TableHead>
             <TableBody>
               {appointments.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((appointment, index) => (
                 <React.Fragment key={appointment._id}>
                   <TableRow onClick={() => toggleRow(index)} sx={{ cursor: "pointer", '&:hover': { backgroundColor: '#e1f5fe' } }}>
-                    <TableCell>{page * rowsPerPage + index + 1}</TableCell>
-                    <TableCell>{appointment.invoiceNumber}</TableCell>
-                    <TableCell>{appointment.clientName}</TableCell>
-                    <TableCell>{appointment.clientAddress}</TableCell>
-                    <TableCell>{appointment.contactPerson}</TableCell>
-                    <TableCell>{appointment.mobileNo}</TableCell>
-                    <TableCell>{new Date(appointment.appointmentDate).toLocaleDateString()}</TableCell>
-                    <TableCell>{typeof appointment.appointmentAmount === 'number' ? `${appointment.appointmentAmount.toFixed(2)}` : 'N/A'}</TableCell>
-                    <TableCell>{appointment.machineName}</TableCell>
-                    <TableCell>{appointment.model}</TableCell>
-                    <TableCell>{appointment.partNo}</TableCell>
-                    <TableCell>{appointment.serialNo}</TableCell>
-                    <TableCell>{new Date(appointment.installationDate).toLocaleDateString()}</TableCell>
-                    <TableCell>{appointment.serviceFrequency}</TableCell>
-                    <TableCell>{new Date(appointment.expectedServiceDate).toLocaleDateString()}</TableCell>
-                    <TableCell>{appointment.engineer ? appointment.engineer.name : 'N/A'}</TableCell>
-                    <TableCell>
+                    <TableCell sx={{ fontSize: "1rem", fontWeight: "bold" }}>{page * rowsPerPage + index + 1}</TableCell>
+                    <TableCell sx={{ fontSize: "1.2rem",
+                          fontWeight: 700, }}>{appointment.invoiceNumber}</TableCell>
+                    <TableCell sx={{ fontSize: "1.2rem",
+                          fontWeight: 700, }}>{appointment.clientName}</TableCell>
+                    <TableCell sx={{ fontSize: "1.2rem",
+                          fontWeight: 700, }}>{appointment.clientAddress}</TableCell>
+                    <TableCell sx={{ fontSize: "1.2rem",
+                          fontWeight: 700, }}>{appointment.contactPerson}</TableCell>
+                    <TableCell sx={{
+                          display: { xs: "none", md: "table-cell" },
+                          fontSize: "1.2rem",
+                          fontWeight: 700,
+                        }}>{appointment.mobileNo}</TableCell>
+                    <TableCell sx={{
+                          display: { xs: "none", md: "table-cell" },
+                          fontSize: "1.2rem",
+                          fontWeight: 700,
+                        }}>{new Date(appointment.appointmentDate).toLocaleDateString()}</TableCell>
+                    <TableCell sx={{
+                          display: { xs: "none", md: "table-cell" },
+                          fontSize: "1.2rem",
+                          fontWeight: 700,
+                        }}>{typeof appointment.appointmentAmount === 'number' ? `${appointment.appointmentAmount.toFixed(2)}` : 'N/A'}</TableCell>
+                    <TableCell sx={{
+                          display: { xs: "none", md: "table-cell" },
+                          fontSize: "1.2rem",
+                          fontWeight: 700,
+                        }}>{appointment.machineName}</TableCell>
+                    <TableCell sx={{
+                          display: { xs: "none", md: "table-cell" },
+                          fontSize: "1.2rem",
+                          fontWeight: 700,
+                        }}>{appointment.model}</TableCell>
+                    <TableCell sx={{
+                          display: { xs: "none", md: "table-cell" },
+                          fontSize: "1.2rem",
+                          fontWeight: 700,
+                        }}>{appointment.partNo}</TableCell>
+                    <TableCell sx={{
+                          display: { xs: "none", md: "table-cell" },
+                          fontSize: "1.2rem",
+                          fontWeight: 700,
+                        }}>{appointment.serialNo}</TableCell>
+                    <TableCell sx={{
+                          display: { xs: "none", md: "table-cell" },
+                          fontSize: "1.2rem",
+                          fontWeight: 700,
+                        }}>{new Date(appointment.installationDate).toLocaleDateString()}</TableCell>
+                    <TableCell sx={{
+                          display: { xs: "none", md: "table-cell" },
+                          fontSize: "1.2rem",
+                          fontWeight: 700,
+                        }}>{appointment.serviceFrequency}</TableCell>
+                    <TableCell sx={{
+                          display: { xs: "none", md: "table-cell" },
+                          fontSize: "1.2rem",
+                          fontWeight: 700,
+                        }}>{new Date(appointment.expectedServiceDate).toLocaleDateString()}</TableCell>
+                    <TableCell sx={{
+                          display: { xs: "none", md: "table-cell" },
+                          fontSize: "1.2rem",
+                          fontWeight: 700,
+                        }}>{appointment.engineer ? appointment.engineer.name : 'N/A'}</TableCell>
+                    <TableCell sx={{
+                          display: { xs: "none", md: "table-cell" },
+                          fontSize: "1.2rem",
+                          fontWeight: 700,
+                        }}>
                       {appointment.document ? (
                         <Button variant="outlined" color="primary" onClick={() => handleDownloadPDF(appointment)}>
                           <Download />
@@ -326,21 +432,177 @@ function AppointmentDetailsPage() {
                     </TableCell>
                   </TableRow>
                   {expandedRows.includes(index) && (
-                    <TableRow>
-                      <TableCell colSpan={15} sx={{ backgroundColor: '#f5f5f5' }}>
-                        <Box sx={{ padding: 2 }}>
-                          <Typography>Machine Name: {appointment.machineName}</Typography>
-                          <Typography>Model: {appointment.model}</Typography>
-                          <Typography>Part No: {appointment.partNo}</Typography>
-                          <Typography>Serial No: {appointment.serialNo}</Typography>
-                          <Typography>Installation Date: {new Date(appointment.installationDate).toLocaleDateString()}</Typography>
-                          <Typography>Service Frequency: {appointment.serviceFrequency}</Typography>
-                          <Typography>Expected Service Date: {new Date(appointment.expectedServiceDate).toLocaleDateString()}</Typography>
-                          <Typography>Service Engineer: {appointment.engineer ? appointment.engineer.name : 'N/A'}</Typography>
-                        </Box>
-                      </TableCell>
-                    </TableRow>
-                  )}
+                      <TableRow>
+                        <TableCell colSpan={4}>
+                          {/* Mobile Data */}
+                          <Box
+                            sx={{
+                              padding: 2,
+                              backgroundColor: "#ffffff",
+                              borderRadius: 2,
+                              boxShadow: 1,
+                              marginBottom: 2,
+                            }}
+                          >
+                            <Typography
+                              variant="h6"
+                              sx={{
+                                fontWeight: "bold",
+                                marginBottom: 1,
+                                fontSize: "1.5rem",
+                              }}
+                            >
+                              Contact Details
+                            </Typography>
+
+                            <Typography
+                              variant="body2"
+                              sx={{ color: "#555", fontSize: "1.1rem", mb: 1 }}
+                            >
+                              <strong>Mobile Number:</strong>{" "}
+                              {appointment.mobileNo}
+                            </Typography>
+
+                            <Typography
+                              variant="body2"
+                              sx={{ color: "#555", fontSize: "1.1rem", mb: 1 }}
+                            >
+                              <strong>Contact Person:</strong>{" "}
+                              {appointment.contactPerson}
+                            </Typography>
+                            <Typography
+                              variant="body2"
+                              sx={{ color: "#555", fontSize: "1.1rem", mb: 1 }}
+                            >
+                              <strong>Invoice Date:</strong>{" "}
+                              {new Date(
+                                appointment.appointmentDate
+                              ).toLocaleDateString()}
+                            </Typography>
+                            <Typography
+                              variant="body2"
+                              sx={{ color: "#555", fontSize: "1.1rem", mb: 1 }}
+                            >
+                              <strong>Invoice Amount:</strong>{" "}
+                              {typeof appointment.appointmentAmount === "number"
+                                ? `$${appointment.appointmentAmount.toFixed(2)}`
+                                : "N/A"}
+                            </Typography>
+
+                            <Divider sx={{ marginY: 2 }} />
+
+                            <Typography
+                              variant="h6"
+                              sx={{
+                                fontWeight: "bold",
+                                marginBottom: 1,
+                                fontSize: "1.5rem",
+                              }}
+                            >
+                              Machine Details
+                            </Typography>
+                            <Typography
+                              variant="body2"
+                              sx={{ fontSize: "1.1rem", mb: 1 }}
+                            >
+                              <strong>Machine Name:</strong>{" "}
+                              {appointment.machineName}
+                            </Typography>
+                            <Typography
+                              variant="body2"
+                              sx={{ fontSize: "1.1rem", mb: 1 }}
+                            >
+                              <strong>Model:</strong> {appointment.model}
+                            </Typography>
+                            <Typography
+                              variant="body2"
+                              sx={{ fontSize: "1.1rem", mb: 1 }}
+                            >
+                              <strong>Part No:</strong> {appointment.partNo}
+                            </Typography>
+                            <Typography
+                              variant="body2"
+                              sx={{ fontSize: "1.1rem", mb: 1 }}
+                            >
+                              <strong>Serial No:</strong> {appointment.serialNo}
+                            </Typography>
+                            <Typography
+                              variant="body2"
+                              sx={{ fontSize: "1.1rem", mb: 1 }}
+                            >
+                              <strong>Installation Date:</strong>{" "}
+                              {new Date(
+                                appointment.installationDate
+                              ).toLocaleDateString()}
+                            </Typography>
+                            <Typography
+                              variant="body2"
+                              sx={{ fontSize: "1.1rem", mb: 1 }}
+                            >
+                              <strong>Service Frequency:</strong>{" "}
+                              {appointment.serviceFrequency}
+                            </Typography>
+                            <Typography
+                              variant="body2"
+                              sx={{ fontSize: "1.1rem", mb: 1 }}
+                            >
+                              <strong>Expected Service Date:</strong>{" "}
+                              {new Date(
+                                appointment.expectedServiceDate
+                              ).toLocaleDateString()}
+                            </Typography>
+
+
+                            <Typography
+                              variant="body2"
+                              sx={{ fontSize: "1.1rem", mb: 1 }}
+                            >
+                              <strong>Service Engineer:</strong>{" "}
+                              {appointment.engineer ? appointment.engineer.name : 'N/A'}
+                            </Typography>
+
+                          
+
+                            <Divider sx={{ marginY: 2 }} />
+
+                            <Typography
+                              variant="h6"
+                              sx={{
+                                fontWeight: "bold",
+                                marginBottom: 1,
+                                fontSize: "1.5rem",
+                              }}
+                            >
+                              Documents
+                            </Typography>
+                            <Typography
+                              variant="body2"
+                              sx={{ fontSize: "1.1rem", mb: 1 }}
+                            >
+                              <strong>Document:</strong>
+                              {appointment.document ? (
+                                <span
+                                  onClick={() =>
+                                    handleDownloadPDF(appointment.document)
+                                  }
+                                  style={{
+                                    cursor: "pointer",
+                                    color: "#007acc",
+                                    textDecoration: "underline",
+                                  }}
+                                >
+                                  <Download sx={{ color: "blue" }} />
+                                </span>
+                              ) : (
+                                " No Document"
+                              )}
+                            </Typography>
+
+                           
+                          </Box>
+                        </TableCell>
+                      </TableRow>
+                    )}
                 </React.Fragment>
               ))}
             </TableBody>
@@ -359,6 +621,7 @@ function AppointmentDetailsPage() {
       </Container>
     </div>
   );
+  
 }
 
 export default AppointmentDetailsPage;
