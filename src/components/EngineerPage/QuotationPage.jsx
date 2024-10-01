@@ -13,11 +13,12 @@ import {
   TextField,
  Modal,
 } from "@mui/material";
+import MessageTemplate from "../MessageTemplate";
 import API_BASE_URL from './../../config';
 import { styled } from "@mui/material/styles";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { Download, Menu ,Delete,Edit} from "@mui/icons-material";
+import { Download, Menu ,Delete,Edit,Send} from "@mui/icons-material";
 import Sidebar from "./Sidebar";
 import axios from "axios";
 const MainContent = styled("main")(({ theme }) => ({
@@ -101,7 +102,7 @@ const QuotationPage = () => {
 
   // Header Component
   const Header = () => (
-    <AppBar position="static">
+    <AppBar position="static" sx={{ backgroundColor: 'gray',margin: '-25px',width: '105%' }}>
       <Toolbar>
         <IconButton color="inherit" onClick={handleToggleSidebar}>
           <Menu />
@@ -115,7 +116,7 @@ const QuotationPage = () => {
           variant="h6"
           sx={{ flexGrow: 1, fontWeight: 'bold' }}
         >
-          ADHUNIK YANTRA UDYOG PVT. LTD.
+          AEROLUBE ENGINEERS
         </Typography>
       </Toolbar>
     </AppBar>
@@ -291,23 +292,27 @@ const QuotationPage = () => {
   };
 
 
-  const handleSendPdfToMobile = async (pdfPath, mobileNumber) => {
+  const handleSendPdfToMobile = async (pdfUrl, mobileNumber) => {
     try {
       const whatsappAuth = 'Basic ' + btoa('kashif2789:test@123');
+  
+      // Use the message template function
+      const message = MessageTemplate(pdfUrl);
+  
       const response = await axios.post('https://cors-anywhere.herokuapp.com/https://app.messageautosender.com/api/v1/message/create', {
         receiverMobileNo: mobileNumber,
-        message: [`Here is your PDF: ${pdfPath}`],
+        message: [message]
       }, {
         headers: {
           'Authorization': whatsappAuth,
           'Content-Type': 'application/json',
         }
       });
-
+  
       toast.success("PDF sent to mobile successfully!");
     } catch (error) {
       toast.error("Error sending PDF to mobile!");
-      console.error(error);
+      console.error("WhatsApp Error:", error);
     }
   };
 
@@ -315,24 +320,26 @@ const QuotationPage = () => {
     <Box sx={{ display: "flex" }}>
       <CssBaseline />
       {sidebarOpen && <Sidebar />}
+      
       <MainContent>
         <Header />
         <ToolbarSpacer />
+        
         <Container>
           <SectionTitle variant="h4">Quotation List</SectionTitle>
-          <Card>
+          <Card sx={{ padding: 1 }}> {/* Reduced padding */}
             <TextField
               variant="outlined"
               placeholder="Search by Client Name, Quotation No, or Contact Person"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               fullWidth
-              sx={{ marginBottom: 2 }} // Margin for better spacing
+              sx={{ marginBottom: 1 }} // Reduced margin
             />
             <Typography variant="h6">Quotations</Typography>
-            <Paper sx={{ overflowX: "auto", mt: 2 }}>
+            <Paper sx={{ overflowX: "auto", mt: 1 }}> {/* Reduced margin-top */}
               <Table>
-                <thead  >
+                <thead>
                   <tr>
                     <th>SR No</th>
                     <th>Quotation No</th>
@@ -340,9 +347,10 @@ const QuotationPage = () => {
                     <th>Contact Person</th>
                     <th>Mobile Number</th>
                     <th>Quotation Amount (Rs)</th>
-                    <th >Status</th>
+                    <th>Status</th>
+                    <th>Download</th>
                     <th>Send</th>
-                    <th>Actions</th> 
+                    <th>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -364,52 +372,46 @@ const QuotationPage = () => {
                           >
                             {quotation.status ? "Complete" : "Pending"}
                           </Button>
-
-                          <Button
-                            variant="contained"
+                        </td>
+                        <td>
+                          <IconButton
                             color="secondary"
                             onClick={() => handleDownloadPDF(quotation.pdfPath)}
                             size="small"
                           >
-                            <Download fontSize="small" /> Download
-                          </Button>
+                            <Download fontSize="small" />
+                          </IconButton>
                         </td>
-
-
                         <td>
-                          <Button
-                            variant="contained"
+                          <IconButton
                             color="primary"
                             onClick={() => handleSendPdfToMobile(quotation.pdfPath, quotation.clientInfo?.phone)}
                             size="small"
                           >
-                            Send
-                          </Button>
+                            <Send fontSize="small" />
+                          </IconButton>
                         </td>
-
                         <td>
-                        <Button
-                            variant="contained"
+                          <IconButton
                             color="info"
                             onClick={() => openModal(quotation)}
                             size="small"
                           >
-                            <Edit fontSize="small" /> Edit
-                          </Button>
-                          <Button
-                            variant="contained"
+                            <Edit fontSize="small" />
+                          </IconButton>
+                          <IconButton
                             color="error"
                             onClick={() => handleDeleteQuotation(quotation._id)}
                             size="small"
                           >
-                            <Delete fontSize="small" /> Delete
-                          </Button>
+                            <Delete fontSize="small" />
+                          </IconButton>
                         </td>
                       </tr>
                     ))
                   ) : (
                     <tr>
-                      <td colSpan="8" style={{ textAlign: "center" }}>
+                      <td colSpan="10" style={{ textAlign: "center" }}>
                         No results found.
                       </td>
                     </tr>
@@ -422,7 +424,7 @@ const QuotationPage = () => {
               sx={{
                 display: "flex",
                 justifyContent: "space-between",
-                mt: 2,
+                mt: 1, // Reduced margin-top
                 flexWrap: { xs: "wrap", md: "nowrap" },
               }}
             >
@@ -430,7 +432,7 @@ const QuotationPage = () => {
                 variant="contained"
                 onClick={handlePreviousPage}
                 disabled={currentPage === 1}
-                sx={{ flexGrow: 1, margin: "0.5rem" }} // Flex properties for responsiveness
+                sx={{ flexGrow: 1, margin: "0.5rem 0" }} // Adjusted margin
               >
                 Previous
               </Button>
@@ -441,15 +443,15 @@ const QuotationPage = () => {
                 variant="contained"
                 onClick={handleNextPage}
                 disabled={currentPage === totalPages}
-                sx={{ flexGrow: 1, margin: "0.5rem" }} // Flex properties for responsiveness
+                sx={{ flexGrow: 1, margin: "0.5rem 0" }} // Adjusted margin
               >
                 Next
               </Button>
             </Box>
           </Card>
         </Container>
-
-{/* Modal */}
+  
+        {/* Modal */}
         <Modal open={modalOpen} onClose={closeModal}>
           <Box sx={{ width: 400, padding: 3, margin: "auto", mt: "20vh", backgroundColor: "white", borderRadius: "8px" }}>
             <Typography variant="h6" sx={{ mb: 2 }}>
@@ -462,7 +464,7 @@ const QuotationPage = () => {
                 onChange={(e) => setFormData({ ...formData, quotationNo: e.target.value })}
                 fullWidth
                 required
-                sx={{ mb: 2 }}
+                sx={{ mb: 1 }} // Reduced margin-bottom
               />
               <TextField
                 label="Client Name"
@@ -470,7 +472,7 @@ const QuotationPage = () => {
                 onChange={(e) => setFormData({ ...formData, clientName: e.target.value })}
                 fullWidth
                 required
-                sx={{ mb: 2 }}
+                sx={{ mb: 1 }} // Reduced margin-bottom
               />
               <TextField
                 label="Contact Person"
@@ -478,7 +480,7 @@ const QuotationPage = () => {
                 onChange={(e) => setFormData({ ...formData, contactPerson: e.target.value })}
                 fullWidth
                 required
-                sx={{ mb: 2 }}
+                sx={{ mb: 1 }} // Reduced margin-bottom
               />
               <TextField
                 label="Mobile Number"
@@ -486,7 +488,7 @@ const QuotationPage = () => {
                 onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                 fullWidth
                 required
-                sx={{ mb: 2 }}
+                sx={{ mb: 1 }} // Reduced margin-bottom
               />
               <TextField
                 label="Quotation Amount (Rs)"
@@ -495,23 +497,24 @@ const QuotationPage = () => {
                 onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
                 fullWidth
                 required
-                sx={{ mb: 2 }}
+                sx={{ mb: 1 }} // Reduced margin-bottom
               />
               <Button type="submit" variant="contained" color="primary">
                 {currentQuotation ? "Update" : "Add"}
               </Button>
-              <Button onClick={closeModal} variant="outlined" color="secondary" sx={{ ml: 2 }}>
+              <Button onClick={closeModal} variant="outlined" color="secondary" sx={{ ml: 1 }}>
                 Cancel
               </Button>
             </form>
           </Box>
         </Modal>
-
-
+  
       </MainContent>
       <ToastContainer />
     </Box>
   );
+  
+  
 };
 
 export default QuotationPage;

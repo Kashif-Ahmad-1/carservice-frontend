@@ -17,12 +17,12 @@ const Navbar = ({ onMenuClick }) => {
 
 
   return (
-    <AppBarStyled position="fixed">
+    <AppBarStyled sx={{ backgroundColor: 'gray'}} position="fixed">
       <Toolbar>
         <IconButton edge="start" color="inherit" aria-label="menu" onClick={onMenuClick}>
           <MenuIcon />
         </IconButton>
-        <Typography variant="h6">ADHUNIK YANTRA UDYOG PVT. LTD.</Typography>
+        <Typography variant="h6">AEROLUBE ENGINEERS</Typography>
       </Toolbar>
     </AppBarStyled>
   );
