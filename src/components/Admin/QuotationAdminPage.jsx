@@ -18,7 +18,7 @@ import API_BASE_URL from "./../../config";
 import { styled } from "@mui/material/styles";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { Download, Menu, Delete, Edit } from "@mui/icons-material";
+import { Download, Menu, Delete, Edit, Send } from "@mui/icons-material";
 import Navbar from "./Navbar";
 import Sidebar from "./Sidebar";
 import axios from "axios";
@@ -47,7 +47,7 @@ const Table = styled("table")(({ theme }) => ({
   borderCollapse: "collapse",
   "& th, & td": {
     padding: theme.spacing(1),
-    textAlign: "left",
+    // textAlign: "left",
     borderBottom: `1px solid ${theme.palette.divider}`,
     fontSize: "1.2rem", // Smaller font for mobile
     fontWeight: "600",
@@ -328,7 +328,7 @@ const QuotationAdminPage = () => {
       <MainContent>
         <ToolbarSpacer />
         <Container>
-          <SectionTitle variant="h4">Quotation List</SectionTitle>
+          <SectionTitle variant="h4">Search By Type</SectionTitle>
           <Card>
             <TextField
               variant="outlined"
@@ -338,7 +338,9 @@ const QuotationAdminPage = () => {
               fullWidth
               sx={{ marginBottom: 2 }} // Margin for better spacing
             />
-            <Typography variant="h6">Quotations</Typography>
+            <Typography sx={{ fontWeight: "bold" }} variant="h4">
+              List Of Exisitings Quotations
+            </Typography>
             <Paper sx={{ overflowX: "auto", mt: 2 }}>
               <Table>
                 <thead>
@@ -350,7 +352,7 @@ const QuotationAdminPage = () => {
                     {window.innerWidth > 600 && <th>Mobile Number</th>}
                     <th>Quotation Amount (Rs)</th>
                     {window.innerWidth > 600 && <th>Engineer</th>}
-                     <th>Status</th>
+                    <th>Status</th>
                     {window.innerWidth > 600 && <th>Quotation Document</th>}
                     {window.innerWidth > 600 && <th>Send</th>}
 
@@ -372,9 +374,13 @@ const QuotationAdminPage = () => {
                           <td>{quotation.quotationNo}</td>
                           <td>{quotation.clientInfo.name}</td>
                           <td>{quotation.clientInfo.contactPerson}</td>
-                         {window.innerWidth > 600 && ( <td>{quotation.clientInfo.phone}</td>)}
+                          {window.innerWidth > 600 && (
+                            <td>{quotation.clientInfo.phone}</td>
+                          )}
                           <td>{quotation.quotationAmount}</td>
-                          {window.innerWidth > 600 && (<td>{quotation.clientInfo.engineer}</td>)}
+                          {window.innerWidth > 600 && (
+                            <td>{quotation.clientInfo.engineer}</td>
+                          )}
 
                           <td>
                             <Button
@@ -386,47 +392,51 @@ const QuotationAdminPage = () => {
                               {quotation.status ? "Complete" : "Pending"}
                             </Button>
                           </td>
-                         {window.innerWidth > 600 && ( <td>
-                            {" "}
-                            <Button
-                              variant="contained"
-                              color="secondary"
-                              onClick={() =>
-                                handleDownloadPDF(quotation.pdfPath)
-                              }
-                              size="small"
-                            >
-                              <Download fontSize="small" /> Download
-                            </Button>
-                          </td>)}
-                          {window.innerWidth > 600 && ( <td>
-                            <Button
-                              variant="contained"
-                              color="primary"
-                              onClick={() =>
-                                handleSendPdfToMobile(
-                                  quotation.pdfPath,
-                                  quotation.clientInfo?.phone
-                                )
-                              }
-                              size="small"
-                            >
-                              Send
-                            </Button>
-                          </td>)}
+                          {window.innerWidth > 600 && (
+                            <td>
+                              {" "}
+                              <IconButton
+                                variant="contained"
+                                color="secondary"
+                                onClick={() =>
+                                  handleDownloadPDF(quotation.pdfPath)
+                                }
+                                size="small"
+                              >
+                                <Download fontSize="small" />
+                              </IconButton>
+                            </td>
+                          )}
+                          {window.innerWidth > 600 && (
+                            <td>
+                              <IconButton
+                                variant="contained"
+                                color="primary"
+                                onClick={() =>
+                                  handleSendPdfToMobile(
+                                    quotation.pdfPath,
+                                    quotation.clientInfo?.phone
+                                  )
+                                }
+                                size="small"
+                              >
+                                <Send fontSize="small" />
+                              </IconButton>
+                            </td>
+                          )}
 
                           {/* Hide this column on mobile */}
                           {window.innerWidth > 600 && (
                             <td>
-                              <Button
+                              <IconButton
                                 variant="contained"
                                 color="primary"
                                 onClick={() => openModal(quotation)}
                                 size="small"
                               >
-                                <Edit fontSize="small" /> Edit
-                              </Button>
-                              <Button
+                                <Edit fontSize="small" />
+                              </IconButton>
+                              <IconButton
                                 variant="contained"
                                 color="error"
                                 onClick={() =>
@@ -434,67 +444,74 @@ const QuotationAdminPage = () => {
                                 }
                                 size="small"
                               >
-                                <Delete fontSize="small" /> Delete
-                              </Button>
+                                <Delete fontSize="small" />
+                              </IconButton>
                             </td>
                           )}
                         </tr>
                         {expandedRows.includes(index) && (
                           <tr>
-                            <td colSpan="5">
-                              <div>
+                            <td style={{ textAlign: "start" }} colSpan="5">
+                              <div style={{ padding: "16px" }}>
                                 <strong>Mobile Number:</strong>{" "}
-                                {quotation.clientInfo.phone} <br />
+                                {quotation.clientInfo.phone}
+                                <br />
                                 <strong>Engineer:</strong>{" "}
                                 {quotation.clientInfo.engineer}
                                 <br />
                                 <br />
-
                                 <strong>Quotation Document:</strong>{" "}
                                 <Button
-                            variant="contained"
-                            color="secondary"
-                            onClick={() => handleDownloadPDF(quotation.pdfPath)}
-                            size="small"
-                          >
-                            <Download fontSize="small" /> Download
-                          </Button>
-
+                                  variant="contained"
+                                  color="secondary"
+                                  onClick={() =>
+                                    handleDownloadPDF(quotation.pdfPath)
+                                  }
+                                  size="small"
+                                  sx={{ mb: 2 }} // Adds margin-bottom for spacing
+                                >
+                                  <Download fontSize="small" /> Download
+                                </Button>
                                 <br />
                                 <br />
                                 <strong>Send Pdf to Client:</strong>{" "}
                                 <Button
-                            variant="contained"
-                            color="primary"
-                            onClick={() => handleSendPdfToMobile(quotation.pdfPath, quotation.clientInfo?.phone)}
-                            size="small"
-                          >
-                            Send
-                          </Button>
-                        
-
+                                  variant="contained"
+                                  color="primary"
+                                  onClick={() =>
+                                    handleSendPdfToMobile(
+                                      quotation.pdfPath,
+                                      quotation.clientInfo?.phone
+                                    )
+                                  }
+                                  size="small"
+                                  sx={{ mb: 2 }} // Adds margin-bottom for spacing
+                                >
+                                  Send
+                                </Button>
                                 <br />
                                 <br />
-                                
                                 <strong>Edit/Delete Quotation:</strong>{" "}
                                 <Button
-                                variant="contained"
-                                color="primary"
-                                onClick={() => openModal(quotation)}
-                                size="small"
-                              >
-                                <Edit fontSize="small" /> Edit
-                              </Button>
-                              <Button
-                                variant="contained"
-                                color="error"
-                                onClick={() =>
-                                  handleDeleteQuotation(quotation._id)
-                                }
-                                size="small"
-                              >
-                                <Delete fontSize="small" /> Delete
-                              </Button>
+                                  variant="contained"
+                                  color="primary"
+                                  onClick={() => openModal(quotation)}
+                                  size="small"
+                                  sx={{ mb: 1 }} // Adds margin-bottom for spacing
+                                >
+                                  <Edit fontSize="small" /> Edit
+                                </Button>
+                                <Button
+                                  variant="contained"
+                                  color="error"
+                                  onClick={() =>
+                                    handleDeleteQuotation(quotation._id)
+                                  }
+                                  size="small"
+                                  sx={{ mb: 1 }} // Adds margin-bottom for spacing
+                                >
+                                  <Delete fontSize="small" /> Delete
+                                </Button>
                               </div>
                             </td>
                           </tr>
@@ -538,66 +555,89 @@ const QuotationAdminPage = () => {
                 Next
               </Button>
             </Box>
-
           </Card>
-         
-        {/* Modal */}
-        <Modal open={modalOpen} onClose={closeModal}>
-          <Box sx={{ width: 400, padding: 3, margin: "auto", mt: "20vh", backgroundColor: "white", borderRadius: "8px" }}>
-            <Typography variant="h6" sx={{ mb: 2 }}>
-              {currentQuotation ? "Edit Quotation" : "Add Quotation"}
-            </Typography>
-            <form onSubmit={handleFormSubmit}>
-              <TextField
-                label="Quotation No"
-                value={formData.quotationNo}
-                onChange={(e) => setFormData({ ...formData, quotationNo: e.target.value })}
-                fullWidth
-                required
-                sx={{ mb: 2 }}
-              />
-              <TextField
-                label="Client Name"
-                value={formData.clientName}
-                onChange={(e) => setFormData({ ...formData, clientName: e.target.value })}
-                fullWidth
-                required
-                sx={{ mb: 2 }}
-              />
-              <TextField
-                label="Contact Person"
-                value={formData.contactPerson}
-                onChange={(e) => setFormData({ ...formData, contactPerson: e.target.value })}
-                fullWidth
-                required
-                sx={{ mb: 2 }}
-              />
-              <TextField
-                label="Mobile Number"
-                value={formData.phone}
-                onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                fullWidth
-                required
-                sx={{ mb: 2 }}
-              />
-              <TextField
-                label="Quotation Amount (Rs)"
-                type="number"
-                value={formData.amount}
-                onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
-                fullWidth
-                required
-                sx={{ mb: 2 }}
-              />
-              <Button type="submit" variant="contained" color="primary">
-                {currentQuotation ? "Update" : "Add"}
-              </Button>
-              <Button onClick={closeModal} variant="outlined" color="secondary" sx={{ ml: 2 }}>
-                Cancel
-              </Button>
-            </form>
-          </Box>
-        </Modal>
+
+          {/* Modal */}
+          <Modal open={modalOpen} onClose={closeModal}>
+            <Box
+              sx={{
+                width: 400,
+                padding: 3,
+                margin: "auto",
+                mt: "20vh",
+                backgroundColor: "white",
+                borderRadius: "8px",
+              }}
+            >
+              <Typography variant="h6" sx={{ mb: 2 }}>
+                {currentQuotation ? "Edit Quotation" : "Add Quotation"}
+              </Typography>
+              <form onSubmit={handleFormSubmit}>
+                <TextField
+                  label="Quotation No"
+                  value={formData.quotationNo}
+                  onChange={(e) =>
+                    setFormData({ ...formData, quotationNo: e.target.value })
+                  }
+                  fullWidth
+                  required
+                  sx={{ mb: 2 }}
+                />
+                <TextField
+                  label="Client Name"
+                  value={formData.clientName}
+                  onChange={(e) =>
+                    setFormData({ ...formData, clientName: e.target.value })
+                  }
+                  fullWidth
+                  required
+                  sx={{ mb: 2 }}
+                />
+                <TextField
+                  label="Contact Person"
+                  value={formData.contactPerson}
+                  onChange={(e) =>
+                    setFormData({ ...formData, contactPerson: e.target.value })
+                  }
+                  fullWidth
+                  required
+                  sx={{ mb: 2 }}
+                />
+                <TextField
+                  label="Mobile Number"
+                  value={formData.phone}
+                  onChange={(e) =>
+                    setFormData({ ...formData, phone: e.target.value })
+                  }
+                  fullWidth
+                  required
+                  sx={{ mb: 2 }}
+                />
+                <TextField
+                  label="Quotation Amount (Rs)"
+                  type="number"
+                  value={formData.amount}
+                  onChange={(e) =>
+                    setFormData({ ...formData, amount: e.target.value })
+                  }
+                  fullWidth
+                  required
+                  sx={{ mb: 2 }}
+                />
+                <Button type="submit" variant="contained" color="primary">
+                  {currentQuotation ? "Update" : "Add"}
+                </Button>
+                <Button
+                  onClick={closeModal}
+                  variant="outlined"
+                  color="secondary"
+                  sx={{ ml: 2 }}
+                >
+                  Cancel
+                </Button>
+              </form>
+            </Box>
+          </Modal>
 
           <ToastContainer />
         </Container>

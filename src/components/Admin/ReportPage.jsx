@@ -4,17 +4,15 @@ import {
   Container,
   Typography,
   Paper,
-  TextField,
-  Button,
   MenuItem,
   Select,
   FormControl,
   InputLabel,
+  Grid,
 } from '@mui/material';
 import Navbar from './Navbar';
 import Sidebar from './Sidebar';
 import { Line } from 'react-chartjs-2';
-import { Bar } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
   LineElement,
@@ -27,22 +25,48 @@ import {
   BarElement,
   CategoryScale,
 } from 'chart.js';
+import Footer from '../Footer';
 
 ChartJS.register(LineElement, PointElement, LinearScale, Title, Tooltip, Legend, Filler, BarElement, CategoryScale);
 
 const ReportPage = () => {
   const [quotationData, setQuotationData] = useState([]);
-  const [dailyData, setDailyData] = useState({ labels: [], amounts: [], counts: [] });
-  const [appointmentData, setAppointmentData] = useState({ statistics: {}, accountantCount: 0 });
-  const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
-  const [dailyQuotationAmount, setDailyQuotationAmount] = useState(0);
-  const [dailyQuotationCount, setDailyQuotationCount] = useState(0);
-  const [timeRange, setTimeRange] = useState(7); // Default to 7 days
+  const [dailyData, setDailyData] = useState({ labels: [], amounts: [], completedAmounts: [] });
+  const [engineerData, setEngineerData] = useState({ labels: [], amounts: [], completedAmounts: [] });
+  const [timeRange, setTimeRange] = useState(7);
+  const [engineerTimeRange, setEngineerTimeRange] = useState(7);
+  const [selectedEngineer, setSelectedEngineer] = useState('');
+  const [engineers, setEngineers] = useState([]);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const token = localStorage.getItem("token");
 
   const handleToggleSidebar = () => {
     setDrawerOpen((prev) => !prev);
+  };
+
+  const fetchEngineers = async () => {
+    try {
+      const response = await fetch('http://localhost:5000/api/users/engineers/', {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch engineers");
+      }
+
+      const data = await response.json();
+      setEngineers(data);
+      if (data.length > 0) {
+        setSelectedEngineer(data[0]._id);
+        fetchEngineerQuotations(data[0]._id, engineerTimeRange);
+      }
+    } catch (error) {
+      console.error("Error fetching engineers:", error);
+    }
   };
 
   const fetchQuotations = async () => {
@@ -61,131 +85,192 @@ const ReportPage = () => {
 
       const data = await response.json();
       setQuotationData(data);
-      processDailyData(data); // Process data after fetching
+      processDailyData(data, timeRange);
     } catch (error) {
       console.error("Error fetching quotations:", error);
     }
   };
 
-  const fetchAppointments = async () => {
+  const fetchEngineerQuotations = async (engineerId, range) => {
     try {
-      const response = await fetch('http://localhost:5000/api/appointments/statistics', {
+      const response = await fetch(`http://localhost:5000/api/quotations/engineer/${engineerId}`, {
         method: "GET",
         headers: {
-          Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
       });
 
       if (!response.ok) {
-        throw new Error("Failed to fetch appointment statistics");
+        throw new Error("Failed to fetch engineer quotations");
       }
 
       const data = await response.json();
-      console.log("Fetched Appointment Data:", data);
-      setAppointmentData(data);
+      processEngineerData(data, range);
     } catch (error) {
-      console.error("Error fetching appointment statistics:", error);
+      console.error("Error fetching engineer quotations:", error);
     }
   };
 
-  const processDailyData = (quotations) => {
+  const processDailyData = (quotations, range) => {
     const amounts = {};
-    const counts = {};
+    const completedAmounts = {};
     const today = new Date();
     const startDate = new Date(today);
-    startDate.setDate(today.getDate() - timeRange);
+    startDate.setDate(today.getDate() - range);
 
-    for (let i = 0; i <= timeRange; i++) {
+    for (let i = 0; i <= range; i++) {
       const date = new Date(startDate);
       date.setDate(startDate.getDate() + i);
       amounts[date.toDateString()] = 0;
-      counts[date.toDateString()] = 0;
+      completedAmounts[date.toDateString()] = 0;
     }
 
     quotations.forEach(quotation => {
       const createdOn = new Date(quotation.generatedOn);
       if (createdOn >= startDate && createdOn <= today) {
         amounts[createdOn.toDateString()] += quotation.quotationAmount || 0;
-        counts[createdOn.toDateString()] += 1;
+
+        if (quotation.status === true && quotation.statusChangedOn) {
+          const statusChangedOn = new Date(quotation.statusChangedOn);
+          if (statusChangedOn >= startDate && statusChangedOn <= today) {
+            completedAmounts[statusChangedOn.toDateString()] += quotation.quotationAmount || 0;
+          }
+        }
       }
     });
 
     const labels = [];
     const dataAmounts = [];
-    const dataCounts = [];
+    const dataCompletedAmounts = [];
 
-    for (let i = 0; i <= timeRange; i++) {
+    for (let i = 0; i <= range; i++) {
       const date = new Date(startDate);
       date.setDate(startDate.getDate() + i);
       labels.push(date.toDateString());
       dataAmounts.push(amounts[date.toDateString()]);
-      dataCounts.push(counts[date.toDateString()]);
+      dataCompletedAmounts.push(completedAmounts[date.toDateString()]);
     }
 
     setDailyData({
       labels,
       amounts: dataAmounts,
-      counts: dataCounts,
+      completedAmounts: dataCompletedAmounts,
     });
   };
 
-  const handleDateChange = (event) => {
-    setSelectedDate(event.target.value);
+  const processEngineerData = (quotations, range) => {
+    const amounts = {};
+    const completedAmounts = {};
+    const today = new Date();
+    const startDate = new Date(today);
+    startDate.setDate(today.getDate() - range);
+
+    for (let i = 0; i <= range; i++) {
+      const date = new Date(startDate);
+      date.setDate(startDate.getDate() + i);
+      amounts[date.toDateString()] = 0;
+      completedAmounts[date.toDateString()] = 0;
+    }
+
+    quotations.forEach(quotation => {
+      const createdOn = new Date(quotation.generatedOn);
+      if (createdOn >= startDate && createdOn <= today) {
+        amounts[createdOn.toDateString()] += quotation.quotationAmount || 0;
+
+        if (quotation.status === true && quotation.statusChangedOn) {
+          const statusChangedOn = new Date(quotation.statusChangedOn);
+          if (statusChangedOn >= startDate && statusChangedOn <= today) {
+            completedAmounts[statusChangedOn.toDateString()] += quotation.quotationAmount || 0;
+          }
+        }
+      }
+    });
+
+    const labels = [];
+    const dataAmounts = [];
+    const dataCompletedAmounts = [];
+
+    for (let i = 0; i <= range; i++) {
+      const date = new Date(startDate);
+      date.setDate(startDate.getDate() + i);
+      labels.push(date.toDateString());
+      dataAmounts.push(amounts[date.toDateString()]);
+      dataCompletedAmounts.push(completedAmounts[date.toDateString()]);
+    }
+
+    setEngineerData({
+      labels,
+      amounts: dataAmounts,
+      completedAmounts: dataCompletedAmounts,
+    });
+  };
+
+  const handleEngineerChange = (event) => {
+    const engineerId = event.target.value;
+    setSelectedEngineer(engineerId);
+    fetchEngineerQuotations(engineerId, engineerTimeRange); // Fetch with current time range
   };
 
   const handleTimeRangeChange = (event) => {
     const newTimeRange = event.target.value;
     setTimeRange(newTimeRange);
-    processDailyData(quotationData);
+    processDailyData(quotationData, newTimeRange); // Update with new time range
   };
 
-  const checkDailyQuotations = () => {
-    const date = new Date(selectedDate);
-    let totalAmount = 0;
-    let totalCount = 0;
-
-    quotationData.forEach(quotation => {
-      const createdOn = new Date(quotation.generatedOn);
-      if (createdOn.toDateString() === date.toDateString()) {
-        totalAmount += quotation.quotationAmount || 0;
-        totalCount += 1;
-      }
-    });
-
-    setDailyQuotationAmount(totalAmount);
-    setDailyQuotationCount(totalCount);
+  const handleEngineerTimeRangeChange = (event) => {
+    const newTimeRange = event.target.value;
+    setEngineerTimeRange(newTimeRange);
+    if (selectedEngineer) {
+      fetchEngineerQuotations(selectedEngineer, newTimeRange); // Pass the new time range
+    }
   };
 
   useEffect(() => {
     fetchQuotations();
-    fetchAppointments();
+    fetchEngineers();
   }, [token]);
-
-  useEffect(() => {
-    if (quotationData.length > 0) {
-      processDailyData(quotationData);
-    }
-  }, [quotationData, timeRange]);
 
   const chartData = {
     labels: dailyData.labels,
     datasets: [
       {
-        label: 'Total Amount (Day-wise)',
+        label: 'Total Quotation Amount',
         data: dailyData.amounts,
-        fill: false,
-        backgroundColor: '#4caf50',
+        fill: true,
+        backgroundColor: 'rgba(76, 175, 80, 0.2)',
         borderColor: '#4caf50',
-        yAxisID: 'y1',
+        borderWidth: 2,
       },
       {
-        label: 'Total Quotations (Count)',
-        data: dailyData.counts,
-        fill: false,
-        backgroundColor: '#2196F3',
+        label: 'Completed Quotation Amount',
+        data: dailyData.completedAmounts,
+        fill: true,
+        backgroundColor: 'rgba(33, 150, 243, 0.2)',
         borderColor: '#2196F3',
-        yAxisID: 'y2',
+        borderWidth: 2,
+      },
+    ],
+  };
+
+  const engineerChartData = {
+    labels: engineerData.labels,
+    datasets: [
+      {
+        label: 'Total Quotation Amount for Selected Engineer',
+        data: engineerData.amounts,
+        fill: true,
+        backgroundColor: 'rgba(244, 67, 54, 0.2)',
+        borderColor: '#f44336',
+        borderWidth: 2,
+      },
+      {
+        label: 'Completed Quotation Amount for Selected Engineer',
+        data: engineerData.completedAmounts,
+        fill: true,
+        backgroundColor: 'rgba(63, 81, 181, 0.2)',
+        borderColor: '#3f51b5',
+        borderWidth: 2,
       },
     ],
   };
@@ -193,56 +278,9 @@ const ReportPage = () => {
   const options = {
     responsive: true,
     maintainAspectRatio: false,
-    scales: {
-      y1: { type: 'linear', position: 'left' },
-      y2: {
-        type: 'linear',
-        position: 'right',
-        grid: { drawOnChartArea: false },
-      },
-    },
-  };
-
-  const appointmentLabels = [];
-  const appointmentAmounts = [];
-  const appointmentCounts = [];
-
-  for (const [id, stat] of Object.entries(appointmentData.statistics)) {
-    appointmentLabels.push(stat.engineerName);
-    appointmentAmounts.push(stat.totalAmount || 0);
-    appointmentCounts.push(stat.appointmentCount || 0);
-  }
-
-  const accountantCount = appointmentData.accountantCount || 0;
-
-  const appointmentChartData = {
-    labels: appointmentLabels,
-    datasets: [
-      {
-        label: 'Invoice Amount',
-        data: appointmentAmounts,
-        backgroundColor: '#FF6384',
-        yAxisID: 'y1',
-      },
-      {
-        label: 'Invoice Count',
-        data: appointmentCounts,
-        backgroundColor: '#36A2EB',
-        yAxisID: 'y',
-      },
-    ],
-  };
-
-  const appointmentOptions = {
-    responsive: true,
-    maintainAspectRatio: false,
-    scales: {
-      y: { beginAtZero: true, title: { display: true, text: 'Invoice Count' } },
-      y1: {
-        beginAtZero: true,
-        position: 'right',
-        title: { display: true, text: 'Total Amount' },
-        grid: { drawOnChartArea: false },
+    plugins: {
+      legend: {
+        position: 'top',
       },
     },
   };
@@ -253,61 +291,75 @@ const ReportPage = () => {
       <Box sx={{ display: 'flex', flex: 1 }}>
         <Sidebar open={drawerOpen} onClose={handleToggleSidebar} />
         <Container sx={{ flex: 1, padding: 2 }}>
-          <Typography variant="h4" sx={{ mb: 4 }}>Daily Quotation Report</Typography>
+          <Grid container spacing={4}>
+            <Grid item xs={12}>
+              <Paper sx={{ padding: 3, mt: 9 }}>
+                <Typography variant="h6">Quotation Amounts by Day</Typography>
+                <FormControl variant="outlined" sx={{ mb: 2, minWidth: 120 }}>
+                  <InputLabel id="time-range-label">Time Range</InputLabel>
+                  <Select
+                    labelId="time-range-label"
+                    value={timeRange}
+                    onChange={handleTimeRangeChange}
+                    label="Time Range"
+                  >
+                    <MenuItem value={7}>Last 7 Days</MenuItem>
+                    <MenuItem value={15}>Last 15 Days</MenuItem>
+                    <MenuItem value={30}>Last 30 Days</MenuItem>
+                    <MenuItem value={60}>Last 60 Days</MenuItem>
+                    <MenuItem value={90}>Last 90 Days</MenuItem>
+                    <MenuItem value={365}>Last Year</MenuItem>
+                  </Select>
+                </FormControl>
+                <Box sx={{ height: 300 }}>
+                  <Line data={chartData} options={options} />
+                </Box>
+              </Paper>
+            </Grid>
 
-          <Paper sx={{ padding: 3, overflow: 'hidden' }}>
-            <Typography variant="h6">Quotations Generated Amount and Count by Day</Typography>
-            <FormControl variant="outlined" sx={{ mb: 2, minWidth: 120 }}>
-              <InputLabel id="time-range-label">Time Range</InputLabel>
-              <Select
-                labelId="time-range-label"
-                value={timeRange}
-                onChange={handleTimeRangeChange}
-                label="Time Range"
-              >
-                <MenuItem value={7}>Last 7 Days</MenuItem>
-                <MenuItem value={15}>Last 15 Days</MenuItem>
-                <MenuItem value={30}>Last 30 Days</MenuItem>
-                <MenuItem value={60}>Last 60 Days</MenuItem>
-                <MenuItem value={90}>Last 90 Days</MenuItem>
-                <MenuItem value={365}>Last Year</MenuItem>
-              </Select>
-            </FormControl>
-            <Box sx={{ height: 300, position: 'relative' }}>
-              <Line data={chartData} options={options} />
-            </Box>
-          </Paper>
-
-          {/* <Box sx={{ mt: 4 }}>
-            <Typography variant="h6">Check Quotations on a Specific Date</Typography>
-            <TextField
-              type="date"
-              value={selectedDate}
-              onChange={handleDateChange}
-              sx={{ mr: 2 }}
-            />
-            <Button variant="contained" onClick={checkDailyQuotations}>Check Amount</Button>
-            <Typography variant="body1" sx={{ mt: 2 }}>
-              Total Quotations Generated on {selectedDate}: {dailyQuotationCount} (Total Amount: {dailyQuotationAmount})
-            </Typography>
-          </Box> */}
-
-          {/* Appointment Statistics Chart */}
-          <Paper sx={{ padding: 3, mt: 4 }}>
-            <Typography variant="h6">Invoice Statistics</Typography>
-            <Box sx={{ height: 300, position: 'relative' }}>
-              {appointmentLabels.length > 0 ? (
-                <Bar data={appointmentChartData} options={appointmentOptions} />
-              ) : (
-                <Typography>No invoice statistics available.</Typography>
-              )}
-            </Box>
-            <Typography variant="body1" sx={{ mt: 2 }}>
-              Total Accountants: {accountantCount}
-            </Typography>
-          </Paper>
+            <Grid item xs={12}>
+              <Paper sx={{ padding: 3, mt: 2 }}>
+                <Typography variant="h6">Select Engineer</Typography>
+                <FormControl variant="outlined" sx={{ mb: 2, minWidth: 120 }}>
+                  <InputLabel id="engineer-select-label">Engineer</InputLabel>
+                  <Select
+                    labelId="engineer-select-label"
+                    value={selectedEngineer}
+                    onChange={handleEngineerChange}
+                    label="Engineer"
+                  >
+                    {engineers.map((engineer) => (
+                      <MenuItem key={engineer._id} value={engineer._id}>
+                        {engineer.name}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+                <FormControl variant="outlined" sx={{ mb: 2, minWidth: 120 }}>
+                  <InputLabel id="engineer-time-range-label">Time Range</InputLabel>
+                  <Select
+                    labelId="engineer-time-range-label"
+                    value={engineerTimeRange}
+                    onChange={handleEngineerTimeRangeChange}
+                    label="Time Range"
+                  >
+                    <MenuItem value={7}>Last 7 Days</MenuItem>
+                    <MenuItem value={15}>Last 15 Days</MenuItem>
+                    <MenuItem value={30}>Last 30 Days</MenuItem>
+                    <MenuItem value={60}>Last 60 Days</MenuItem>
+                    <MenuItem value={90}>Last 90 Days</MenuItem>
+                    <MenuItem value={365}>Last Year</MenuItem>
+                  </Select>
+                </FormControl>
+                <Box sx={{ height: 300 }}>
+                  <Line data={engineerChartData} options={options} />
+                </Box>
+              </Paper>
+            </Grid>
+          </Grid>
         </Container>
       </Box>
+      <Footer />
     </Box>
   );
 };

@@ -8,6 +8,7 @@ import {
   Button,
   TextField,
   TablePagination,
+  IconButton,
 } from '@mui/material';
 import API_BASE_URL from './../../config';
 import { styled } from '@mui/material/styles';
@@ -15,7 +16,7 @@ import Navbar from './Navbar';
 import Sidebar from './Sidebar';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-
+import { Edit, Delete } from '@mui/icons-material';
 const MainContent = styled('main')(({ theme }) => ({
   flexGrow: 1,
   padding: theme.spacing(3),
@@ -41,7 +42,7 @@ const Table = styled('table')(({ theme }) => ({
   borderCollapse: 'collapse',
   '& th, & td': {
     padding: theme.spacing(1),
-    textAlign: 'left',
+    // textAlign: 'left',
     borderBottom: `1px solid ${theme.palette.divider}`,
     fontSize: '1.2rem',
     fontWeight: '600',
@@ -226,11 +227,11 @@ const ClientPage = () => {
       <MainContent>
         <ToolbarSpacer />
         <Container>
-          <SectionTitle variant="h4">Client List</SectionTitle>
+          <SectionTitle variant="h4">Search By Type</SectionTitle>
 
           {/* Search Box */}
           <TextField
-            label="Search"
+            label="Name Email Mobile Number"
             variant="outlined"
             fullWidth
             onChange={(e) => setSearchQuery(e.target.value)}
@@ -286,7 +287,7 @@ const ClientPage = () => {
           )}
 
           <Card>
-            <Typography variant="h6">Clients</Typography>
+            <Typography sx={{fontWeight: "bold"}} variant="h4">List Of All Existing Clients</Typography>
             <Paper sx={{ overflowX: 'auto', mt: 2 }}>
               <Table>
                 <thead>
@@ -296,7 +297,8 @@ const ClientPage = () => {
                     <th>Contact Person</th>
                     <th>Mobile Number</th>
                     <th>Address</th>
-                    <th>Actions</th>
+                    <th>Edit</th>
+                    <th>Delete</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -308,12 +310,15 @@ const ClientPage = () => {
                       <td>{client.mobileNo}</td>
                       <td>{client.clientAddress}</td>
                       <td>
-                        <Button variant="contained" color="secondary" sx={{ mr: 1 }} onClick={() => handleEdit(client)}>
-                          Edit
-                        </Button>
-                        <Button variant="outlined" color="error" onClick={() => handleDelete(client._id)}>
-                          Delete
-                        </Button>
+                        <IconButton variant="contained" color="secondary" sx={{ mr: 1 }} onClick={() => handleEdit(client)}>
+                          <Edit fontSize="small" />
+                        </IconButton>
+                      
+                      </td>
+                      <td>
+                      <IconButton variant="outlined" color="error" onClick={() => handleDelete(client._id)}>
+                          <Delete fontSize="small" />
+                        </IconButton>
                       </td>
                     </tr>
                   ))}

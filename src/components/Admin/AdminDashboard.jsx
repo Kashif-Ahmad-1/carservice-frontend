@@ -489,8 +489,8 @@ const AdminDashboard = () => {
             {recentActivities.length > 0 ? (
               recentActivities.map((activity, index) => (
                 <Grid item xs={12} sm={6} md={4} key={index}>
-                  <RecentActivityCard>
-                    <CardHeaderStyled>
+                  <RecentActivityCard >
+                    <CardHeaderStyled sx={{backgroundColor: "green"}}>
                       New Service Request by {activity.accountant}
                     </CardHeaderStyled>
                     <Paper sx={{ p: 2, textAlign: "center" }}>
