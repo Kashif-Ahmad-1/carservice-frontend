@@ -7,6 +7,7 @@ import {
   Typography,
   Button,
   TextField,
+  IconButton,
 } from '@mui/material';
 import API_BASE_URL from './../../config';
 import { styled } from '@mui/material/styles';
@@ -14,7 +15,7 @@ import Navbar from './Navbar';
 import Sidebar from './Sidebar';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-
+import { Edit, Delete } from '@mui/icons-material';
 const MainContent = styled('main')(({ theme }) => ({
   flexGrow: 1,
   padding: theme.spacing(3),
@@ -40,7 +41,7 @@ const Table = styled('table')(({ theme }) => ({
   borderCollapse: 'collapse',
   '& th, & td': {
     padding: theme.spacing(1),
-    textAlign: 'left',
+    // textAlign: 'left',
     borderBottom: `1px solid ${theme.palette.divider}`,
     fontSize: '1.2rem',
     fontWeight: '600',
@@ -223,11 +224,11 @@ const MachinePage = () => {
       <MainContent>
         <ToolbarSpacer />
         <Container>
-          <SectionTitle variant="h4">Machine List</SectionTitle>
+          <SectionTitle variant="h4">Search By Type</SectionTitle>
 
           {/* Search Box */}
           <TextField
-            label="Search"
+            label="Machine Model Part No."
             variant="outlined"
             fullWidth
             onChange={(e) => setSearchQuery(e.target.value)}
@@ -278,7 +279,7 @@ const MachinePage = () => {
           )}
 
           <Card>
-            <Typography variant="h6">Machines</Typography>
+            <Typography sx={{fontWeight: "bold"}} variant="h4">List Of All Existings Machine</Typography>
             <Paper sx={{ overflowX: 'auto', mt: 2 }}>
               <Table>
                 <thead>
@@ -287,7 +288,8 @@ const MachinePage = () => {
                     <th>Machine Name</th>
                     <th>Model No.</th>
                     <th>Part No.</th>
-                    <th>Actions</th>
+                    <th>Edit</th>
+                    <th>Delete</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -298,12 +300,17 @@ const MachinePage = () => {
                       <td>{machine.modelNo}</td>
                       <td>{machine.partNo}</td>
                       <td>
-                        <Button variant="contained" color="secondary" sx={{ mr: 1 }} onClick={() => handleEdit(machine)}>
-                          Edit
-                        </Button>
-                        <Button variant="outlined" color="error" onClick={() => handleDelete(machine._id)}>
-                          Delete
-                        </Button>
+                        <IconButton variant="contained" color="secondary" sx={{ mr: 1 }} onClick={() => handleEdit(machine)}>
+                          <Edit fontSize='small'/>
+                        </IconButton>
+                       
+                      </td>
+                      <td>
+                       
+                        <IconButton variant="outlined" color="error" onClick={() => handleDelete(machine._id)}>
+                          <Delete fontSize='small'/>
+                        </IconButton>
+                        
                       </td>
                     </tr>
                   ))}

@@ -15,6 +15,7 @@ import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import API_BASE_URL from './../../config';
 
+
 const MainContent = styled('main')(({ theme }) => ({
   flexGrow: 1,
   padding: theme.spacing(3),
@@ -40,7 +41,7 @@ const Table = styled('table')(({ theme }) => ({
   borderCollapse: 'collapse',
   '& th, & td': {
     padding: theme.spacing(1),
-    textAlign: 'left',
+    // textAlign: 'left',
     borderBottom: `1px solid ${theme.palette.divider}`,
     fontSize: '1.2rem',
     fontWeight: '600',
@@ -220,11 +221,11 @@ const AccountantPage = () => {
       <MainContent>
         <ToolbarSpacer />
         <Container>
-          <SectionTitle variant="h4">Accountant List</SectionTitle>
+          <SectionTitle variant="h4">Search By Type</SectionTitle>
           
           {/* Search Box */}
           <TextField
-            label="Search"
+            label="Name, Email, Mobile Number"
             variant="outlined"
             fullWidth
             onChange={(e) => setSearchQuery(e.target.value)}
@@ -293,7 +294,7 @@ const AccountantPage = () => {
           )}
 
           <Card>
-            <Typography variant="h6">Accountants</Typography>
+            <Typography sx={{fontWeight: "bold"}} variant="h4">List Of All Existing Accountants</Typography>
             <Paper sx={{ overflowX: 'auto', mt: 2 }}>
               <Table>
                 <thead>
@@ -338,10 +339,15 @@ const AccountantPage = () => {
               </Table>
             </Paper>
           </Card>
+          
         </Container>
+    
       </MainContent>
+     
       <ToastContainer />
+      
     </Box>
+    
   );
 };
 

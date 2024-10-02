@@ -11,16 +11,16 @@ import {
   Toolbar,
   IconButton,
   TextField,
- Modal,
+  Modal,
 } from "@mui/material";
 import MessageTemplate from "../MessageTemplate";
-import API_BASE_URL from './../../config';
+import API_BASE_URL from "./../../config";
 import { styled } from "@mui/material/styles";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { Download, Menu ,Delete,Edit} from "@mui/icons-material";
-import Navbar from './Navbar';
-import Sidebar from './Sidebar';
+import { Download, Menu, Delete, Edit, Send } from "@mui/icons-material";
+import Navbar from "./Navbar";
+import Sidebar from "./Sidebar";
 import axios from "axios";
 const MainContent = styled("main")(({ theme }) => ({
   flexGrow: 1,
@@ -47,14 +47,13 @@ const Table = styled("table")(({ theme }) => ({
   borderCollapse: "collapse",
   "& th, & td": {
     padding: theme.spacing(1),
-    textAlign: "left",
+    // textAlign: "left",
     borderBottom: `1px solid ${theme.palette.divider}`,
     fontSize: "1.2rem", // Smaller font for mobile
     fontWeight: "600",
   },
   "& th": {
     backgroundColor: theme.palette.grey[200],
-    
   },
 }));
 
@@ -68,6 +67,7 @@ const QuotationAdminPage = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [currentQuotation, setCurrentQuotation] = useState(null);
+  const [expandedRows, setExpandedRows] = useState([]);
   const [formData, setFormData] = useState({
     quotationNo: "",
     clientName: "",
@@ -76,8 +76,8 @@ const QuotationAdminPage = () => {
     amount: "",
     status: false,
   });
- // Function to toggle the sidebar visibility
- const handleToggleSidebar = () => {
+  // Function to toggle the sidebar visibility
+  const handleToggleSidebar = () => {
     setSidebarOpen((prev) => !prev);
   };
 
@@ -108,8 +108,6 @@ const QuotationAdminPage = () => {
     setCurrentPage(1); // Reset to first page on search
   }, [searchTerm, quotations]);
 
- 
-
   const fetchQuotations = async () => {
     try {
       const token = localStorage.getItem("token");
@@ -134,7 +132,9 @@ const QuotationAdminPage = () => {
 
       const data = await response.json();
       const validData = data.filter((quotation) => quotation.clientInfo);
-      validData.sort((a, b) => new Date(b.generatedOn) - new Date(a.generatedOn));
+      validData.sort(
+        (a, b) => new Date(b.generatedOn) - new Date(a.generatedOn)
+      );
       setQuotations(validData);
     } catch (error) {
       toast.error(error.message || "Error fetching quotations!");
@@ -197,7 +197,9 @@ const QuotationAdminPage = () => {
         throw new Error("Failed to save quotation");
       }
 
-      toast.success(`Quotation ${currentQuotation ? "updated" : "added"} successfully!`);
+      toast.success(
+        `Quotation ${currentQuotation ? "updated" : "added"} successfully!`
+      );
       fetchQuotations();
       closeModal();
     } catch (error) {
@@ -253,20 +255,24 @@ const QuotationAdminPage = () => {
     }
   };
 
-
   const handleDeleteQuotation = async (quotationId) => {
-    const confirmDelete = window.confirm("Are you sure you want to delete this quotation?");
+    const confirmDelete = window.confirm(
+      "Are you sure you want to delete this quotation?"
+    );
     if (!confirmDelete) return;
 
     try {
       const token = localStorage.getItem("token");
-      const response = await fetch(`${API_BASE_URL}/api/quotations/${quotationId}`, {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await fetch(
+        `${API_BASE_URL}/api/quotations/${quotationId}`,
+        {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
       if (!response.ok) {
         throw new Error("Failed to delete quotation");
@@ -281,26 +287,37 @@ const QuotationAdminPage = () => {
 
   const handleSendPdfToMobile = async (pdfUrl, mobileNumber) => {
     try {
-      const whatsappAuth = 'Basic ' + btoa('kashif2789:test@123');
-  
+      const whatsappAuth = "Basic " + btoa("kashif3789:test@123");
+
       // Use the message template function
       const message = MessageTemplate(pdfUrl);
-  
-      const response = await axios.post('https://cors-anywhere.herokuapp.com/https://app.messageautosender.com/api/v1/message/create', {
-        receiverMobileNo: mobileNumber,
-        message: [message]
-      }, {
-        headers: {
-          'Authorization': whatsappAuth,
-          'Content-Type': 'application/json',
+
+      const response = await axios.post(
+        "https://cors-anywhere.herokuapp.com/https://app.messageautosender.com/api/v1/message/create",
+        {
+          receiverMobileNo: mobileNumber,
+          message: [message],
+        },
+        {
+          headers: {
+            Authorization: whatsappAuth,
+            "Content-Type": "application/json",
+          },
         }
-      });
-  
+      );
+
       toast.success("PDF sent to mobile successfully!");
     } catch (error) {
       toast.error("Error sending PDF to mobile!");
       console.error("WhatsApp Error:", error);
     }
+  };
+
+  const handleExpandRow = (index) => {
+    const newExpandedRows = expandedRows.includes(index)
+      ? expandedRows.filter((i) => i !== index)
+      : [...expandedRows, index];
+    setExpandedRows(newExpandedRows);
   };
 
   return (
@@ -309,10 +326,9 @@ const QuotationAdminPage = () => {
       <Navbar onMenuClick={handleDrawerToggle} />
       <Sidebar open={drawerOpen} onClose={handleDrawerToggle} />
       <MainContent>
-      
         <ToolbarSpacer />
         <Container>
-          <SectionTitle variant="h4">Quotation List</SectionTitle>
+          <SectionTitle variant="h4">Search By Type</SectionTitle>
           <Card>
             <TextField
               variant="outlined"
@@ -322,89 +338,189 @@ const QuotationAdminPage = () => {
               fullWidth
               sx={{ marginBottom: 2 }} // Margin for better spacing
             />
-            <Typography variant="h6">Quotations</Typography>
+            <Typography sx={{ fontWeight: "bold" }} variant="h4">
+              List Of Exisitings Quotations
+            </Typography>
             <Paper sx={{ overflowX: "auto", mt: 2 }}>
               <Table>
-                <thead  >
+                <thead>
                   <tr>
                     <th>SR No</th>
                     <th>Quotation No</th>
                     <th>Client</th>
                     <th>Contact Person</th>
-                    <th>Mobile Number</th>
+                    {window.innerWidth > 600 && <th>Mobile Number</th>}
                     <th>Quotation Amount (Rs)</th>
-                    <th>Engineer</th>
-                    <th>Status/Quotation Document</th>
-                    <th>Send</th>
-                    <th>Actions</th> 
+                    {window.innerWidth > 600 && <th>Engineer</th>}
+                    <th>Status</th>
+                    {window.innerWidth > 600 && <th>Quotation Document</th>}
+                    {window.innerWidth > 600 && <th>Send</th>}
+
+                    {/* Hide this column on mobile */}
+                    {window.innerWidth > 600 && <th>Actions</th>}
                   </tr>
                 </thead>
                 <tbody>
                   {currentQuotations.length > 0 ? (
                     currentQuotations.map((quotation, index) => (
-                      <tr key={quotation._id}>
-                        <td>{index + 1 + indexOfFirstQuotation}</td>
-                        <td>{quotation.quotationNo}</td>
-                        <td>{quotation.clientInfo.name}</td>
-                        <td>{quotation.clientInfo.contactPerson}</td>
-                        <td>{quotation.clientInfo.phone}</td>
-                        <td>{quotation.quotationAmount}</td>
-                        <td>{quotation.clientInfo.engineer}</td>
-                        <td>
-                          <Button
-                            variant="contained"
-                            color={quotation.status ? "success" : "warning"}
-                            onClick={() => handleStatusUpdate(quotation)}
-                            size="small"
-                          >
-                            {quotation.status ? "Complete" : "Pending"}
-                          </Button>
-                          <Button
-                            variant="contained"
-                            color="secondary"
-                            onClick={() => handleDownloadPDF(quotation.pdfPath)}
-                            size="small"
-                          >
-                            <Download fontSize="small" /> Download
-                          </Button>
-                        </td>
+                      <React.Fragment key={quotation._id}>
+                        <tr
+                          onClick={() => handleExpandRow(index)}
+                          style={{ cursor: "pointer" }}
+                        >
+                          <td>
+                            {index + 1 + (currentPage - 1) * itemsPerPage}
+                          </td>
+                          <td>{quotation.quotationNo}</td>
+                          <td>{quotation.clientInfo.name}</td>
+                          <td>{quotation.clientInfo.contactPerson}</td>
+                          {window.innerWidth > 600 && (
+                            <td>{quotation.clientInfo.phone}</td>
+                          )}
+                          <td>{quotation.quotationAmount}</td>
+                          {window.innerWidth > 600 && (
+                            <td>{quotation.clientInfo.engineer}</td>
+                          )}
 
-                        <td>
-                          <Button
-                            variant="contained"
-                            color="primary"
-                            onClick={() => handleSendPdfToMobile(quotation.pdfPath, quotation.clientInfo?.phone)}
-                            size="small"
-                          >
-                            Send
-                          </Button>
-                        </td>
+                          <td>
+                            <Button
+                              variant="contained"
+                              color={quotation.status ? "success" : "warning"}
+                              onClick={() => handleStatusUpdate(quotation)}
+                              size="small"
+                            >
+                              {quotation.status ? "Complete" : "Pending"}
+                            </Button>
+                          </td>
+                          {window.innerWidth > 600 && (
+                            <td>
+                              {" "}
+                              <IconButton
+                                variant="contained"
+                                color="secondary"
+                                onClick={() =>
+                                  handleDownloadPDF(quotation.pdfPath)
+                                }
+                                size="small"
+                              >
+                                <Download fontSize="small" />
+                              </IconButton>
+                            </td>
+                          )}
+                          {window.innerWidth > 600 && (
+                            <td>
+                              <IconButton
+                                variant="contained"
+                                color="primary"
+                                onClick={() =>
+                                  handleSendPdfToMobile(
+                                    quotation.pdfPath,
+                                    quotation.clientInfo?.phone
+                                  )
+                                }
+                                size="small"
+                              >
+                                <Send fontSize="small" />
+                              </IconButton>
+                            </td>
+                          )}
 
-                        <td>
-                        <Button
-                            variant="contained"
-                            color="info"
-                            onClick={() => openModal(quotation)}
-                            size="small"
-                          >
-                            <Edit fontSize="small" /> Edit
-                          </Button>
-                          <Button
-                            variant="contained"
-                            color="error"
-                            onClick={() => handleDeleteQuotation(quotation._id)}
-                            size="small"
-                          >
-                            <Delete fontSize="small" /> Delete
-                          </Button>
-                        </td>
-                      </tr>
+                          {/* Hide this column on mobile */}
+                          {window.innerWidth > 600 && (
+                            <td>
+                              <IconButton
+                                variant="contained"
+                                color="primary"
+                                onClick={() => openModal(quotation)}
+                                size="small"
+                              >
+                                <Edit fontSize="small" />
+                              </IconButton>
+                              <IconButton
+                                variant="contained"
+                                color="error"
+                                onClick={() =>
+                                  handleDeleteQuotation(quotation._id)
+                                }
+                                size="small"
+                              >
+                                <Delete fontSize="small" />
+                              </IconButton>
+                            </td>
+                          )}
+                        </tr>
+                        {expandedRows.includes(index) && (
+                          <tr>
+                            <td style={{ textAlign: "start" }} colSpan="5">
+                              <div style={{ padding: "16px" }}>
+                                <strong>Mobile Number:</strong>{" "}
+                                {quotation.clientInfo.phone}
+                                <br />
+                                <strong>Engineer:</strong>{" "}
+                                {quotation.clientInfo.engineer}
+                                <br />
+                                <br />
+                                <strong>Quotation Document:</strong>{" "}
+                                <Button
+                                  variant="contained"
+                                  color="secondary"
+                                  onClick={() =>
+                                    handleDownloadPDF(quotation.pdfPath)
+                                  }
+                                  size="small"
+                                  sx={{ mb: 2 }} // Adds margin-bottom for spacing
+                                >
+                                  <Download fontSize="small" /> Download
+                                </Button>
+                                <br />
+                                <br />
+                                <strong>Send Pdf to Client:</strong>{" "}
+                                <Button
+                                  variant="contained"
+                                  color="primary"
+                                  onClick={() =>
+                                    handleSendPdfToMobile(
+                                      quotation.pdfPath,
+                                      quotation.clientInfo?.phone
+                                    )
+                                  }
+                                  size="small"
+                                  sx={{ mb: 2 }} // Adds margin-bottom for spacing
+                                >
+                                  Send
+                                </Button>
+                                <br />
+                                <br />
+                                <strong>Edit/Delete Quotation:</strong>{" "}
+                                <Button
+                                  variant="contained"
+                                  color="primary"
+                                  onClick={() => openModal(quotation)}
+                                  size="small"
+                                  sx={{ mb: 1 }} // Adds margin-bottom for spacing
+                                >
+                                  <Edit fontSize="small" /> Edit
+                                </Button>
+                                <Button
+                                  variant="contained"
+                                  color="error"
+                                  onClick={() =>
+                                    handleDeleteQuotation(quotation._id)
+                                  }
+                                  size="small"
+                                  sx={{ mb: 1 }} // Adds margin-bottom for spacing
+                                >
+                                  <Delete fontSize="small" /> Delete
+                                </Button>
+                              </div>
+                            </td>
+                          </tr>
+                        )}
+                      </React.Fragment>
                     ))
                   ) : (
                     <tr>
-                      <td colSpan="8" style={{ textAlign: "center" }}>
-                        No results found.
-                      </td>
+                      <td colSpan="5">No quotations found.</td>
                     </tr>
                   )}
                 </tbody>
@@ -440,69 +556,92 @@ const QuotationAdminPage = () => {
               </Button>
             </Box>
           </Card>
+
+          {/* Modal */}
+          <Modal open={modalOpen} onClose={closeModal}>
+            <Box
+              sx={{
+                width: 400,
+                padding: 3,
+                margin: "auto",
+                mt: "20vh",
+                backgroundColor: "white",
+                borderRadius: "8px",
+              }}
+            >
+              <Typography variant="h6" sx={{ mb: 2 }}>
+                {currentQuotation ? "Edit Quotation" : "Add Quotation"}
+              </Typography>
+              <form onSubmit={handleFormSubmit}>
+                <TextField
+                  label="Quotation No"
+                  value={formData.quotationNo}
+                  onChange={(e) =>
+                    setFormData({ ...formData, quotationNo: e.target.value })
+                  }
+                  fullWidth
+                  required
+                  sx={{ mb: 2 }}
+                />
+                <TextField
+                  label="Client Name"
+                  value={formData.clientName}
+                  onChange={(e) =>
+                    setFormData({ ...formData, clientName: e.target.value })
+                  }
+                  fullWidth
+                  required
+                  sx={{ mb: 2 }}
+                />
+                <TextField
+                  label="Contact Person"
+                  value={formData.contactPerson}
+                  onChange={(e) =>
+                    setFormData({ ...formData, contactPerson: e.target.value })
+                  }
+                  fullWidth
+                  required
+                  sx={{ mb: 2 }}
+                />
+                <TextField
+                  label="Mobile Number"
+                  value={formData.phone}
+                  onChange={(e) =>
+                    setFormData({ ...formData, phone: e.target.value })
+                  }
+                  fullWidth
+                  required
+                  sx={{ mb: 2 }}
+                />
+                <TextField
+                  label="Quotation Amount (Rs)"
+                  type="number"
+                  value={formData.amount}
+                  onChange={(e) =>
+                    setFormData({ ...formData, amount: e.target.value })
+                  }
+                  fullWidth
+                  required
+                  sx={{ mb: 2 }}
+                />
+                <Button type="submit" variant="contained" color="primary">
+                  {currentQuotation ? "Update" : "Add"}
+                </Button>
+                <Button
+                  onClick={closeModal}
+                  variant="outlined"
+                  color="secondary"
+                  sx={{ ml: 2 }}
+                >
+                  Cancel
+                </Button>
+              </form>
+            </Box>
+          </Modal>
+
+          <ToastContainer />
         </Container>
-
-{/* Modal */}
-        <Modal open={modalOpen} onClose={closeModal}>
-          <Box sx={{ width: 400, padding: 3, margin: "auto", mt: "20vh", backgroundColor: "white", borderRadius: "8px" }}>
-            <Typography variant="h6" sx={{ mb: 2 }}>
-              {currentQuotation ? "Edit Quotation" : "Add Quotation"}
-            </Typography>
-            <form onSubmit={handleFormSubmit}>
-              <TextField
-                label="Quotation No"
-                value={formData.quotationNo}
-                onChange={(e) => setFormData({ ...formData, quotationNo: e.target.value })}
-                fullWidth
-                required
-                sx={{ mb: 2 }}
-              />
-              <TextField
-                label="Client Name"
-                value={formData.clientName}
-                onChange={(e) => setFormData({ ...formData, clientName: e.target.value })}
-                fullWidth
-                required
-                sx={{ mb: 2 }}
-              />
-              <TextField
-                label="Contact Person"
-                value={formData.contactPerson}
-                onChange={(e) => setFormData({ ...formData, contactPerson: e.target.value })}
-                fullWidth
-                required
-                sx={{ mb: 2 }}
-              />
-              <TextField
-                label="Mobile Number"
-                value={formData.phone}
-                onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                fullWidth
-                required
-                sx={{ mb: 2 }}
-              />
-              <TextField
-                label="Quotation Amount (Rs)"
-                type="number"
-                value={formData.amount}
-                onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
-                fullWidth
-                required
-                sx={{ mb: 2 }}
-              />
-              <Button type="submit" variant="contained" color="primary">
-                {currentQuotation ? "Update" : "Add"}
-              </Button>
-              <Button onClick={closeModal} variant="outlined" color="secondary" sx={{ ml: 2 }}>
-                Cancel
-              </Button>
-            </form>
-          </Box>
-        </Modal>
-
-
       </MainContent>
-      <ToastContainer />
     </Box>
   );
 };

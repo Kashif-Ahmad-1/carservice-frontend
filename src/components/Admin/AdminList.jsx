@@ -40,7 +40,7 @@ const Table = styled('table')(({ theme }) => ({
   borderCollapse: 'collapse',
   '& th, & td': {
     padding: theme.spacing(1),
-    textAlign: 'left',
+    // textAlign: 'left',
     borderBottom: `1px solid ${theme.palette.divider}`,
     fontSize: '1.2rem',
     fontWeight: '600',
@@ -230,11 +230,11 @@ const AdminList = () => {
       <MainContent>
         <ToolbarSpacer />
         <Container>
-          <SectionTitle variant="h4">Admin List</SectionTitle>
+          <SectionTitle variant="h4">Search By Type</SectionTitle>
 
           {/* Search Box */}
           <TextField
-            label="Search"
+            label="Name , Email , Mobile Number"
             variant="outlined"
             fullWidth
             onChange={(e) => setSearchQuery(e.target.value)}
@@ -300,7 +300,7 @@ const AdminList = () => {
           )}
 
           <Card>
-          <Typography variant="h6">Engineers</Typography>
+          <Typography sx={{fontWeight: "bold"}} variant="h4">List Of All Existing Admins</Typography>
             <Paper sx={{ overflowX: 'auto', mt: 2 }}>
               <Table>
                 <thead>

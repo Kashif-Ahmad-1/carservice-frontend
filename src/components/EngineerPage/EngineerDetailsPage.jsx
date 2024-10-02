@@ -39,7 +39,7 @@ import Sidebar from "./Sidebar"; // Adjust path if necessary
 import API_BASE_URL from "./../../config";
 // Header Component
 const Header = ({ onToggleSidebar }) => (
-  <AppBar position="static" sx={{ backgroundColor: "gray" }}>
+  <AppBar position="fixed" sx={{ backgroundColor: "gray", zIndex: 1201 }}> {/* Ensure zIndex is higher than sidebar */}
     <Toolbar>
       <Button color="inherit" onClick={onToggleSidebar}>
         <Menu />
@@ -47,14 +47,16 @@ const Header = ({ onToggleSidebar }) => (
       <img
         src={logo}
         alt="Company Logo"
-        style={{ width: 40, height: 40, marginRight: 10 }} // Adjust size and margin as needed
+        style={{ width: 40, height: 40, marginRight: 10 }}
       />
       <Typography variant="h6" sx={{ flexGrow: 1, fontWeight: "bold" }}>
-      AEROLUBE ENGINEERS
+        AEROLUBE ENGINEERS
       </Typography>
     </Toolbar>
   </AppBar>
 );
+
+
 
 // Footer Component
 const Footer = () => (
@@ -301,8 +303,8 @@ function EngineerDetailsPage() {
     >
       {sidebarOpen && <Sidebar />}
       <Box sx={{ flexGrow: 1 }}>
-        <Header onToggleSidebar={handleToggleSidebar} />
-        <Container sx={{ padding: 4, flexGrow: 1 }} maxWidth="xl">
+      <Header onToggleSidebar={handleToggleSidebar} />
+      <Container sx={{ padding: 4, paddingTop: 8, flexGrow: 1 }} maxWidth="xl">
           <Typography variant="h4" gutterBottom sx={{ fontWeight: "bold" }}>
             Client Details
           </Typography>
@@ -362,8 +364,9 @@ function EngineerDetailsPage() {
                   {[
                     "Invoice No.",
                     "Client Name",
-                    "Mobile No.",
+                    
                     "Client Address",
+                    "Expected Service Date",
                   ].map((header) => (
                     <TableCell
                       key={header}
@@ -380,6 +383,7 @@ function EngineerDetailsPage() {
                   ))}
                   {/* Additional headers visible only on larger screens */}
                   {[
+                    "Mobile No.",
                     "Contact Person",
                     "Invoice Date",
                     "Invoice Amount",
@@ -389,7 +393,7 @@ function EngineerDetailsPage() {
                     "Serial No.",
                     "Installation Date",
                     "Service Frequency (Days)",
-                    "Expected Service Date",
+                    
                     "Next Service Date",
                     "Document",
                     "Checklist",
@@ -429,22 +433,38 @@ function EngineerDetailsPage() {
                       <TableCell sx={{ fontSize: "1.2rem", fontWeight: 700 }}>
                         {appointment.invoiceNumber}
                       </TableCell>
-                      <TableCell sx={{ fontSize: "1.2rem", fontWeight: 700 }}>
+                      <TableCell sx={{ fontSize: "1rem" }}>
                         {appointment.clientName}
                       </TableCell>
-                      <TableCell sx={{ fontSize: "1.2rem", fontWeight: 700 }}>
-                        {appointment.mobileNo}
-                      </TableCell>
-                      <TableCell sx={{ fontSize: "1.2rem", fontWeight: 700 }}>
+                      <TableCell sx={{ fontSize: "1rem" }}>
                         {appointment.clientAddress}
                       </TableCell>
+
+
+                     
+                      <TableCell
+                       sx={{ fontSize: "1rem" }}
+                      >
+                        {new Date(
+                          appointment.expectedServiceDate
+                        ).toLocaleDateString()}
+                      </TableCell>
+
+                      <TableCell sx={{
+                          display: { xs: "none", md: "table-cell" },
+                          fontSize: "1rem",
+                         
+                        }}>
+                        {appointment.mobileNo}
+                      </TableCell>
+                      
 
                       {/* Additional columns visible only on larger screens */}
                       <TableCell
                         sx={{
                           display: { xs: "none", md: "table-cell" },
-                          fontSize: "1.2rem",
-                          fontWeight: 700,
+                          fontSize: "1rem",
+                         
                         }}
                       >
                         {appointment.contactPerson}
@@ -452,8 +472,8 @@ function EngineerDetailsPage() {
                       <TableCell
                         sx={{
                           display: { xs: "none", md: "table-cell" },
-                          fontSize: "1.2rem",
-                          fontWeight: 700,
+                          fontSize: "1rem",
+                          
                         }}
                       >
                         {new Date(
@@ -463,8 +483,8 @@ function EngineerDetailsPage() {
                       <TableCell
                         sx={{
                           display: { xs: "none", md: "table-cell" },
-                          fontSize: "1.2rem",
-                          fontWeight: 700,
+                          fontSize: "1rem",
+                          
                         }}
                       >
                         {typeof appointment.appointmentAmount === "number"
@@ -475,8 +495,8 @@ function EngineerDetailsPage() {
                       <TableCell
                         sx={{
                           display: { xs: "none", md: "table-cell" },
-                          fontSize: "1.2rem",
-                          fontWeight: 700,
+                          fontSize: "1rem",
+                         
                         }}
                       >
                         {appointment.machineName}
@@ -484,8 +504,8 @@ function EngineerDetailsPage() {
                       <TableCell
                         sx={{
                           display: { xs: "none", md: "table-cell" },
-                          fontSize: "1.2rem",
-                          fontWeight: 700,
+                          fontSize: "1rem",
+                         
                         }}
                       >
                         {appointment.model}
@@ -493,8 +513,8 @@ function EngineerDetailsPage() {
                       <TableCell
                         sx={{
                           display: { xs: "none", md: "table-cell" },
-                          fontSize: "1.2rem",
-                          fontWeight: 700,
+                          fontSize: "1rem",
+                         
                         }}
                       >
                         {appointment.partNo}
@@ -502,8 +522,8 @@ function EngineerDetailsPage() {
                       <TableCell
                         sx={{
                           display: { xs: "none", md: "table-cell" },
-                          fontSize: "1.2rem",
-                          fontWeight: 700,
+                          fontSize: "1rem",
+                        
                         }}
                       >
                         {appointment.serialNo}
@@ -511,33 +531,19 @@ function EngineerDetailsPage() {
                       <TableCell
                         sx={{
                           display: { xs: "none", md: "table-cell" },
-                          fontSize: "1.2rem",
-                          fontWeight: 700,
+                          fontSize: "1rem",
+                         
                         }}
                       >
                         {new Date(
                           appointment.installationDate
                         ).toLocaleDateString()}
                       </TableCell>
+                      
                       <TableCell
-                        sx={{
-                          display: { xs: "none", md: "table-cell" },
-                          fontSize: "1.2rem",
-                          fontWeight: 700,
-                        }}
+                        sx={{ display: { xs: "none", md: "table-cell" } }}
                       >
                         {appointment.serviceFrequency}
-                      </TableCell>
-                      <TableCell
-                        sx={{
-                          display: { xs: "none", md: "table-cell" },
-                          fontSize: "1.2rem",
-                          fontWeight: 700,
-                        }}
-                      >
-                        {new Date(
-                          appointment.expectedServiceDate
-                        ).toLocaleDateString()}
                       </TableCell>
 
                       <TableCell
@@ -652,7 +658,7 @@ function EngineerDetailsPage() {
                           <Typography
                             variant="body2"
                             color="blue"
-                            sx={{ fontSize: "1.2rem", fontWeight: 700 }}
+                            sx={{ fontSize: "1rem" }}
                           >
                             View
                           </Typography>
@@ -684,6 +690,14 @@ function EngineerDetailsPage() {
                             >
                               Contact Details
                             </Typography>
+                            <Typography
+                              variant="body2"
+                              sx={{ color: "#555", fontSize: "1.1rem", mb: 1 }}
+                            >
+                              <strong>Mobile Number:</strong>{" "}
+                              {appointment.mobileNo}
+                            </Typography>
+
                             <Typography
                               variant="body2"
                               sx={{ color: "#555", fontSize: "1.1rem", mb: 1 }}

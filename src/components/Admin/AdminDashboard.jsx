@@ -10,7 +10,7 @@ import {
   Card as MuiCard,
   Modal,
 } from "@mui/material";
-import API_BASE_URL from './../../config';
+import API_BASE_URL from "./../../config";
 import { styled } from "@mui/material/styles";
 import { Bar, Pie } from "react-chartjs-2";
 import {
@@ -27,7 +27,15 @@ import { Link } from "react-router-dom";
 import Sidebar from "./Sidebar";
 import Navbar from "./Navbar";
 
-ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ArcElement);
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend,
+  ArcElement
+);
 
 // Styled components
 const MainContent = styled("main")(({ theme }) => ({
@@ -76,24 +84,20 @@ const AdminDashboard = () => {
   const [accountantCount, setAccountantCount] = useState(0);
   const [newServiceRequests, setNewServiceRequests] = useState(0);
   const [recentActivities, setRecentActivities] = useState([]);
-  const [serviceRequestsData, setServiceRequestsData] = useState({ labels: [], data: [] });
-  const [quotationStatusData, setQuotationStatusData] = useState({ labels: [], data: [] });
+  const [serviceRequestsData, setServiceRequestsData] = useState({
+    labels: [],
+    data: [],
+  });
+  const [quotationStatusData, setQuotationStatusData] = useState({
+    labels: [],
+    data: [],
+  });
   const [viewMode, setViewMode] = useState("day");
-  const [modalOpen, setModalOpen] = useState(false);
   const [quotationSummary, setQuotationSummary] = useState({});
   const token = localStorage.getItem("token");
 
   const handleDrawerToggle = () => {
     setDrawerOpen((prev) => !prev);
-  };
-
-  const handleModalOpen = () => {
-    fetchQuotationSummary();
-    setModalOpen(true);
-  };
-
-  const handleModalClose = () => {
-    setModalOpen(false);
   };
 
   const fetchUserCounts = async () => {
@@ -112,7 +116,9 @@ const AdminDashboard = () => {
 
       const data = await response.json();
       const mechanics = data.filter((user) => user.role === "engineer").length;
-      const accountants = data.filter((user) => user.role === "accountant").length;
+      const accountants = data.filter(
+        (user) => user.role === "accountant"
+      ).length;
 
       setMechanicCount(mechanics);
       setAccountantCount(accountants);
@@ -130,26 +136,53 @@ const AdminDashboard = () => {
           Authorization: `Bearer ${token}`,
         },
       });
-  
+
       if (!response.ok) {
         throw new Error("Failed to fetch appointment counts");
       }
-  
+
       const appointments = await response.json();
-      const newRequests = appointments.filter((appointment) => !appointment.completed).length;
+      const newRequests = appointments.filter(
+        (appointment) => !appointment.completed
+      ).length;
 
       const requestCountByDay = Array(7).fill(0);
       const requestCountByMonth = Array(12).fill(0);
-      const monthsOfYear = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-      const daysOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+      const monthsOfYear = [
+        "Jan",
+        "Feb",
+        "Mar",
+        "Apr",
+        "May",
+        "Jun",
+        "Jul",
+        "Aug",
+        "Sep",
+        "Oct",
+        "Nov",
+        "Dec",
+      ];
+      const daysOfWeek = [
+        "Sunday",
+        "Monday",
+        "Tuesday",
+        "Wednesday",
+        "Thursday",
+        "Friday",
+        "Saturday",
+      ];
       const today = new Date();
       const todayIndex = today.getDay();
 
-      const dayLabels = Array(7).fill("").map((_, index) => {
-        const date = new Date();
-        date.setDate(today.getDate() - (todayIndex - index));
-        return `${daysOfWeek[index]} (${date.getDate()}/${date.getMonth() + 1})`;
-      });
+      const dayLabels = Array(7)
+        .fill("")
+        .map((_, index) => {
+          const date = new Date();
+          date.setDate(today.getDate() - (todayIndex - index));
+          return `${daysOfWeek[index]} (${date.getDate()}/${
+            date.getMonth() + 1
+          })`;
+        });
 
       appointments.forEach((appointment) => {
         const date = new Date(appointment.createdAt);
@@ -170,8 +203,12 @@ const AdminDashboard = () => {
 
       const activities = appointments
         .map((appointment) => ({
-          accountant: appointment.createdBy ? appointment.createdBy.name : "Unknown Accountant",
-          engineer: appointment.engineer ? appointment.engineer.name : "Unknown Engineer",
+          accountant: appointment.createdBy
+            ? appointment.createdBy.name
+            : "Unknown Accountant",
+          engineer: appointment.engineer
+            ? appointment.engineer.name
+            : "Unknown Engineer",
           createdAt: new Date(appointment.createdAt).toLocaleString(),
         }))
         .reverse()
@@ -193,15 +230,15 @@ const AdminDashboard = () => {
           Authorization: `Bearer ${token}`,
         },
       });
-  
+
       if (!response.ok) {
         throw new Error("Failed to fetch quotation counts");
       }
-  
+
       const quotations = await response.json();
-      const completedCount = quotations.filter(q => q.status === true).length;
-      const pendingCount = quotations.filter(q => q.status === false).length;
-  
+      const completedCount = quotations.filter((q) => q.status === true).length;
+      const pendingCount = quotations.filter((q) => q.status === false).length;
+
       setQuotationStatusData({
         labels: ["Completed", "Pending"],
         data: [completedCount, pendingCount],
@@ -211,10 +248,35 @@ const AdminDashboard = () => {
     }
   };
 
+  const fetchQuotationSummary = async () => {
+    try {
+      const response = await fetch(
+        `${API_BASE_URL}/api/quotations/admin/summary`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch quotation summary");
+      }
+
+      const summary = await response.json();
+      setQuotationSummary(summary);
+    } catch (error) {
+      console.error("Quotation Summary Error:", error);
+    }
+  };
+
   useEffect(() => {
     fetchUserCounts();
     fetchAppointmentCounts();
     fetchQuotationCounts();
+    fetchQuotationSummary();
   }, [token]);
 
   useEffect(() => {
@@ -243,37 +305,45 @@ const AdminDashboard = () => {
     ],
   };
 
-  const fetchQuotationSummary = async () => {
-    try {
-      const response = await fetch(`${API_BASE_URL}/api/quotations/admin/summary`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to fetch quotation summary");
-      }
-
-      const summary = await response.json();
-      setQuotationSummary(summary);
-    } catch (error) {
-      console.error("Quotation Summary Error:", error);
-    }
+  const pieChartData = {
+    labels: ["Total Amount", "Pending Amount", "Completed Amount"],
+    datasets: [
+      {
+        data: [
+          quotationSummary.overallTotalAmount || 0,
+          quotationSummary.overallPendingAmount || 0,
+          quotationSummary.overallCompletedAmount || 0,
+        ],
+        backgroundColor: ["#FF6384", "#36A2EB", "#FFCE56"],
+      },
+    ],
   };
 
-  const pieChartData = {
-    labels: ['Total Amount', 'Pending Amount', 'Completed Amount'],
-    datasets: [{
-      data: [
-        quotationSummary.totalAmount || 0,
-        quotationSummary.pendingAmount || 0,
-        quotationSummary.completedAmount || 0,
-      ],
-      backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56'],
-    }],
+  const engineerNames = (quotationSummary.engineerSummary || []).map(
+    (engineer) => engineer.engineerName
+  );
+  const pendingAmounts = (quotationSummary.engineerSummary || []).map(
+    (engineer) => engineer.pendingAmount
+  );
+  const completedAmounts = (quotationSummary.engineerSummary || []).map(
+    (engineer) => engineer.completedAmount
+  );
+
+  // Prepare dual graph data
+  const dualGraphData = {
+    labels: engineerNames,
+    datasets: [
+      {
+        label: "Pending Amount",
+        data: pendingAmounts,
+        backgroundColor: "rgba(255, 99, 132, 0.6)",
+      },
+      {
+        label: "Completed Amount",
+        data: completedAmounts,
+        backgroundColor: "rgba(54, 162, 235, 0.6)",
+      },
+    ],
   };
 
   return (
@@ -286,20 +356,12 @@ const AdminDashboard = () => {
         <Container>
           <SectionTitle variant="h4">Dashboard Overview</SectionTitle>
           <Grid container spacing={3}>
+            {/* Your existing cards here */}
             <Grid item xs={12} sm={6} md={4}>
               <Card>
                 <CardHeaderStyled>Total Engineers</CardHeaderStyled>
                 <Paper sx={{ p: 2, textAlign: "center" }}>
                   <Typography variant="h4">{mechanicCount}</Typography>
-                  <Button
-                    variant="contained"
-                    color="primary"
-                    sx={{ mt: 2 }}
-                    component={Link}
-                    to="/engineer-list"
-                  >
-                    View Mechanics
-                  </Button>
                 </Paper>
               </Card>
             </Grid>
@@ -308,15 +370,6 @@ const AdminDashboard = () => {
                 <CardHeaderStyled>Total Accountants</CardHeaderStyled>
                 <Paper sx={{ p: 2, textAlign: "center" }}>
                   <Typography variant="h4">{accountantCount}</Typography>
-                  <Button
-                    variant="contained"
-                    color="primary"
-                    sx={{ mt: 2 }}
-                    component={Link}
-                    to="/accountants"
-                  >
-                    View Accountants
-                  </Button>
                 </Paper>
               </Card>
             </Grid>
@@ -325,91 +378,109 @@ const AdminDashboard = () => {
                 <CardHeaderStyled>Service Record</CardHeaderStyled>
                 <Paper sx={{ p: 2, textAlign: "center" }}>
                   <Typography variant="h4">{newServiceRequests}</Typography>
-                  <Button
-                    variant="contained"
-                    color="primary"
-                    sx={{ mt: 2 }}
-                    component={Link}
-                    to="/service-request"
-                  >
-                    View Record
-                  </Button>
                 </Paper>
               </Card>
             </Grid>
           </Grid>
+
           <SectionTitle variant="h4" sx={{ mt: 4 }}>
             Service Requests Trend & Quotation Status
           </SectionTitle>
           <Grid container spacing={3}>
-  <Grid item xs={12} sm={6}>
-    <Paper sx={{ p: 2, borderRadius: 2, boxShadow: 2, height: '100%' }}>
-      <div style={{ height: "100%", display: 'flex', flexDirection: 'column' }}>
-        <div style={{ flex: 1 }}>
-          <Bar data={data} options={{ responsive: true }} />
-        </div>
-      </div>
-    </Paper>
-  </Grid>
-  <Grid item xs={12} sm={6}>
-    <Paper sx={{ p: 2, borderRadius: 2, boxShadow: 2, height: '100%' }}>
-      <div style={{ height: "100%", display: 'flex', flexDirection: 'column' }}>
-        <div style={{ flex: 1 }}>
-          <Bar data={quotationData} options={{ responsive: true }} />
-        </div>
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={handleModalOpen}
-          sx={{ mt: 2, width: '100%' }}
-        >
-          Total Quotation Amount
-        </Button>
-      </div>
-    </Paper>
-  </Grid>
-</Grid>
+            <Grid item xs={12} sm={6}>
+              <Paper
+                sx={{ p: 2, borderRadius: 2, boxShadow: 2, height: "100%" }}
+              >
+                <div
+                  style={{
+                    height: "100%",
+                    display: "flex",
+                    flexDirection: "column",
+                  }}
+                >
+                  <div style={{ flex: 1 }}>
+                    <Bar data={data} options={{ responsive: true }} />
+                  </div>
+                </div>
+              </Paper>
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <Paper
+                sx={{ p: 2, borderRadius: 2, boxShadow: 2, height: "100%" }}
+              >
+                <div
+                  style={{
+                    height: "100%",
+                    display: "flex",
+                    flexDirection: "column",
+                  }}
+                >
+                  <div style={{ flex: 1 }}>
+                    <Bar data={quotationData} options={{ responsive: true }} />
+                  </div>
+                </div>
+              </Paper>
+            </Grid>
+          </Grid>
 
+          {/* New Containers for Pie Chart and Dummy Dual Graph */}
+          <SectionTitle variant="h4" sx={{ mt: 4 }}>
+            QUotations Charts
+          </SectionTitle>
+          <Grid container spacing={3}>
+            {/* Pie Chart Container */}
+            <Grid item xs={12} sm={6}>
+              <Paper
+                sx={{ p: 2, borderRadius: 2, boxShadow: 2, height: "100%" }}
+              >
+                <Typography variant="h6" sx={{ mb: 2 }}>
+                  Quotation Overview
+                </Typography>
+                <div
+                  style={{
+                    height: "300px",
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                  }}
+                >
+                  {quotationSummary.overallTotalAmount ||
+                  quotationSummary.overallPendingAmount ||
+                  quotationSummary.overallCompletedAmount ? (
+                    <div style={{ maxWidth: "100%", maxHeight: "100%" }}>
+                      <Pie data={pieChartData} options={{ responsive: true }} />
+                    </div>
+                  ) : (
+                    <Typography>No Data Available</Typography>
+                  )}
+                </div>
+              </Paper>
+            </Grid>
 
-          <Modal
-            open={modalOpen}
-            onClose={handleModalClose}
-            aria-labelledby="quotation-summary-title"
-            aria-describedby="quotation-summary-description"
-          >
-            <Box
-              sx={{
-                position: 'absolute',
-                top: '50%',
-                left: '50%',
-                transform: 'translate(-50%, -50%)',
-                bgcolor: 'white',
-                borderRadius: 2,
-                boxShadow: 3,
-                p: 4,
-                width: '90%',
-                maxWidth: '500px',
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-            >
-              <Typography id="quotation-summary-title" variant="h6" component="h2" sx={{ mb: 2 }}>
-               Total Quotation Amount
-              </Typography>
-              <div style={{ height: "300px", width: "100%", display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                {quotationSummary.totalAmount || quotationSummary.pendingAmount || quotationSummary.completedAmount ? (
-                  <Pie data={pieChartData} options={{ responsive: true }} />
-                ) : (
-                  <Typography>No Data Available</Typography>
-                )}
-              </div>
-              <Button variant="contained" color="primary" onClick={handleModalClose} sx={{ mt: 2 }}>
-                Close
-              </Button>
-            </Box>
-          </Modal>
+            {/* Dummy Dual Graph Container */}
+            <Grid item xs={12} sm={6}>
+              <Paper
+                sx={{ p: 2, borderRadius: 2, boxShadow: 2, height: "100%" }}
+              >
+                <Typography variant="h6" sx={{ mb: 2 }}>
+                  Pending vs Completed Amounts by Engineer
+                </Typography>
+                <div style={{ height: "300px" }}>
+                  <Bar
+                    data={dualGraphData}
+                    options={{
+                      responsive: true,
+                      scales: {
+                        y: {
+                          beginAtZero: true,
+                        },
+                      },
+                    }}
+                  />
+                </div>
+              </Paper>
+            </Grid>
+          </Grid>
 
           <SectionTitle variant="h4" sx={{ mt: 4 }}>
             Recent Activity
@@ -418,18 +489,24 @@ const AdminDashboard = () => {
             {recentActivities.length > 0 ? (
               recentActivities.map((activity, index) => (
                 <Grid item xs={12} sm={6} md={4} key={index}>
-                  <RecentActivityCard>
-                    <CardHeaderStyled>
+                  <RecentActivityCard >
+                    <CardHeaderStyled sx={{backgroundColor: "green"}}>
                       New Service Request by {activity.accountant}
                     </CardHeaderStyled>
                     <Paper sx={{ p: 2, textAlign: "center" }}>
                       <Typography variant="body1">
                         A new request has been assigned by{" "}
-                        <Typography component="span" sx={{ fontWeight: "bold", color: "primary.main" }}>
+                        <Typography
+                          component="span"
+                          sx={{ fontWeight: "bold", color: "primary.main" }}
+                        >
                           {activity.accountant}
                         </Typography>{" "}
                         to{" "}
-                        <Typography component="span" sx={{ fontWeight: "bold", color: "secondary.main" }}>
+                        <Typography
+                          component="span"
+                          sx={{ fontWeight: "bold", color: "secondary.main" }}
+                        >
                           {activity.engineer}
                         </Typography>{" "}
                         on {activity.createdAt}.

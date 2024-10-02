@@ -23,6 +23,7 @@ import ServiceRequestDocPage from "./components/EngineerPage/ServiceRequestDocPa
 import ServiceadminRequestDocPage from "./components/Admin/ServiceRequestDocPage";
 
 import QuotationAdminPage from "./components/Admin/QuotationAdminPage";
+import ReportPage from "./components/Admin/ReportPage";
 function App() {
   // const role = localStorage.getItem("role");
   // console.log(role);
@@ -59,6 +60,10 @@ function App() {
           <Route
             path="/admin-quotation-record"
             element={<PrivateRoute element={QuotationAdminPage} roles={["admin"]} />}
+          />
+          <Route
+            path="/report-page"
+            element={<PrivateRoute element={ReportPage} roles={["admin"]} />}
           />
 
           {/* Accountant */}
@@ -101,6 +106,7 @@ function App() {
           <Route path="/machine-list" element={<MachinePage />} />
           <Route path="/admin-list" element={<AdminList />} />
           <Route path="/reset/:token" element={<ResetPassword />} />
+         
           
         </Routes>
       </div>

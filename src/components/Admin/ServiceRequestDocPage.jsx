@@ -11,13 +11,14 @@ import {
   IconButton,
   TextField,
 } from "@mui/material";
+
 import MessageTemplate from "../MessageTemplate";
 import API_BASE_URL from './../../config';
 import logo from './comp-logo.jpeg';
 import { styled } from "@mui/material/styles";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { Download, Menu, Delete } from "@mui/icons-material"; 
+import { Download, Menu, Delete,Send } from "@mui/icons-material"; 
 import Navbar from './Navbar';
 import Sidebar from './Sidebar';
 import axios from "axios";
@@ -46,7 +47,7 @@ const Table = styled("table")(({ theme }) => ({
   borderCollapse: "collapse",
   "& th, & td": {
     padding: theme.spacing(1),
-    textAlign: "left",
+    // textAlign: "left",
     borderBottom: `1px solid ${theme.palette.divider}`,
     fontSize: "1.2rem",
     fontWeight: "600",
@@ -62,7 +63,7 @@ const ServiceRequestDocPage = () => {
   const itemsPerPage = 20; 
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
-  const [drawerOpen, setDrawerOpen] = useState(true);
+  const [drawerOpen, setDrawerOpen] = useState(false);
 
 
   const handleDrawerToggle = () => {
@@ -206,7 +207,7 @@ const ServiceRequestDocPage = () => {
         {/* <Header /> */}
         <ToolbarSpacer />
         <Container>
-          <SectionTitle variant="h4">Service Record List</SectionTitle>
+          <SectionTitle variant="h4">Search By Type</SectionTitle>
           <Card>
             <TextField
               variant="outlined"
@@ -215,7 +216,7 @@ const ServiceRequestDocPage = () => {
               onChange={handleSearchChange}
               fullWidth
             />
-            <Typography variant="h6" sx={{ marginTop: 2 }}>
+            <Typography  variant="h4" sx={{ marginTop: 2 , fontWeight:"bold"}}>
               Service Requests
             </Typography>
             <Paper sx={{ overflowX: "auto", mt: 2 }}>

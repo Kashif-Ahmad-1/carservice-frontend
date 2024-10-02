@@ -46,10 +46,10 @@ const Table = styled("table")(({ theme }) => ({
   borderCollapse: "collapse",
   "& th, & td": {
     padding: theme.spacing(1),
-    textAlign: "left",
+    // textAlign: "left",
     borderBottom: `1px solid ${theme.palette.divider}`,
-    fontSize: "1.2rem",
-    fontWeight: "600",
+    fontSize: "1.1rem",
+    fontWeight: "550",
   },
   "& th": {
     backgroundColor: theme.palette.grey[200],
@@ -62,7 +62,10 @@ const ServiceRequestDocPage = () => {
   const itemsPerPage = 20; 
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
-
+  
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [selectedChecklist, setSelectedChecklist] = useState(null);
+  const isMobile = window.innerWidth <= 600; // Adjust based on your breakpoints
   const handleToggleSidebar = () => {
     setSidebarOpen((prev) => !prev);
   };
@@ -72,7 +75,7 @@ const ServiceRequestDocPage = () => {
   }, []);
 
   const Header = () => (
-    <AppBar position="static" sx={{ backgroundColor: 'gray',margin: '-25px',width: '105%' }}>
+    <AppBar position="fixed" sx={{ backgroundColor: 'gray', zIndex: 1201 }}>
       <Toolbar>
         <IconButton color="inherit" onClick={handleToggleSidebar}>
           <Menu />
@@ -201,7 +204,7 @@ const ServiceRequestDocPage = () => {
       <MainContent>
         <Header />
         <ToolbarSpacer />
-        <Container>
+        <Container sx={{ padding: 4, paddingTop: 8, flexGrow: 1 }} maxWidth="xl">
           <SectionTitle variant="h4">Service Record List</SectionTitle>
           <Card>
             <TextField
@@ -212,8 +215,8 @@ const ServiceRequestDocPage = () => {
               fullWidth
               sx={{ marginBottom: 2 }}
             />
-            <Typography variant="h6" sx={{ marginTop: 2 }}>
-              Service Requests
+            <Typography  variant="h4" sx={{ marginTop: 2, fontWeight: "bold" }}>
+              Service Record
             </Typography>
             <Paper sx={{ overflowX: "auto", mt: 2 }}>
               <Table>
@@ -234,7 +237,7 @@ const ServiceRequestDocPage = () => {
                     currentChecklists.map((checklist, index) => (
                       <tr key={checklist._id}>
                         <td>{index + 1 + indexOfFirstChecklist}</td>
-                        <td>{checklist.invoiceNo || "N/A"}</td>
+                        <td style={{ fontSize: "1.3rem", fontWeight: 700 }} >{checklist.invoiceNo || "N/A"}</td>
                         <td>{checklist.clientInfo?.name || "N/A"}</td>
                         <td>{checklist.clientInfo?.contactPerson || "N/A"}</td>
                         <td>{checklist.clientInfo?.phone || "N/A"}</td>
