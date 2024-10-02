@@ -159,7 +159,7 @@ const Sidebar = ({ open, onClose }) => {
             </ListItemIcon>
             <ListItemText primary="Service Requests" />
           </ListItemStyled>
-          <ListItemStyled button component={Link} to="/reports">
+          <ListItemStyled button component={Link} to="/report-page">
             <ListItemIcon>
               <AssessmentIcon />
             </ListItemIcon>

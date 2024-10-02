@@ -234,7 +234,7 @@ const EngineerPage = () => {
     <MainContent>
       <ToolbarSpacer />
       <Container>
-        <SectionTitle variant="h4">Engineer List</SectionTitle>
+        <SectionTitle variant="h4">Search By Type</SectionTitle>
 
         {/* Search Box */}
         <TextField
@@ -311,7 +311,7 @@ const EngineerPage = () => {
         )}
 
         <Card>
-          <Typography variant="h6">Engineers</Typography>
+          <Typography variant="h6">List Of All Existing Engineers</Typography>
           <Paper sx={{ overflowX: 'auto', mt: 2 }}>
             <Table>
               <thead>

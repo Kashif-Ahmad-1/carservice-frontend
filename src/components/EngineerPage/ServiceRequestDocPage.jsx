@@ -62,7 +62,10 @@ const ServiceRequestDocPage = () => {
   const itemsPerPage = 20; 
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
-
+  
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [selectedChecklist, setSelectedChecklist] = useState(null);
+  const isMobile = window.innerWidth <= 600; // Adjust based on your breakpoints
   const handleToggleSidebar = () => {
     setSidebarOpen((prev) => !prev);
   };
@@ -72,7 +75,7 @@ const ServiceRequestDocPage = () => {
   }, []);
 
   const Header = () => (
-    <AppBar position="static" sx={{ backgroundColor: 'gray',margin: '-25px',width: '105%' }}>
+    <AppBar position="fixed" sx={{ backgroundColor: 'gray', zIndex: 1201 }}>
       <Toolbar>
         <IconButton color="inherit" onClick={handleToggleSidebar}>
           <Menu />
@@ -201,7 +204,7 @@ const ServiceRequestDocPage = () => {
       <MainContent>
         <Header />
         <ToolbarSpacer />
-        <Container>
+        <Container sx={{ padding: 4, paddingTop: 8, flexGrow: 1 }} maxWidth="xl">
           <SectionTitle variant="h4">Service Record List</SectionTitle>
           <Card>
             <TextField

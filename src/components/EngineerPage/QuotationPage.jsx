@@ -102,7 +102,7 @@ const QuotationPage = () => {
 
   // Header Component
   const Header = () => (
-    <AppBar position="static" sx={{ backgroundColor: 'gray',margin: '-25px',width: '105%' }}>
+    <AppBar position="fixed" sx={{ backgroundColor: 'gray', zIndex: 1201 }}>
       <Toolbar>
         <IconButton color="inherit" onClick={handleToggleSidebar}>
           <Menu />
@@ -325,7 +325,7 @@ const QuotationPage = () => {
         <Header />
         <ToolbarSpacer />
         
-        <Container>
+        <Container sx={{ padding: 4, paddingTop: 8, flexGrow: 1 }} maxWidth="xl">
           <SectionTitle variant="h4">Quotation List</SectionTitle>
           <Card sx={{ padding: 1 }}> {/* Reduced padding */}
             <TextField

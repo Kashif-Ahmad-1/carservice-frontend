@@ -597,7 +597,7 @@ const ChecklistPage = () => {
     }
 
     // Save the PDF locally (optional)
-    // doc.save("checklist.pdf");
+    doc.save("checklist.pdf");
   };
 
   // Function to send the PDF to mobile via WhatsApp
