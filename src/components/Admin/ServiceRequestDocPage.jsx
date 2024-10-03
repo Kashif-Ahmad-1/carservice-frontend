@@ -243,33 +243,33 @@ const ServiceRequestDocPage = () => {
                         <td>{checklist.clientInfo?.contactPerson || "N/A"}</td>
                         <td>{checklist.clientInfo?.phone || "N/A"}</td>
                         <td>
-                          <Button
+                          <IconButton
                             variant="contained"
                             color="secondary"
                             onClick={() => handleDownloadPDF(checklist.pdfPath)}
                           >
-                            <Download /> Download
-                          </Button>
+                            <Download />
+                          </IconButton>
                         </td>
                         <td>
-                          <Button
+                          <IconButton
                             variant="contained"
                             color="error"
                             onClick={() => handleDeleteChecklist(checklist._id)}
                           >
-                            <Delete /> Delete
-                          </Button>
+                            <Delete />
+                          </IconButton>
                         </td>
 
                         <td>
-                          <Button
+                          <IconButton
                             variant="contained"
                             color="primary"
                             onClick={() => handleSendPdfToMobile(checklist.pdfPath, checklist.clientInfo?.phone)}
                             size="small"
                           >
-                            Send
-                          </Button>
+                            <Send />
+                          </IconButton>
                         </td>
                       </tr>
                     ))

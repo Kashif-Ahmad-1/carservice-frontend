@@ -26,7 +26,7 @@ import {
 import { Link } from "react-router-dom";
 import Sidebar from "./Sidebar";
 import Navbar from "./Navbar";
-
+import Footer from "../Footer";
 ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -347,6 +347,7 @@ const AdminDashboard = () => {
   };
 
   return (
+    <>
     <Box sx={{ display: "flex" }}>
       <CssBaseline />
       <Navbar onMenuClick={handleDrawerToggle} />
@@ -528,9 +529,13 @@ const AdminDashboard = () => {
               </Grid>
             )}
           </Grid>
+         
         </Container>
+       
       </MainContent>
+     
     </Box>
+     <Footer /></>
   );
 };
 

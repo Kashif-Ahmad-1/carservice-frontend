@@ -9,6 +9,7 @@ import {
   TextField,
   TablePagination,
   IconButton,
+  Modal,
 } from '@mui/material';
 import API_BASE_URL from './../../config';
 import { styled } from '@mui/material/styles';
@@ -17,6 +18,7 @@ import Sidebar from './Sidebar';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { Edit, Delete } from '@mui/icons-material';
+
 const MainContent = styled('main')(({ theme }) => ({
   flexGrow: 1,
   padding: theme.spacing(3),
@@ -42,7 +44,6 @@ const Table = styled('table')(({ theme }) => ({
   borderCollapse: 'collapse',
   '& th, & td': {
     padding: theme.spacing(1),
-    // textAlign: 'left',
     borderBottom: `1px solid ${theme.palette.divider}`,
     fontSize: '1.2rem',
     fontWeight: '600',
@@ -63,13 +64,23 @@ const SmallCard = styled(Card)(({ theme }) => ({
   borderRadius: theme.shape.borderRadius,
 }));
 
+const modalStyle = {
+  position: 'absolute',
+  top: '50%',
+  left: '50%',
+  transform: 'translate(-50%, -50%)',
+  width: 400,
+  bgcolor: 'background.paper',
+  border: '2px solid #000',
+  boxShadow: 24,
+  p: 4,
+};
+
 const ClientPage = () => {
   const [clients, setClients] = useState([]);
   const [filteredClients, setFilteredClients] = useState([]);
-  const [showForm, setShowForm] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [newClient, setNewClient] = useState({
     clientName: '',
     contactPerson: '',
@@ -79,16 +90,12 @@ const ClientPage = () => {
   const [editingClientId, setEditingClientId] = useState(null);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(15);
-
+  const [modalOpen, setModalOpen] = useState(false);
 
   const handleToggleSidebar = () => {
-    setSidebarOpen((prev) => !prev);
-  };
-
-  // Function to handle drawer toggle
-  const handleDrawerToggle = () => {
     setDrawerOpen((prev) => !prev);
   };
+
   useEffect(() => {
     const fetchClients = async () => {
       try {
@@ -177,7 +184,7 @@ const ClientPage = () => {
       }
     }
 
-    setShowForm(false);
+    setModalOpen(false);
     setNewClient({ clientName: '', contactPerson: '', mobileNo: '', clientAddress: '' });
     setEditingClientId(null);
   };
@@ -185,7 +192,7 @@ const ClientPage = () => {
   const handleEdit = (client) => {
     setNewClient(client);
     setEditingClientId(client._id);
-    setShowForm(true);
+    setModalOpen(true);
   };
 
   const handleDelete = async (id) => {
@@ -222,8 +229,8 @@ const ClientPage = () => {
   return (
     <Box sx={{ display: 'flex' }}>
       <CssBaseline />
-      <Navbar onMenuClick={handleDrawerToggle} />
-      <Sidebar open={drawerOpen} onClose={handleDrawerToggle} />
+      <Navbar onMenuClick={handleToggleSidebar} />
+      <Sidebar open={drawerOpen} onClose={handleToggleSidebar} />
       <MainContent>
         <ToolbarSpacer />
         <Container>
@@ -238,16 +245,25 @@ const ClientPage = () => {
             sx={{ mb: 2 }}
           />
           <ButtonContainer>
-            <Button variant="contained" color="primary" onClick={() => setShowForm(!showForm)}>
-              {showForm ? 'Cancel' : 'Add Client'}
+            <Button variant="contained" color="primary" onClick={() => {
+              setNewClient({ clientName: '', contactPerson: '', mobileNo: '', clientAddress: '' });
+              setEditingClientId(null);
+              setModalOpen(true);
+            }}>
+              Add Client
             </Button>
           </ButtonContainer>
 
-          {showForm && (
-            <SmallCard sx={{ mb: 2 }}>
+          {/* Modal for Add/Edit Client */}
+          <Modal
+            open={modalOpen}
+            onClose={() => setModalOpen(false)}
+          >
+            <Box sx={modalStyle}>
               <Typography variant="h6" align="center">{editingClientId ? 'Edit Client' : 'Add New Client'}</Typography>
               <form onSubmit={handleSubmit}>
                 <TextField
+                 type="string"
                   label="Client Name"
                   name="clientName"
                   value={newClient.clientName}
@@ -256,6 +272,7 @@ const ClientPage = () => {
                   required
                 />
                 <TextField
+                 type="string"
                   label="Contact Person"
                   name="contactPerson"
                   value={newClient.contactPerson}
@@ -264,6 +281,7 @@ const ClientPage = () => {
                   required
                 />
                 <TextField
+                 type="string"
                   label="Mobile Number"
                   name="mobileNo"
                   value={newClient.mobileNo}
@@ -272,6 +290,7 @@ const ClientPage = () => {
                   required
                 />
                 <TextField
+                 type="string"
                   label="Address"
                   name="clientAddress"
                   value={newClient.clientAddress}
@@ -283,11 +302,11 @@ const ClientPage = () => {
                   {editingClientId ? 'Update Client' : 'Add Client'}
                 </Button>
               </form>
-            </SmallCard>
-          )}
+            </Box>
+          </Modal>
 
           <Card>
-            <Typography sx={{fontWeight: "bold"}} variant="h4">List Of All Existing Clients</Typography>
+            <Typography sx={{ fontWeight: "bold" }} variant="h4">List Of All Existing Clients</Typography>
             <Paper sx={{ overflowX: 'auto', mt: 2 }}>
               <Table>
                 <thead>
@@ -313,10 +332,9 @@ const ClientPage = () => {
                         <IconButton variant="contained" color="secondary" sx={{ mr: 1 }} onClick={() => handleEdit(client)}>
                           <Edit fontSize="small" />
                         </IconButton>
-                      
                       </td>
                       <td>
-                      <IconButton variant="outlined" color="error" onClick={() => handleDelete(client._id)}>
+                        <IconButton variant="outlined" color="error" onClick={() => handleDelete(client._id)}>
                           <Delete fontSize="small" />
                         </IconButton>
                       </td>

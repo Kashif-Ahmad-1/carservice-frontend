@@ -108,9 +108,7 @@ const QuotationAdminPage = () => {
     </AppBar>
   );
 
-  useEffect(() => {
-    fetchQuotations();
-  }, []);
+
 
   useEffect(() => {
     setFilteredQuotations(
@@ -162,6 +160,10 @@ const QuotationAdminPage = () => {
       toast.error(error.message || "Error fetching quotations!");
     }
   };
+
+  useEffect(() => {
+    fetchQuotations();
+  }, []);
 
   const handleStatusUpdate = async (quotation) => {
     try {

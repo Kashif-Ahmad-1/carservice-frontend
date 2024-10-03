@@ -7,6 +7,8 @@ import {
   Typography,
   Button,
   TextField,
+  IconButton,
+  Modal,
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import Navbar from './Navbar';
@@ -14,7 +16,7 @@ import Sidebar from './Sidebar';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import API_BASE_URL from './../../config';
-
+import { Edit, Delete, Send } from '@mui/icons-material';
 
 const MainContent = styled('main')(({ theme }) => ({
   flexGrow: 1,
@@ -37,11 +39,11 @@ const Card = styled(Paper)(({ theme }) => ({
 }));
 
 const Table = styled('table')(({ theme }) => ({
+  // textAlign: 'left',
   width: '100%',
   borderCollapse: 'collapse',
   '& th, & td': {
     padding: theme.spacing(1),
-    // textAlign: 'left',
     borderBottom: `1px solid ${theme.palette.divider}`,
     fontSize: '1.2rem',
     fontWeight: '600',
@@ -62,13 +64,24 @@ const SmallCard = styled(Card)(({ theme }) => ({
   borderRadius: theme.shape.borderRadius,
 }));
 
+const modalStyle = {
+  position: 'absolute',
+  top: '50%',
+  left: '50%',
+  transform: 'translate(-50%, -50%)',
+  width: 400,
+  bgcolor: 'background.paper',
+  border: '2px solid #000',
+  boxShadow: 24,
+  p: 4,
+};
+
 const AccountantPage = () => {
   const [accountants, setAccountants] = useState([]);
   const [filteredAccountants, setFilteredAccountants] = useState([]);
   const [showForm, setShowForm] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [newAccountant, setNewAccountant] = useState({
     name: '',
     email: '',
@@ -77,16 +90,13 @@ const AccountantPage = () => {
     address: '',
   });
   const [editingAccountantId, setEditingAccountantId] = useState(null);
+  const [modalOpen, setModalOpen] = useState(false);
   const token = localStorage.getItem('token');
 
   const handleToggleSidebar = () => {
-    setSidebarOpen((prev) => !prev);
-  };
-
-  // Function to handle drawer toggle
-  const handleDrawerToggle = () => {
     setDrawerOpen((prev) => !prev);
   };
+
   const fetchAccountants = async () => {
     try {
       const response = await fetch(`${API_BASE_URL}/api/users/accountants`, {
@@ -152,7 +162,7 @@ const AccountantPage = () => {
 
       await fetchAccountants();
       toast.success(editingAccountantId ? 'Accountant updated successfully!' : 'Accountant added successfully!');
-      setShowForm(false);
+      setModalOpen(false);
       setNewAccountant({ name: '', email: '', password: '', mobileNumber: '', address: '' });
       setEditingAccountantId(null);
     } catch (error) {
@@ -162,9 +172,15 @@ const AccountantPage = () => {
   };
 
   const handleEdit = (accountant) => {
-    setNewAccountant(accountant);
+    setNewAccountant({ 
+      name: accountant.name, 
+      email: accountant.email, 
+      mobileNumber: accountant.mobileNumber, 
+      address: accountant.address,
+      password: '' // Set password to empty on edit
+    });
     setEditingAccountantId(accountant._id);
-    setShowForm(true);
+    setModalOpen(true);
   };
 
   const handleDelete = async (id) => {
@@ -216,8 +232,8 @@ const AccountantPage = () => {
   return (
     <Box sx={{ display: 'flex' }}>
       <CssBaseline />
-      <Navbar onMenuClick={handleDrawerToggle} />
-      <Sidebar open={drawerOpen} onClose={handleDrawerToggle} />
+      <Navbar onMenuClick={handleToggleSidebar} />
+      <Sidebar open={drawerOpen} onClose={handleToggleSidebar} />
       <MainContent>
         <ToolbarSpacer />
         <Container>
@@ -232,13 +248,21 @@ const AccountantPage = () => {
             sx={{ mb: 2 }}
           />
           <ButtonContainer>
-            <Button variant="contained" color="primary" onClick={() => setShowForm(!showForm)}>
-              {showForm ? 'Cancel' : 'Add Accountant'}
+            <Button variant="contained" color="primary" onClick={() => {
+              setNewAccountant({ name: '', email: '', password: '', mobileNumber: '', address: '' });
+              setEditingAccountantId(null);
+              setModalOpen(true);
+            }}>
+              Add Accountant
             </Button>
           </ButtonContainer>
 
-          {showForm && (
-            <SmallCard sx={{ mb: 2 }}>
+          {/* Modal for Add/Edit Accountant */}
+          <Modal
+            open={modalOpen}
+            onClose={() => setModalOpen(false)}
+          >
+            <Box sx={modalStyle}>
               <Typography variant="h6" align="center">{editingAccountantId ? 'Edit Accountant' : 'Add New Accountant'}</Typography>
               <form onSubmit={handleSubmit}>
                 <TextField
@@ -286,68 +310,57 @@ const AccountantPage = () => {
                   sx={{ mb: 1, width: '90%' }}
                   required
                 />
-                <Button type="submit" variant="contained" color="primary" sx={{ width: '90%' }}>
+                <Button type="submit" variant="contained" color="primary" sx={{ mt: 2 }}>
                   {editingAccountantId ? 'Update Accountant' : 'Add Accountant'}
                 </Button>
               </form>
-            </SmallCard>
-          )}
-
+            </Box>
+          </Modal>
           <Card>
-            <Typography sx={{fontWeight: "bold"}} variant="h4">List Of All Existing Accountants</Typography>
+            <Typography sx={{ fontWeight: "bold" }} variant="h4">List Of All Existing Accountants</Typography>
             <Paper sx={{ overflowX: 'auto', mt: 2 }}>
-              <Table>
-                <thead>
-                  <tr>
-                    <th>SR No</th>
-                    <th>Name</th>
-                    <th>Email</th>
-                    <th>Mobile Number</th>
-                    <th>Address</th>
-                    <th>Actions</th>
-                    <th>Password Reset</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredAccountants.map((accountant, index) => (
-                    <tr key={accountant._id}>
-                      <td>{index + 1}</td>
-                      <td>{accountant.name}</td>
-                      <td>{accountant.email}</td>
-                      <td>{accountant.mobileNumber}</td>
-                      <td>{accountant.address}</td>
-                      <td>
-                        <Button variant="contained" color="secondary" sx={{ mr: 1 }} onClick={() => handleEdit(accountant)}>
-                          Edit
-                        </Button>
-                        <Button variant="outlined" color="error" onClick={() => handleDelete(accountant._id)}>
-                          Delete
-                        </Button>
-                      </td>
-                      <td>
-                        <Button 
-                          variant="contained" 
-                          color="secondary" 
-                          onClick={() => handleSendResetLink(accountant.email)}
-                        >
-                          Send
-                        </Button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </Table>
-            </Paper>
+          {/* Accountant List */}
+          <Table>
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Mobile Number</th>
+                <th>Address</th>
+                <th>Actions</th>
+                <th>Send</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredAccountants.map(accountant => (
+                <tr key={accountant._id}>
+                  <td>{accountant.name}</td>
+                  <td>{accountant.email}</td>
+                  <td>{accountant.mobileNumber}</td>
+                  <td>{accountant.address}</td>
+                  <td>
+                    <IconButton onClick={() => handleEdit(accountant)}>
+                      <Edit />
+                    </IconButton>
+
+                    <IconButton onClick={() => handleDelete(accountant._id)}>
+                      <Delete />
+                    </IconButton>
+                   
+                  </td>
+                  <td> <IconButton onClick={() => handleSendResetLink(accountant.email)}>
+                      <Send />
+                    </IconButton></td>
+                </tr>
+              ))}
+            </tbody>
+          </Table>
+          </Paper>
           </Card>
-          
         </Container>
-    
+        <ToastContainer />
       </MainContent>
-     
-      <ToastContainer />
-      
     </Box>
-    
   );
 };
 
