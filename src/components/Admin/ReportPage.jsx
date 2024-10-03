@@ -10,6 +10,7 @@ import {
   InputLabel,
   Grid,
 } from '@mui/material';
+import API_BASE_URL from './../../config';
 import Navbar from './Navbar';
 import Sidebar from './Sidebar';
 import { Line } from 'react-chartjs-2';
@@ -46,11 +47,12 @@ const ReportPage = () => {
 
   const fetchEngineers = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/users/engineers/', {
+      const response = await fetch(`${API_BASE_URL}/api/users/engineers/`, {
         method: "GET",
         headers: {
-          "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+          
         },
       });
 
@@ -71,11 +73,12 @@ const ReportPage = () => {
 
   const fetchQuotations = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/quotations/', {
+      const response = await fetch(`${API_BASE_URL}/api/quotations/`, {
         method: "GET",
         headers: {
-          "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+          
         },
       });
 
@@ -93,11 +96,12 @@ const ReportPage = () => {
 
   const fetchEngineerQuotations = async (engineerId, range) => {
     try {
-      const response = await fetch(`http://localhost:5000/api/quotations/engineer/${engineerId}`, {
+      const response = await fetch(`${API_BASE_URL}/api/quotations/engineer/${engineerId}`, {
         method: "GET",
         headers: {
-          "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+         
         },
       });
 

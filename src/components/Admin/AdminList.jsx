@@ -7,6 +7,11 @@ import {
   Typography,
   Button,
   TextField,
+  IconButton,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
 } from '@mui/material';
 import API_BASE_URL from './../../config';
 import { styled } from '@mui/material/styles';
@@ -14,6 +19,7 @@ import Navbar from './Navbar';
 import Sidebar from './Sidebar';
 import { toast, ToastContainer } from 'react-toastify'; 
 import 'react-toastify/dist/ReactToastify.css'; 
+import { Edit, Delete, Send } from '@mui/icons-material';
 
 const MainContent = styled('main')(({ theme }) => ({
   flexGrow: 1,
@@ -40,7 +46,6 @@ const Table = styled('table')(({ theme }) => ({
   borderCollapse: 'collapse',
   '& th, & td': {
     padding: theme.spacing(1),
-    // textAlign: 'left',
     borderBottom: `1px solid ${theme.palette.divider}`,
     fontSize: '1.2rem',
     fontWeight: '600',
@@ -67,7 +72,6 @@ const AdminList = () => {
   const [showForm, setShowForm] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [newAdmin, setNewAdmin] = useState({ 
     name: '', 
     email: '', 
@@ -76,15 +80,13 @@ const AdminList = () => {
     address: ''
   });
   const [editingAdminId, setEditingAdminId] = useState(null);
+  const [dialogOpen, setDialogOpen] = useState(false);
   const token = localStorage.getItem('token');
-  const handleToggleSidebar = () => {
-    setSidebarOpen((prev) => !prev);
-  };
 
-  // Function to handle drawer toggle
-  const handleDrawerToggle = () => {
+  const handleToggleSidebar = () => {
     setDrawerOpen((prev) => !prev);
   };
+
   const fetchAdmins = async () => {
     try {
       const response = await fetch(`${API_BASE_URL}/api/users/admins`, {
@@ -161,7 +163,7 @@ const AdminList = () => {
 
       await fetchAdmins();
       toast.success(editingAdminId ? 'Admin updated successfully!' : 'Admin added successfully!');
-      setShowForm(false);
+      setDialogOpen(false);
       setNewAdmin({ name: '', email: '', password: '', mobileNumber: '', address: '' });
       setEditingAdminId(null);
     } catch (error) {
@@ -171,9 +173,15 @@ const AdminList = () => {
   };
 
   const handleEdit = (admin) => {
-    setNewAdmin(admin);
+    setNewAdmin({ 
+      name: admin.name, 
+      email: admin.email, 
+      mobileNumber: admin.mobileNumber, 
+      address: admin.address,
+      password: '' // Set password to empty on edit
+    });
     setEditingAdminId(admin._id);
-    setShowForm(true);
+    setDialogOpen(true);
   };
 
   const handleDelete = async (id) => {
@@ -225,8 +233,8 @@ const AdminList = () => {
   return (
     <Box sx={{ display: 'flex' }}>
       <CssBaseline />
-      <Navbar onMenuClick={handleDrawerToggle} />
-      <Sidebar open={drawerOpen} onClose={handleDrawerToggle} />
+      <Navbar onMenuClick={handleToggleSidebar} />
+      <Sidebar open={drawerOpen} onClose={handleToggleSidebar} />
       <MainContent>
         <ToolbarSpacer />
         <Container>
@@ -242,65 +250,76 @@ const AdminList = () => {
           />
 
           <ButtonContainer>
-            <Button variant="contained" color="primary" onClick={() => setShowForm(!showForm)}>
-              {showForm ? 'Cancel' : 'Add Admin'}
+            <Button variant="contained" color="primary" onClick={() => {
+              setEditingAdminId(null);
+              setNewAdmin({ name: '', email: '', password: '', mobileNumber: '', address: '' });
+              setDialogOpen(true);
+            }}>
+              Add Admin
             </Button>
           </ButtonContainer>
 
-          {showForm && (
-            <SmallCard sx={{ mb: 2 }}>
-              <Typography variant="h6" align="center">{editingAdminId ? 'Edit Admin' : 'Add New Admin'}</Typography>
+          <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)}>
+            <DialogTitle>{editingAdminId ? 'Edit Admin' : 'Add New Admin'}</DialogTitle>
+            <DialogContent>
               <form onSubmit={handleSubmit}>
                 <TextField
+                 type="string"
                   label="Name"
                   name="name"
                   value={newAdmin.name}
                   onChange={handleChange}
-                  sx={{ mb: 1, width: '90%' }} 
+                  sx={{ mb: 1, width: '100%' }} 
                   required
                 />
                 <TextField
+                 type="string"
                   label="Email"
                   name="email"
                   value={newAdmin.email}
                   onChange={handleChange}
-                  sx={{ mb: 1, width: '90%' }}
+                  sx={{ mb: 1, width: '100%' }}
                   required
                 />
                 <TextField
-                  label="Password"
-                  name="password"
-                  type="password"
-                  value={newAdmin.password}
-                  onChange={handleChange}
-                  sx={{ mb: 1, width: '90%' }}
-                  required={!editingAdminId} // Password required only on add
-                />
+  label="Password"
+  name="password"
+   type="string"
+  value={newAdmin.password}
+  onChange={handleChange}
+  sx={{ mb: 1, width: '100%' }}
+  required={!editingAdminId} // Password required only on add
+/>
                 <TextField
+                 type="string"
                   label="Mobile Number"
                   name="mobileNumber"
                   value={newAdmin.mobileNumber}
                   onChange={handleChange}
-                  sx={{ mb: 1, width: '90%' }}
+                  sx={{ mb: 1, width: '100%' }}
                   required
                 />
                 <TextField
+                 type="string"
                   label="Address"
                   name="address"
                   value={newAdmin.address}
                   onChange={handleChange}
-                  sx={{ mb: 1, width: '90%' }}
+                  sx={{ mb: 1, width: '100%' }}
                   required
                 />
-                <Button type="submit" variant="contained" color="primary" sx={{ width: '90%' }}>
-                  {editingAdminId ? 'Update Admin' : 'Add Admin'}
-                </Button>
+                <DialogActions>
+                  <Button onClick={() => setDialogOpen(false)}>Cancel</Button>
+                  <Button type="submit" variant="contained" color="primary">
+                    {editingAdminId ? 'Update Admin' : 'Add Admin'}
+                  </Button>
+                </DialogActions>
               </form>
-            </SmallCard>
-          )}
+            </DialogContent>
+          </Dialog>
 
           <Card>
-          <Typography sx={{fontWeight: "bold"}} variant="h4">List Of All Existing Admins</Typography>
+            <Typography sx={{ fontWeight: "bold" }} variant="h4">List Of All Existing Admins</Typography>
             <Paper sx={{ overflowX: 'auto', mt: 2 }}>
               <Table>
                 <thead>
@@ -323,30 +342,30 @@ const AdminList = () => {
                       <td>{admin.mobileNumber}</td>
                       <td>{admin.address}</td>
                       <td>
-                        <Button 
+                        <IconButton 
                           variant="contained" 
                           color="secondary" 
                           sx={{ mr: 1 }} 
                           onClick={() => handleEdit(admin)}
                         >
-                          Edit
-                        </Button>
-                        <Button 
+                          <Edit />
+                        </IconButton>
+                        <IconButton 
                           variant="outlined" 
                           color="error" 
                           onClick={() => handleDelete(admin._id)}
                         >
-                          Delete
-                        </Button>
+                          <Delete />
+                        </IconButton>
                       </td>
                       <td>
-                        <Button 
+                        <IconButton 
                           variant="contained" 
                           color="secondary" 
                           onClick={() => handleSendResetLink(admin.email)}
                         >
-                          Send
-                        </Button>
+                          <Send />
+                        </IconButton>
                       </td>
                     </tr>
                   ))}

@@ -8,6 +8,7 @@ import {
   Button,
   TextField,
   IconButton,
+  Modal,
 } from '@mui/material';
 import API_BASE_URL from './../../config';
 import { styled } from '@mui/material/styles';
@@ -16,6 +17,7 @@ import Sidebar from './Sidebar';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { Edit, Delete } from '@mui/icons-material';
+
 const MainContent = styled('main')(({ theme }) => ({
   flexGrow: 1,
   padding: theme.spacing(3),
@@ -41,7 +43,6 @@ const Table = styled('table')(({ theme }) => ({
   borderCollapse: 'collapse',
   '& th, & td': {
     padding: theme.spacing(1),
-    // textAlign: 'left',
     borderBottom: `1px solid ${theme.palette.divider}`,
     fontSize: '1.2rem',
     fontWeight: '600',
@@ -55,23 +56,27 @@ const ButtonContainer = styled('div')(({ theme }) => ({
   marginBottom: theme.spacing(2),
 }));
 
-const SmallCard = styled(Card)(({ theme }) => ({
-  maxWidth: 400,
-  margin: 'auto',
-  padding: theme.spacing(1),
-  borderRadius: theme.shape.borderRadius,
-}));
-
 const PaginationContainer = styled('div')(({ theme }) => ({
   display: 'flex',
   justifyContent: 'space-between',
   marginTop: theme.spacing(2),
 }));
 
+const modalStyle = {
+  position: 'absolute',
+  top: '50%',
+  left: '50%',
+  transform: 'translate(-50%, -50%)',
+  width: 400,
+  bgcolor: 'background.paper',
+  border: '2px solid #000',
+  boxShadow: 24,
+  p: 4,
+};
+
 const MachinePage = () => {
   const [machines, setMachines] = useState([]);
   const [filteredMachines, setFilteredMachines] = useState([]);
-  const [showForm, setShowForm] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [newMachine, setNewMachine] = useState({
     name: '',
@@ -79,20 +84,21 @@ const MachinePage = () => {
     modelNo: '',
     partNo: '',
   });
-  
   const [editingMachineId, setEditingMachineId] = useState(null);
+  const [modalOpen, setModalOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [machinesPerPage] = useState(15);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+
   const handleToggleSidebar = () => {
     setSidebarOpen((prev) => !prev);
   };
 
-  // Function to handle drawer toggle
   const handleDrawerToggle = () => {
     setDrawerOpen((prev) => !prev);
   };
+
   useEffect(() => {
     const fetchMachines = async () => {
       try {
@@ -116,14 +122,12 @@ const MachinePage = () => {
   }, []);
 
   useEffect(() => {
-    const results = machines
-      .filter(machine =>
-        (machine.name && machine.name.toLowerCase().includes(searchQuery.toLowerCase())) ||
-        (machine.quantity && machine.quantity.toString().includes(searchQuery)) ||
-        (machine.modelNo && machine.modelNo.toLowerCase().includes(searchQuery.toLowerCase())) ||
-        (machine.partNo && machine.partNo.toLowerCase().includes(searchQuery.toLowerCase()))
-      )
-      .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)); // Sort latest first
+    const results = machines.filter(machine =>
+      (machine.name && machine.name.toLowerCase().includes(searchQuery.toLowerCase())) ||
+      (machine.quantity && machine.quantity.toString().includes(searchQuery)) ||
+      (machine.modelNo && machine.modelNo.toLowerCase().includes(searchQuery.toLowerCase())) ||
+      (machine.partNo && machine.partNo.toLowerCase().includes(searchQuery.toLowerCase()))
+    ).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
     setFilteredMachines(results);
   }, [searchQuery, machines]);
@@ -139,7 +143,7 @@ const MachinePage = () => {
 
     const machineData = {
       ...newMachine,
-      createdAt: new Date().toISOString(), // Set the current timestamp
+      createdAt: new Date().toISOString(),
     };
 
     if (editingMachineId) {
@@ -171,22 +175,22 @@ const MachinePage = () => {
         });
         if (!response.ok) throw new Error('Failed to add machine');
         const addedMachine = await response.json();
-        setMachines(prev => [addedMachine, ...prev]); // Add new machine at the beginning
+        setMachines(prev => [addedMachine, ...prev]);
         toast.success('Machine added successfully!');
       } catch (error) {
         toast.error(error.message || 'Error adding machine');
       }
     }
 
-    setShowForm(false);
-    setNewMachine({ name: '', quantity: '' });
+    setModalOpen(false);
+    setNewMachine({ name: '', quantity: '', modelNo: '', partNo: '' });
     setEditingMachineId(null);
   };
 
   const handleEdit = (machine) => {
     setNewMachine(machine);
     setEditingMachineId(machine._id);
-    setShowForm(true);
+    setModalOpen(true);
   };
 
   const handleDelete = async (id) => {
@@ -235,37 +239,41 @@ const MachinePage = () => {
             sx={{ mb: 2 }}
           />
           <ButtonContainer>
-            <Button variant="contained" color="primary" onClick={() => setShowForm(!showForm)}>
-              {showForm ? 'Cancel' : 'Add Machine'}
+            <Button variant="contained" color="primary" onClick={() => setModalOpen(true)}>
+              Add Machine
             </Button>
           </ButtonContainer>
 
-          {showForm && (
-            <SmallCard sx={{ mb: 2 }}>
+          {/* Modal for Add/Edit Machine */}
+          <Modal
+            open={modalOpen}
+            onClose={() => setModalOpen(false)}
+          >
+            <Box sx={modalStyle}>
               <Typography variant="h6" align="center">{editingMachineId ? 'Edit Machine' : 'Add New Machine'}</Typography>
               <form onSubmit={handleSubmit}>
                 <TextField
+                 type="string"
                   label="Machine Name"
                   name="name"
-                  type="string"
                   value={newMachine.name}
                   onChange={handleChange}
                   sx={{ mb: 1, width: '90%' }}
                   required
                 />
                 <TextField
+                 type="string"
                   label="Model No."
                   name="modelNo"
-                  type="string"
                   value={newMachine.modelNo}
                   onChange={handleChange}
                   sx={{ mb: 1, width: '90%' }}
                   required
                 />
                 <TextField
+                 type="string"
                   label="Part No."
                   name="partNo"
-                  type="string"
                   value={newMachine.partNo}
                   onChange={handleChange}
                   sx={{ mb: 1, width: '90%' }}
@@ -275,11 +283,11 @@ const MachinePage = () => {
                   {editingMachineId ? 'Update Machine' : 'Add Machine'}
                 </Button>
               </form>
-            </SmallCard>
-          )}
+            </Box>
+          </Modal>
 
           <Card>
-            <Typography sx={{fontWeight: "bold"}} variant="h4">List Of All Existings Machine</Typography>
+            <Typography sx={{ fontWeight: "bold" }} variant="h4">List Of All Existing Machines</Typography>
             <Paper sx={{ overflowX: 'auto', mt: 2 }}>
               <Table>
                 <thead>
@@ -301,16 +309,13 @@ const MachinePage = () => {
                       <td>{machine.partNo}</td>
                       <td>
                         <IconButton variant="contained" color="secondary" sx={{ mr: 1 }} onClick={() => handleEdit(machine)}>
-                          <Edit fontSize='small'/>
+                          <Edit fontSize='small' />
                         </IconButton>
-                       
                       </td>
                       <td>
-                       
                         <IconButton variant="outlined" color="error" onClick={() => handleDelete(machine._id)}>
-                          <Delete fontSize='small'/>
+                          <Delete fontSize='small' />
                         </IconButton>
-                        
                       </td>
                     </tr>
                   ))}

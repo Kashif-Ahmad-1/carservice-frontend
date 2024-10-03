@@ -14,7 +14,11 @@ import {
   Button,
   Box,
   Grid,
+  AppBar,
+  Toolbar,
+
 } from "@mui/material";
+import Menu from '@mui/icons-material/Menu';
 import API_BASE_URL from './../../config';
 import { jsPDF } from "jspdf";
 import autoTable from "jspdf-autotable";
@@ -22,6 +26,33 @@ import axios from "axios"; // Import axios for API calls
 import logo from './comp-logo.jpeg';
 import { toast } from 'react-toastify';
 import MessageTemplate from "./../MessageTemplate";
+import Sidebar from "./Sidebar";
+
+const Header = ({ onToggleSidebar }) => (
+  <AppBar position="fixed" sx={{ backgroundColor: "gray", zIndex: 1201 }}> {/* Ensure zIndex is higher than sidebar */}
+    <Toolbar>
+    <Button onClick={onToggleSidebar} sx={{ color: 'white' }}>
+  <Menu sx={{ fontSize: 30 }} />
+</Button>
+      <img
+        src={logo}
+        alt="Company Logo"
+        style={{ width: 40, height: 40, marginRight: 10 }}
+      />
+      <Typography variant="h6" sx={{ flexGrow: 1, fontWeight: "bold" }}>
+        AEROLUBE ENGINEERS
+      </Typography>
+    </Toolbar>
+  </AppBar>
+);
+const Footer = () => (
+  <Box sx={{ padding: '10px 20px', textAlign: 'center', backgroundColor: '#f5f5f5', marginTop: '20px' }}>
+    <Typography variant="body2">© XYZ Company</Typography>
+    <Typography variant="body2">Generated on: {new Date().toLocaleString()}</Typography>
+  </Box>
+);
+
+
 const ChecklistPage = () => {
   const initialChecklist = [
     {
@@ -342,7 +373,7 @@ const ChecklistPage = () => {
   const [authorizedSignature, setAuthorizedSignature] = useState("");
   const [appointmentId, setAppointmentId] = useState("");
   const [spareParts, setSpareParts] = useState([{ desc: "", partNo: "", qty: "" }]);
- 
+  const [sidebarOpen, setSidebarOpen] = useState(true);
   const location = useLocation();
   const { invoiceNo,documentNumber } = location.state || {};
 
@@ -624,12 +655,18 @@ const ChecklistPage = () => {
       console.error("WhatsApp Error:", error);
     }
   };
-
+  const handleToggleSidebar = () => {
+    setSidebarOpen((prev) => !prev);
+  };
   return (
+    <>
+    {sidebarOpen && <Sidebar />}
+      <Header onToggleSidebar={handleToggleSidebar} />
     <TableContainer
       component={Paper}
-      style={{ margin: "20px auto", maxWidth: "900px", padding: "20px" }}
+      style={{ margin: "80px auto", maxWidth: "900px", padding: "20px" }}
     >
+        
       <Typography
         variant="h4"
         align="center"
@@ -975,7 +1012,10 @@ const ChecklistPage = () => {
           Submit and Generate PDF
         </Button>
       </Box>
+      
     </TableContainer>
+    <Footer />
+    </>
   );
 };
 
