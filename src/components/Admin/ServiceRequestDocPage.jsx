@@ -13,7 +13,7 @@ import {
 } from "@mui/material";
 
 import MessageTemplate from "../MessageTemplate";
-import API_BASE_URL from './../../config';
+import {API_BASE_URL,WHATSAPP_CONFIG} from './../../config';
 import logo from './comp-logo.jpeg';
 import { styled } from "@mui/material/styles";
 import { toast, ToastContainer } from "react-toastify";
@@ -176,12 +176,12 @@ const ServiceRequestDocPage = () => {
 
   const handleSendPdfToMobile = async (pdfUrl, mobileNumber) => {
     try {
-      const whatsappAuth = 'Basic ' + btoa('kashif2789:test@123');
+      const whatsappAuth = 'Basic ' + btoa(`${WHATSAPP_CONFIG.username}:${WHATSAPP_CONFIG.password}`);
   
       // Use the message template function
       const message = MessageTemplate(pdfUrl);
   
-      const response = await axios.post('https://cors-anywhere.herokuapp.com/https://app.messageautosender.com/api/v1/message/create', {
+      const response = await axios.post(`${WHATSAPP_CONFIG.url}`, {
         receiverMobileNo: mobileNumber,
         message: [message]
       }, {
@@ -228,6 +228,7 @@ const ServiceRequestDocPage = () => {
                     <th>Client Name</th>
                     <th>Contact Person</th>
                     <th>Mobile Number</th>
+                    <th>Engineer</th>
                     <th>Document</th>
                     <th>Actions</th>
                     <th>Send</th>
@@ -242,6 +243,7 @@ const ServiceRequestDocPage = () => {
                         <td>{checklist.clientInfo?.name || "N/A"}</td>
                         <td>{checklist.clientInfo?.contactPerson || "N/A"}</td>
                         <td>{checklist.clientInfo?.phone || "N/A"}</td>
+                        <td>{checklist.clientInfo?.engineer || "N/A"}</td>
                         <td>
                           <IconButton
                             variant="contained"

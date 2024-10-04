@@ -3,7 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "./AccountAddPage.css";
-import API_BASE_URL from './../../config';
+import {API_BASE_URL,WHATSAPP_CONFIG} from './../../config';
+import Footer from "../Footer";
 function AppointmentPage() {
   const navigate = useNavigate();
 
@@ -553,8 +554,9 @@ function AppointmentPage() {
           ))}
         </ul>
       </div>
-
+      <Footer />
       <ToastContainer />
+      
     </div>
   );
 }

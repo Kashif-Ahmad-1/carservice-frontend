@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import styles from './ResetPassword.module.css'; // Assuming you have a CSS module for styling
-import API_BASE_URL from './../../config';
+import {API_BASE_URL} from './../../config';
 const ResetPassword = () => {
   const { token } = useParams(); // Get token from URL
   const [newPassword, setNewPassword] = useState('');

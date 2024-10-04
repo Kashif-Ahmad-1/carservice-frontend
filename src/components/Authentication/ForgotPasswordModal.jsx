@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import styles from './ForgotPasswordModal.module.css';
-import API_BASE_URL from './../../config';
+import {API_BASE_URL} from './../../config';
 const ForgotPasswordModal = ({ onClose }) => {
   const [email, setEmail] = useState('');
   const [message, setMessage] = useState('');

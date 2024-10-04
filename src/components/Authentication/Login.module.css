@@ -12,11 +12,14 @@
   align-items: center;
 }
 
+
+
 .loginLeft img {
-  width: 100%; /* Responsive image */
-  max-width: 400px; /* Max width for larger screens */
+  width: 80%; /* Set to a percentage to make it responsive */
+  max-width: 300px; /* Reduced max width for larger screens */
   height: auto; /* Maintain aspect ratio */
 }
+
 
 .loginRight {
   flex-grow: 1;
@@ -119,5 +122,11 @@ form input[type='password'] {
   }
   .loginRight {
     justify-content: flex-start; /* Align left on larger screens */
+  }
+}
+
+@media (max-width: 600px) {
+  .loginLeft img {
+    max-width: 80%; /* Smaller max width on mobile */
   }
 }

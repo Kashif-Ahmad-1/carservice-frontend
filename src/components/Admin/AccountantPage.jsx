@@ -15,7 +15,7 @@ import Navbar from './Navbar';
 import Sidebar from './Sidebar';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import API_BASE_URL from './../../config';
+import {API_BASE_URL,WHATSAPP_CONFIG} from './../../config';
 import { Edit, Delete, Send } from '@mui/icons-material';
 
 const MainContent = styled('main')(({ theme }) => ({

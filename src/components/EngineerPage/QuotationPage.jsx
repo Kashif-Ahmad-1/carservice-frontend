@@ -14,7 +14,7 @@ import {
   Modal,
 } from "@mui/material";
 import MessageTemplate from "../MessageTemplate";
-import API_BASE_URL from "./../../config";
+import {API_BASE_URL,WHATSAPP_CONFIG} from "./../../config";
 import { styled } from "@mui/material/styles";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -22,6 +22,7 @@ import { Download, Menu, Delete, Edit, Send } from "@mui/icons-material";
 
 import Sidebar from "./Sidebar";
 import axios from "axios";
+import Footer from "../Footer";
 const MainContent = styled("main")(({ theme }) => ({
   flexGrow: 1,
   padding: theme.spacing(3),
@@ -311,25 +312,21 @@ const QuotationAdminPage = () => {
 
   const handleSendPdfToMobile = async (pdfUrl, mobileNumber) => {
     try {
-      const whatsappAuth = "Basic " + btoa("kashif3789:test@123");
-
+      const whatsappAuth = 'Basic ' + btoa(`${WHATSAPP_CONFIG.username}:${WHATSAPP_CONFIG.password}`);
+  
       // Use the message template function
       const message = MessageTemplate(pdfUrl);
-
-      const response = await axios.post(
-        "https://cors-anywhere.herokuapp.com/https://app.messageautosender.com/api/v1/message/create",
-        {
-          receiverMobileNo: mobileNumber,
-          message: [message],
-        },
-        {
-          headers: {
-            Authorization: whatsappAuth,
-            "Content-Type": "application/json",
-          },
+  
+      const response = await axios.post(`${WHATSAPP_CONFIG.url}`, {
+        receiverMobileNo: mobileNumber,
+        message: [message]
+      }, {
+        headers: {
+          'Authorization': whatsappAuth,
+          'Content-Type': 'application/json',
         }
-      );
-
+      });
+  
       toast.success("PDF sent to mobile successfully!");
     } catch (error) {
       toast.error("Error sending PDF to mobile!");
@@ -345,6 +342,7 @@ const QuotationAdminPage = () => {
   };
 
   return (
+    <>
     <Box sx={{ display: "flex" }}>
       <CssBaseline />
       {sidebarOpen && <Sidebar />}
@@ -664,9 +662,14 @@ const QuotationAdminPage = () => {
           </Modal>
 
           <ToastContainer />
+         
         </Container>
+        
       </MainContent>
+     
     </Box>
+    <Footer />
+    </>
   );
 };
 

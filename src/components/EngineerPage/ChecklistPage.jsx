@@ -18,8 +18,9 @@ import {
   Toolbar,
 
 } from "@mui/material";
+
 import Menu from '@mui/icons-material/Menu';
-import API_BASE_URL from './../../config';
+import {API_BASE_URL,WHATSAPP_CONFIG} from './../../config';
 import { jsPDF } from "jspdf";
 import autoTable from "jspdf-autotable";
 import axios from "axios"; // Import axios for API calls
@@ -27,6 +28,7 @@ import logo from './comp-logo.jpeg';
 import { toast } from 'react-toastify';
 import MessageTemplate from "./../MessageTemplate";
 import Sidebar from "./Sidebar";
+import Footer from "../Footer";
 
 const Header = ({ onToggleSidebar }) => (
   <AppBar position="fixed" sx={{ backgroundColor: "gray", zIndex: 1201 }}> {/* Ensure zIndex is higher than sidebar */}
@@ -45,12 +47,7 @@ const Header = ({ onToggleSidebar }) => (
     </Toolbar>
   </AppBar>
 );
-const Footer = () => (
-  <Box sx={{ padding: '10px 20px', textAlign: 'center', backgroundColor: '#f5f5f5', marginTop: '20px' }}>
-    <Typography variant="body2">© XYZ Company</Typography>
-    <Typography variant="body2">Generated on: {new Date().toLocaleString()}</Typography>
-  </Box>
-);
+
 
 
 const ChecklistPage = () => {
@@ -373,10 +370,29 @@ const ChecklistPage = () => {
   const [authorizedSignature, setAuthorizedSignature] = useState("");
   const [appointmentId, setAppointmentId] = useState("");
   const [spareParts, setSpareParts] = useState([{ desc: "", partNo: "", qty: "" }]);
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const location = useLocation();
-  const { invoiceNo,documentNumber } = location.state || {};
+  const { invoiceNo } = location.state || {};
+  const [template, setTemplate] = useState('');
+  const [documentNumber, setDocumentNumber] = useState(0);
 
+  useEffect(() => {
+      const fetchData = async () => {
+          try {
+              const response = await axios.get(`${API_BASE_URL}/api/checklist/last`);
+              const data = response.data;
+              // Store invcdocument value in the state
+            let  invoicedocument = data.invcdocument + 1;
+              setDocumentNumber(invoicedocument);
+          } catch (error) {
+              console.error("Error fetching the data:", error);
+          }
+      };
+
+      fetchData();
+  }, []);
+  
+ 
 
   const handleSparePartChange = (index, event) => {
     const newSpareParts = [...spareParts];
@@ -403,6 +419,8 @@ const ChecklistPage = () => {
       console.log(appointmentId)
     }
   }, [location.state]);
+
+ 
 
   const handleCheckboxChange = (index, type) => {
     const newList =
@@ -628,33 +646,47 @@ const ChecklistPage = () => {
     }
 
     // Save the PDF locally (optional)
-    doc.save("checklist.pdf");
+    // doc.save("checklist.pdf");
   };
 
   // Function to send the PDF to mobile via WhatsApp
   const handleSendPdfToMobile = async (pdfUrl, mobileNumber) => {
+    const storedTemplate = localStorage.getItem('messageTemplate');
+    const template = storedTemplate || `Hello! 📄
+  
+    We have generated a new PDF document for you. 
+  
+    📑 **Document Title**: Document Title Here
+    ✍️ **Description**: Brief description of what this PDF contains.
+    🔗 **Download Link**: {pdfUrl}
+  
+    If you have any questions, feel free to reach out!
+  
+    Thank you! 😊`;
+
     try {
-      const whatsappAuth = 'Basic ' + btoa('kashif2789:test@123');
-  
-      // Use the message template function
-      const message = MessageTemplate(pdfUrl);
-  
-      const response = await axios.post('https://cors-anywhere.herokuapp.com/https://app.messageautosender.com/api/v1/message/create', {
-        receiverMobileNo: mobileNumber,
-        message: [message]
-      }, {
-        headers: {
-          'Authorization': whatsappAuth,
-          'Content-Type': 'application/json',
-        }
-      });
-  
-      toast.success("PDF sent to mobile successfully!");
+        const whatsappAuth = 'Basic ' + btoa(`${WHATSAPP_CONFIG.username}:${WHATSAPP_CONFIG.password}`);
+
+        // Use the message template function with the PDF URL
+        const message = MessageTemplate(pdfUrl, template);
+
+        const response = await axios.post(`${WHATSAPP_CONFIG.url}`, {
+            receiverMobileNo: mobileNumber,
+            message: [message]
+        }, {
+            headers: {
+                'Authorization': whatsappAuth,
+                'Content-Type': 'application/json',
+            }
+        });
+
+        toast.success("PDF sent to mobile successfully!");
     } catch (error) {
-      toast.error("Error sending PDF to mobile!");
-      console.error("WhatsApp Error:", error);
+        toast.error("Error sending PDF to mobile!");
+        console.error("WhatsApp Error:", error);
     }
-  };
+};
+
   const handleToggleSidebar = () => {
     setSidebarOpen((prev) => !prev);
   };
@@ -675,8 +707,8 @@ const ChecklistPage = () => {
         Service Checklist
       </Typography>
       <Box sx={{ marginBottom: "10px", padding: "0 10px" }}>
-        <Typography variant="h6" sx={{ marginBottom: "5px", fontSize: "16px" }}>
-          Client Information : Doc Number {documentNumber}
+        <Typography variant="h4" sx={{ marginBottom: "5px", fontSize: "16px" }}>
+          Client Information : <strong>Doc Number {documentNumber}</strong>
         </Typography>
         <Grid container spacing={1}>
           <Grid item xs={12} md={3}>
@@ -1014,7 +1046,7 @@ const ChecklistPage = () => {
       </Box>
       
     </TableContainer>
-    <Footer />
+   <Footer />
     </>
   );
 };

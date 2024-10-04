@@ -10,7 +10,7 @@ import {
   Card as MuiCard,
   Modal,
 } from "@mui/material";
-import API_BASE_URL from "./../../config";
+import {API_BASE_URL,WHATSAPP_CONFIG} from "./../../config";
 import { styled } from "@mui/material/styles";
 import { Bar, Pie } from "react-chartjs-2";
 import {

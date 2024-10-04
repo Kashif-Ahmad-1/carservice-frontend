@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import API_BASE_URL from './../../config';
+import {API_BASE_URL} from './../../config';
 import logo from './comp-logo.jpeg';
 import {
   Table,
@@ -26,6 +26,7 @@ import AppointmentSidebar from './AppointmentSidebar';
 import AddMachine from './AddMachine';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import Footer from '../Footer';
 
 function AppointmentDetailsPage() {
   const [appointments, setAppointments] = useState([]);
@@ -194,19 +195,7 @@ function AppointmentDetailsPage() {
     </AppBar>
   );
 
-  const Footer = () => (
-    <Box sx={{
-      padding: 2,
-      textAlign: "center",
-      backgroundColor: "#f1f1f1",
-      marginTop: "auto",
-      borderTop: '1px solid #e0e0e0',
-    }}>
-      <Typography variant="body2" sx={{ color: '#666' }}>
-        © {new Date().getFullYear()} Company Name. All rights reserved.
-      </Typography>
-    </Box>
-  );
+ 
 
   return (
     <div style={{ display: 'flex' }}>
@@ -617,8 +606,9 @@ function AppointmentDetailsPage() {
           onPageChange={handleChangePage}
           sx={{ marginTop: 2 }}
         />
-        <Footer />
+         <Footer />
       </Container>
+     
     </div>
   );
   
