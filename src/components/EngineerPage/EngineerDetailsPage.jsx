@@ -36,7 +36,8 @@ import {
   History as HistoryIcon,
 } from "@mui/icons-material";
 import Sidebar from "./Sidebar"; // Adjust path if necessary
-import API_BASE_URL from "./../../config";
+import {API_BASE_URL,WHATSAPP_CONFIG} from "./../../config";
+import Footer from "../Footer";
 // Header Component
 const Header = ({ onToggleSidebar }) => (
   <AppBar position="fixed" sx={{ backgroundColor: "gray", zIndex: 1201 }}> {/* Ensure zIndex is higher than sidebar */}
@@ -57,22 +58,6 @@ const Header = ({ onToggleSidebar }) => (
 );
 
 
-
-// Footer Component
-const Footer = () => (
-  <Box
-    sx={{
-      padding: 2,
-      textAlign: "center",
-      backgroundColor: "#f1f1f1",
-      marginTop: "auto",
-    }}
-  >
-    <Typography variant="body2">
-      © {new Date().getFullYear()} Company Name. All rights reserved.
-    </Typography>
-  </Box>
-);
 
 const headerColor = "#ff4d30"; // Single color code for headers
 
@@ -174,9 +159,9 @@ function EngineerDetailsPage() {
     );
   }
 
-  if (appointments.length === 0) {
-    return <Typography variant="h6">Loading...</Typography>;
-  }
+  // if (appointments.length === 0) {
+  //   return <Typography variant="h6">Loading...</Typography>;
+  // }
 
   const toggleRow = (index) => {
     setExpandedRows((prev) => {
@@ -293,6 +278,7 @@ function EngineerDetailsPage() {
 
   // .................................................
   return (
+    <>
     <Box
       sx={{
         display: "flex",
@@ -977,6 +963,7 @@ function EngineerDetailsPage() {
             </IconButton>
           </Box>
         </Container>
+        
       </Box>
 
       {/* Modal for Service History */}
@@ -1025,7 +1012,10 @@ function EngineerDetailsPage() {
           </Button>
         </Box>
       </Modal>
+      
     </Box>
+    <Footer />
+    </>
   );
 }
 

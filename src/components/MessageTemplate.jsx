@@ -1,19 +1,25 @@
+const MessageTemplate = (pdfUrl, template) => {
+  return template.replace('{pdfUrl}', pdfUrl);
+};
 
-const MessageTemplate = (pdfUrl) => {
-    return `
-      Hello! 📄
+export default MessageTemplate;
+// const MessageTemplate = (pdfUrl) => {
+//     return `
+//       Hello! 📄
   
-      We have generated a new PDF document for you. 
+//       We have generated a new PDF document for you. 
   
-      📑 **Document Title**: Document Title Here
-      ✍️ **Description**: Brief description of what this PDF contains.
-      🔗 **Download Link**: ${pdfUrl}
+//       📑 **Document Title**: Document Title Here
+//       ✍️ **Description**: Brief description of what this PDF contains.
+//       🔗 **Download Link**: ${pdfUrl}
   
-      If you have any questions, feel free to reach out!
+//       If you have any questions, feel free to reach out!
   
-      Thank you! 😊
-    `;
-  };
+//       Thank you! 😊
+//     `;
+//   };
   
-  export default MessageTemplate;
+//   export default MessageTemplate;
   
+
+

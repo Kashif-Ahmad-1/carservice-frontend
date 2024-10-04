@@ -10,7 +10,7 @@ import {
   InputLabel,
   Grid,
 } from '@mui/material';
-import API_BASE_URL from './../../config';
+import {API_BASE_URL} from './../../config';
 import Navbar from './Navbar';
 import Sidebar from './Sidebar';
 import { Line } from 'react-chartjs-2';

@@ -24,6 +24,8 @@ import ServiceadminRequestDocPage from "./components/Admin/ServiceRequestDocPage
 
 import QuotationAdminPage from "./components/Admin/QuotationAdminPage";
 import ReportPage from "./components/Admin/ReportPage";
+import MessageTemplate from "./components/MessageTemplate";
+import TemplateManager from "./components/TemplateManager";
 function App() {
   // const role = localStorage.getItem("role");
   // console.log(role);
@@ -106,6 +108,8 @@ function App() {
           <Route path="/machine-list" element={<MachinePage />} />
           <Route path="/admin-list" element={<AdminList />} />
           <Route path="/reset/:token" element={<ResetPassword />} />
+          <Route path="/messagetemplate" element={<MessageTemplate />} />
+          <Route path="/templatemanager" element={<TemplateManager />} />
          
           
         </Routes>

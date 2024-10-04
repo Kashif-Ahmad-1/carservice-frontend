@@ -13,7 +13,7 @@ import {
   DialogContent,
   DialogTitle,
 } from '@mui/material';
-import API_BASE_URL from './../../config';
+import {API_BASE_URL,WHATSAPP_CONFIG} from './../../config';
 import { styled } from '@mui/material/styles';
 import Navbar from './Navbar';
 import Sidebar from './Sidebar';

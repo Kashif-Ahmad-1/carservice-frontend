@@ -5,7 +5,7 @@ import "./PdfGenerator.css";
 import { useLocation } from "react-router-dom";
 import axios from "axios";
 import logo from './comp-logo.jpeg';
-import API_BASE_URL from './../../config';
+import {API_BASE_URL,WHATSAPP_CONFIG} from './../../config';
 import { toast } from 'react-toastify';
 import MessageTemplate from "../MessageTemplate";
 const QuotationGenerator = () => {
@@ -284,12 +284,12 @@ const QuotationGenerator = () => {
 
 const handleSendPdfToMobile = async (pdfUrl, mobileNumber) => {
   try {
-    const whatsappAuth = 'Basic ' + btoa('kashif2789:test@123');
+    const whatsappAuth = 'Basic ' + btoa(`${WHATSAPP_CONFIG.username}:${WHATSAPP_CONFIG.password}`);
 
     // Use the message template function
     const message = MessageTemplate(pdfUrl);
 
-    const response = await axios.post('https://cors-anywhere.herokuapp.com/https://app.messageautosender.com/api/v1/message/create', {
+    const response = await axios.post(`${WHATSAPP_CONFIG.url}`, {
       receiverMobileNo: mobileNumber,
       message: [message]
     }, {

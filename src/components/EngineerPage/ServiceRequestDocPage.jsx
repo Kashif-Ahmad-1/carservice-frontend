@@ -12,7 +12,7 @@ import {
   TextField,
 } from "@mui/material";
 import MessageTemplate from "../MessageTemplate";
-import API_BASE_URL from './../../config';
+import {API_BASE_URL,WHATSAPP_CONFIG} from './../../config';
 import logo from './comp-logo.jpeg';
 import { styled } from "@mui/material/styles";
 import { toast, ToastContainer } from "react-toastify";
@@ -20,6 +20,7 @@ import "react-toastify/dist/ReactToastify.css";
 import { Download, Menu, Delete,Send } from "@mui/icons-material"; 
 import Sidebar from "./Sidebar";
 import axios from 'axios';
+import Footer from "../Footer";
 
 const MainContent = styled("main")(({ theme }) => ({
   flexGrow: 1,
@@ -144,12 +145,12 @@ const ServiceRequestDocPage = () => {
 
   const handleSendPdfToMobile = async (pdfUrl, mobileNumber) => {
     try {
-      const whatsappAuth = 'Basic ' + btoa('kashif2789:test@123');
+      const whatsappAuth = 'Basic ' + btoa(`${WHATSAPP_CONFIG.username}:${WHATSAPP_CONFIG.password}`);
   
       // Use the message template function
       const message = MessageTemplate(pdfUrl);
   
-      const response = await axios.post('https://cors-anywhere.herokuapp.com/https://app.messageautosender.com/api/v1/message/create', {
+      const response = await axios.post(`${WHATSAPP_CONFIG.url}`, {
         receiverMobileNo: mobileNumber,
         message: [message]
       }, {
@@ -198,6 +199,7 @@ const ServiceRequestDocPage = () => {
   };
 
   return (
+    <>
     <Box sx={{ display: "flex" }}>
       <CssBaseline />
       {sidebarOpen && <Sidebar />}
@@ -305,10 +307,15 @@ const ServiceRequestDocPage = () => {
               </Button>
             </Box>
           </Card>
+          
         </Container>
+        
       </MainContent>
+      
       <ToastContainer />
+      
     </Box>
+    <Footer /></>
   );
 };
 
