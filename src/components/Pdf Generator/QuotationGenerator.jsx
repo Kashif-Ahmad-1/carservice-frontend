@@ -8,9 +8,38 @@ import logo from './comp-logo.jpeg';
 import {API_BASE_URL,WHATSAPP_CONFIG} from './../../config';
 import { toast } from 'react-toastify';
 import MessageTemplate from "../MessageTemplate";
+import Footer from "../Footer";
+import {
+   Typography,
+  Button,
+    AppBar,
+  Toolbar,
+
+} from "@mui/material";
+import Sidebar from "../EngineerPage/Sidebar";
+import Menu from '@mui/icons-material/Menu';
+const Header = ({ onToggleSidebar }) => (
+  <AppBar position="fixed" sx={{ backgroundColor: "gray", zIndex: 1201 }}> {/* Ensure zIndex is higher than sidebar */}
+    <Toolbar>
+    <Button onClick={onToggleSidebar} sx={{ color: 'white' }}>
+  <Menu sx={{ fontSize: 30 }} />
+</Button>
+      <img
+        src={logo}
+        alt="Company Logo"
+        style={{ width: 40, height: 40, marginRight: 10 }}
+      />
+      <Typography variant="h6" sx={{ flexGrow: 1, fontWeight: "bold" }}>
+        AEROLUBE ENGINEERS
+      </Typography>
+    </Toolbar>
+  </AppBar>
+);
+
 const QuotationGenerator = () => {
   const formRef = useRef();
   const location = useLocation();
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const { clientName, contactPerson, address, mobileNo, appointmentId,invoiceNumber,engineer } = location.state || {};
 
   const generateQuotationNo = () => "QT" + Math.floor(Math.random() * 100000);
@@ -25,7 +54,9 @@ const QuotationGenerator = () => {
     engineer: engineer || "",
   });
 
- 
+  const handleToggleSidebar = () => {
+    setSidebarOpen((prev) => !prev);
+  };
 
   const [itemData, setItemData] = useState({
     itemName: "",
@@ -283,20 +314,36 @@ const QuotationGenerator = () => {
 
 
 const handleSendPdfToMobile = async (pdfUrl, mobileNumber) => {
+  // Retrieve the stored template for Template 1 from localStorage
+  const storedTemplate2 = localStorage.getItem('messageTemplate2');
+  
+  // Fallback to the default Template 1 if nothing is stored
+  const template2 = storedTemplate2 || `Hello! 📄
+  
+  We have generated a new Quotation document for you. 
+  
+  📑 **Document Title**: Quotation Document
+  ✍️ **Description**: This is Quotation Document.
+  🔗 **Download Link**: {pdfUrl}
+  
+  If you have any questions, feel free to reach out!
+  
+  Thank you! 😊`;
+
   try {
     const whatsappAuth = 'Basic ' + btoa(`${WHATSAPP_CONFIG.username}:${WHATSAPP_CONFIG.password}`);
 
-    // Use the message template function
-    const message = MessageTemplate(pdfUrl);
+    // Use the message template function with the PDF URL
+    const message = MessageTemplate(pdfUrl, template2);  // Replace {pdfUrl} with the actual URL
 
     const response = await axios.post(`${WHATSAPP_CONFIG.url}`, {
       receiverMobileNo: mobileNumber,
-      message: [message]
+      message: [message],  // Send the final message as an array
     }, {
       headers: {
         'Authorization': whatsappAuth,
         'Content-Type': 'application/json',
-      }
+      },
     });
 
     toast.success("PDF sent to mobile successfully!");
@@ -307,6 +354,9 @@ const handleSendPdfToMobile = async (pdfUrl, mobileNumber) => {
 };
 
   return (
+    <>
+    {sidebarOpen && <Sidebar />}
+    <Header onToggleSidebar={handleToggleSidebar} />
     <div className="container-pdf" ref={formRef}>
       <h2>Quotations</h2>
       <form className="form-box">
@@ -422,6 +472,8 @@ const handleSendPdfToMobile = async (pdfUrl, mobileNumber) => {
        
       </form>
     </div>
+    <Footer />
+    </>
   );
 };
 

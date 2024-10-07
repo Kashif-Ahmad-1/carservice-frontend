@@ -19,7 +19,7 @@ import { styled } from "@mui/material/styles";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { Download, Menu, Delete, Edit, Send } from "@mui/icons-material";
-
+import './EngineerDetailsPage.css'
 import Sidebar from "./Sidebar";
 import axios from "axios";
 import Footer from "../Footer";
@@ -50,7 +50,7 @@ const Table = styled("table")(({ theme }) => ({
     padding: theme.spacing(1),
     // textAlign: "left",
     borderBottom: `1px solid ${theme.palette.divider}`,
-    fontSize: "1.1rem", // Smaller font for mobile
+    fontSize: "1rem", // Smaller font for mobile
     fontWeight: "550",
   },
   "& th": {
@@ -311,20 +311,36 @@ const QuotationAdminPage = () => {
   };
 
   const handleSendPdfToMobile = async (pdfUrl, mobileNumber) => {
+    // Retrieve the stored template for Template 1 from localStorage
+    const storedTemplate2 = localStorage.getItem('messageTemplate2');
+    
+    // Fallback to the default Template 1 if nothing is stored
+    const template2 = storedTemplate2 || `Hello! 📄
+    
+    We have generated a new PDF document for you. 
+    
+    📑 **Document Title**: Document Title Here
+    ✍️ **Description**: Brief description of what this PDF contains.
+    🔗 **Download Link**: {pdfUrl}
+    
+    If you have any questions, feel free to reach out!
+    
+    Thank you! 😊`;
+  
     try {
       const whatsappAuth = 'Basic ' + btoa(`${WHATSAPP_CONFIG.username}:${WHATSAPP_CONFIG.password}`);
   
-      // Use the message template function
-      const message = MessageTemplate(pdfUrl);
+      // Use the message template function with the PDF URL
+      const message = MessageTemplate(pdfUrl, template2);  // Replace {pdfUrl} with the actual URL
   
       const response = await axios.post(`${WHATSAPP_CONFIG.url}`, {
         receiverMobileNo: mobileNumber,
-        message: [message]
+        message: [message],  // Send the final message as an array
       }, {
         headers: {
           'Authorization': whatsappAuth,
           'Content-Type': 'application/json',
-        }
+        },
       });
   
       toast.success("PDF sent to mobile successfully!");
@@ -363,23 +379,23 @@ const QuotationAdminPage = () => {
             <Typography sx={{ fontWeight: "bold" }} variant="h4">
               List Of Exisitings Quotations
             </Typography>
-            <Paper sx={{ overflowX: "auto", mt: 2 }}>
+            <Paper sx={{ overflowY: "auto", mt: 2, maxHeight: '1000px' }}>
               <Table>
                 <thead>
-                  <tr>
-                    <th>SR No</th>
-                    <th>Quotation No</th>
-                    <th>Client</th>
-                    <th>Contact Person</th>
-                    {window.innerWidth > 600 && <th>Mobile Number</th>}
-                    <th>Quotation Amount (Rs)</th>
-                    {window.innerWidth > 600 && <th>Engineer</th>}
-                    <th>Status</th>
-                    {window.innerWidth > 600 && <th>Quotation Document</th>}
-                    {window.innerWidth > 600 && <th>Send</th>}
+                  <tr >
+                    <th className="sticky-header">SR No</th>
+                    <th className="sticky-header">Quotation No</th>
+                    <th className="sticky-header">Client</th>
+                    <th className="sticky-header">Contact Person</th>
+                    {window.innerWidth > 600 && <th className="sticky-header">Mobile Number</th>}
+                    <th className="sticky-header">Quotation Amount (Rs)</th>
+                    {window.innerWidth > 600 && <th className="sticky-header">Engineer</th>}
+                    <th className="sticky-header">Status</th>
+                    {window.innerWidth > 600 && <th className="sticky-header">Quotation Document</th>}
+                    {window.innerWidth > 600 && <th className="sticky-header">Send Pdf To Client</th>}
 
                     {/* Hide this column on mobile */}
-                    {window.innerWidth > 600 && <th>Actions</th>}
+                    {window.innerWidth > 600 && <th className="sticky-header">Actions</th>}
                   </tr>
                 </thead>
                 <tbody>

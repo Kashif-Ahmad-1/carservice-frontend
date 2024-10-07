@@ -4,7 +4,7 @@ const API_BASE_URL = 'http://localhost:5000';
 
 const WHATSAPP_CONFIG = {
   url: 'https://cors-anywhere.herokuapp.com/https://app.messageautosender.com/api/v1/message/create',
-  username: 'kashif3789',
+  username: 'kashif4789',
   password: 'test@123',
 };
 

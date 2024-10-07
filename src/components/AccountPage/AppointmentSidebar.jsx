@@ -85,11 +85,11 @@ const AppointmentSidebar = ({ open, toggleSidebar }) => {
             </ListItemIcon>
             <ListItemText primary="Home" />
           </ListItemStyled>
-          <ListItemStyled button component={Link} to="/accountspage" onClick={toggleSidebar}>
+          <ListItemStyled button component={Link} to="/account-add-client" onClick={toggleSidebar}>
             <ListItemIcon>
               <ClientIcon />
             </ListItemIcon>
-            <ListItemText primary="Clients" />
+            <ListItemText primary="Create Invoice " />
           </ListItemStyled>
         </List>
       </div>
