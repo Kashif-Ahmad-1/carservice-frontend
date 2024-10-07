@@ -13,7 +13,7 @@ import ChecklistPage from "./components/EngineerPage/ChecklistPage";
 import QuotationGenerator from "./components/Pdf Generator/QuotationGenerator";
 import { AuthProvider } from "./Store/AuthContext";
 import PrivateRoute from "./PrivateRoute"; // Import PrivateRoute component
-import ServiceRequestPage from "./components/Admin/ServiceRequest";
+// import ServiceRequestPage from "./components/Admin/ServiceRequest";
 import ResetPassword from "./components/Authentication/ResetPassword";
 import ClientPage from "./components/Admin/ClientPage";
 import MachinePage from "./components/Admin/MachinePage";
@@ -24,8 +24,10 @@ import ServiceadminRequestDocPage from "./components/Admin/ServiceRequestDocPage
 
 import QuotationAdminPage from "./components/Admin/QuotationAdminPage";
 import ReportPage from "./components/Admin/ReportPage";
-import MessageTemplate from "./components/MessageTemplate";
-import TemplateManager from "./components/TemplateManager";
+
+import TemplateManager from "./components/MessageTemplate/TemplateManager";
+
+
 function App() {
   // const role = localStorage.getItem("role");
   // console.log(role);
@@ -51,10 +53,10 @@ function App() {
             path="/engineer-list"
             element={<PrivateRoute element={EngineerPage} roles={["admin"]} />}
           />
-          <Route
+          {/* <Route
             path="/service-request"
             element={<PrivateRoute element={ServiceRequestPage} roles={["admin"]} />}
-          />
+          /> */}
           <Route
             path="/admin-service-record"
             element={<PrivateRoute element={ServiceadminRequestDocPage} roles={["admin"]} />}
@@ -108,8 +110,9 @@ function App() {
           <Route path="/machine-list" element={<MachinePage />} />
           <Route path="/admin-list" element={<AdminList />} />
           <Route path="/reset/:token" element={<ResetPassword />} />
-          <Route path="/messagetemplate" element={<MessageTemplate />} />
+         
           <Route path="/templatemanager" element={<TemplateManager />} />
+          
          
           
         </Routes>

@@ -108,7 +108,13 @@ html, body {
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
   }
   
-
+  .sticky-header {
+    position: sticky;
+    top: 0;
+    background-color: white; /* Ensure the header has a background */
+    z-index: 1000; /* Ensure it stays above other elements */
+  }
+  
   @media print {
     button {
       display: none !important; /* Hide all buttons when printing */

@@ -452,134 +452,131 @@ const ChecklistPage = () => {
     const doc = new jsPDF();
 
     // Add logo in the top-right corner
-    const logoWidth = 40;
-    const logoHeight = 40;
+    const logoWidth = 30; // Reduced width for logo
+    const logoHeight = 30; // Reduced height for logo
     const imgData = logo; // Assume 'logo' is defined
     doc.addImage(imgData, "PNG", doc.internal.pageSize.getWidth() - logoWidth - 10, 10, logoWidth, logoHeight);
 
     // Company Name
-    doc.setFontSize(14);
+    doc.setFontSize(12); // Reduced font size
     doc.setFont("helvetica", "bold");
     doc.text("AEROLUBE ENGINEERS", 14, 20);
-  
 
     // Service Title
-    doc.setFontSize(12);
+    doc.setFontSize(10); // Reduced font size
     doc.setFont("helvetica", "normal");
-    doc.text("Service Checklist", 14, 30);
+    doc.text("Service Checklist", 14, 28);
 
     // Client Information Section
-    doc.setFontSize(10);
+    doc.setFontSize(9); // Reduced font size
     doc.setFont("helvetica", "bold");
-    doc.text("Client Information", 14, 40);
+    doc.text("Client Information", 14, 36);
 
     // Compact client information
-    doc.setFontSize(8);
+    doc.setFontSize(7); // Further reduced font size
     doc.setFont("helvetica", "normal");
     const clientInfoLines = [
-      `Name: ${clientInfo.name}`,
-      `Contact: ${clientInfo.contactPerson} | Phone: ${clientInfo.phone}`,
-      `Address: ${clientInfo.address}`,
-      `Authorized Signature: ${clientInfo.engineer}`
+        `Name: ${clientInfo.name}`,
+        `Contact: ${clientInfo.contactPerson} | Phone: ${clientInfo.phone}`,
+        `Address: ${clientInfo.address}`,
+        `Authorized Signature: ${clientInfo.engineer}`
     ];
 
     clientInfoLines.forEach((line, index) => {
-      doc.text(line, 14, 50 + (index * 5));
+        doc.text(line, 14, 44 + (index * 4)); // Reduced spacing
     });
 
     // Add a horizontal line
-    doc.line(10, 80, doc.internal.pageSize.getWidth() - 10, 80);
+    doc.line(10, 70, doc.internal.pageSize.getWidth() - 10, 70);
 
     // Checklists Header
-    doc.setFontSize(12);
+    doc.setFontSize(10); // Reduced font size
     doc.setFont("helvetica", "bold");
-    doc.text("Screw Compressor Checklist", 14, 85);
+    doc.text("Screw Compressor Checklist", 14, 75);
 
     // Checklist Table
     autoTable(doc, {
-      head: [["Sr No", "Task", "Done", "Remark"]],
-      body: checklist.map((item) => {
-        const inputs = Object.values(item.inputs || {});
-        let inputIndex = 0;
+        head: [["Sr No", "Task", "Done", "Remark"]],
+        body: checklist.map((item) => {
+            const inputs = Object.values(item.inputs || {});
+            let inputIndex = 0;
 
-        const taskWithInputs = item.task.replace(/<TextField>/g, () => {
-          if (inputIndex < inputs.length) {
-            const inputValue = inputs[inputIndex++];
-            // Set font to bold for the input value
-            doc.setFont("helvetica", "bold");
-            return inputValue;
-          }
-          return "";
-        });
-        // Reset font to normal for the rest of the task text
-      doc.setFont("helvetica", "normal");
-        return [
-          item.srNo,
-          taskWithInputs || "No task provided",
-          item.done ? "Yes" : "No",
-          item.remark,
-        ];
-      }),
-      startY: 90,
-      styles: {
-        fontSize: 9,
-        cellPadding: 3,
-        halign: "left",
-        valign: "middle",
-        lineColor: [22, 160, 133],
-        fillColor: [255, 255, 255],
-      },
-      headStyles: {
-        fillColor: [22, 160, 133],
-        textColor: [255, 255, 255],
-        fontStyle: "bold",
-      },
-      alternateRowStyles: {
-        fillColor: [240, 240, 240],
-      },
-      margin: { top: 10 },
+            const taskWithInputs = item.task.replace(/<TextField>/g, () => {
+                if (inputIndex < inputs.length) {
+                    const inputValue = inputs[inputIndex++];
+                    doc.setFont("helvetica", "bold");
+                    return inputValue;
+                }
+                return "";
+            });
+            doc.setFont("helvetica", "normal");
+            return [
+                item.srNo,
+                taskWithInputs || "No task provided",
+                item.done ? "Yes" : "No",
+                item.remark,
+            ];
+        }),
+        startY: 80,
+        styles: {
+            fontSize: 7, // Further reduced font size
+            cellPadding: 2, // Reduced cell padding
+            halign: "left",
+            valign: "middle",
+            lineColor: [22, 160, 133],
+            fillColor: [255, 255, 255],
+        },
+        headStyles: {
+            fillColor: [22, 160, 133],
+            textColor: [255, 255, 255],
+            fontStyle: "bold",
+        },
+        alternateRowStyles: {
+            fillColor: [240, 240, 240],
+        },
+        margin: { top: 10 },
     });
 
     // Refrigerator Checklist Header
-    doc.setFontSize(12);
+    doc.setFontSize(10); // Consistent reduced font size
     doc.setFont("helvetica", "bold");
     doc.text("Refrigerator Checklist", 14, doc.autoTable.previous.finalY + 10);
 
     // Refrigerator Checklist Table
     autoTable(doc, {
-      head: [["Sr No","Task", "Done", "Remark"]],
-      body: refrigeratorList.map((item) => {
-        const inputs = Object.values(item.inputs || {});
-        let inputIndex = 0;
+        head: [["Sr No", "Task", "Done", "Remark"]],
+        body: refrigeratorList.map((item) => {
+            const inputs = Object.values(item.inputs || {});
+            let inputIndex = 0;
 
-        const taskWithInputs = item.task.replace(/<TextField>/g, () => {
-          return inputIndex < inputs.length ? inputs[inputIndex++] : "";
-        });
-        return [
-          item.srNo,
-          taskWithInputs || "No task provided",
-          item.done ? "Yes" : "No",
-          item.remark,
-        ];
-      }),
-      startY: doc.autoTable.previous.finalY + 15,
-      styles: {
-        fontSize: 9,
-        cellPadding: 3,
-        halign: "left",
-        valign: "middle",
-        lineColor: [22, 160, 133],
-        fillColor: [255, 255, 255],
-      },
-      headStyles: {
-        fillColor: [22, 160, 133],
-        textColor: [255, 255, 255],
-        fontStyle: "bold",
-      },
-      alternateRowStyles: {
-        fillColor: [240, 240, 240],
-      },
-      margin: { top: 10 },
+            const taskWithInputs = item.task.replace(/<TextField>/g, () => {
+                return inputIndex < inputs.length ? inputs[inputIndex++] : "";
+            });
+            return [
+                item.srNo,
+                taskWithInputs || "No task provided",
+                item.done ? "Yes" : "No",
+                item.remark,
+            ];
+        }),
+        startY: doc.autoTable.previous.finalY + 10,
+        styles: {
+            fontSize: 7, // Further reduced font size
+            cellPadding: 2, // Reduced cell padding
+            halign: "left",
+            valign: "middle",
+            lineColor: [22, 160, 133],
+            fillColor: [255, 255, 255],
+        },
+        headStyles: {
+            fillColor: [22, 160, 133],
+            textColor: [255, 255, 255],
+            fontStyle: "bold",
+        },
+        alternateRowStyles: {
+            fillColor: [240, 240, 240],
+        },
+        margin: { top: 10 },
     });
 
     // Spare Parts Header
@@ -595,10 +592,10 @@ const ChecklistPage = () => {
     });
 
     // Add footer
-    doc.setFontSize(8);
+    doc.setFontSize(6); // Reduced footer font size
     doc.setFont("helvetica", "normal");
-    doc.text("Generated on: " + new Date().toLocaleString(), 14, doc.autoTable.previous.finalY + 15);
-    doc.text("© XYZ Company", 14, doc.autoTable.previous.finalY + 20);
+    doc.text("Generated on: " + new Date().toLocaleString(), 14, doc.autoTable.previous.finalY + 10);
+    doc.text("© XYZ Company", 14, doc.autoTable.previous.finalY + 15);
 
     // Backend upload
     const pdfBlob = doc.output("blob");
@@ -608,84 +605,91 @@ const ChecklistPage = () => {
     const formData = new FormData();
     formData.append("pdf", pdfFile);
     formData.append("checklistData", JSON.stringify({
-      clientInfo,
-      appointmentId,
-      checklist,
-      invoiceNo,
-      refrigeratorList,
-      documentNumber
+        clientInfo,
+        appointmentId,
+        checklist,
+        invoiceNo,
+        refrigeratorList,
+        documentNumber
     }));
 
     try {
-      // Send the checklist data and PDF to the backend
-      const token = localStorage.getItem("token");
-      const response = await axios.post(`${API_BASE_URL}/api/checklist`, formData, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "multipart/form-data",
-        },
-      });
+        // Send the checklist data and PDF to the backend
+        const token = localStorage.getItem("token");
+        const response = await axios.post(`${API_BASE_URL}/api/checklist`, formData, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "multipart/form-data",
+            },
+        });
 
-      console.log("Checklist and PDF uploaded successfully", response.data);
+        console.log("Checklist and PDF uploaded successfully", response.data);
 
+        const pdfUrl = response.data.checklist.pdfPath; // Get pdfPath from the first checklist object
+        console.log("Extracted PDF URL:", pdfUrl); // Log the extracted URL
 
-      const pdfUrl = response.data.checklist.pdfPath; // Get pdfPath from the first checklist object
-
-       
-         console.log("Extracted PDF URL:", pdfUrl); // Log the extracted URL
-   
-   
-         // Send the PDF URL to WhatsApp
-         console.log("Sending PDF to mobile:", pdfUrl, "to", clientInfo.phone); // Debugging line
-         await handleSendPdfToMobile(pdfUrl, clientInfo.phone);
-         toast.success("PDF sent to mobile successfully!");
+        // Send the PDF URL to WhatsApp
+        console.log("Sending PDF to mobile:", pdfUrl, "to", clientInfo.phone); // Debugging line
+        await handleSendPdfToMobile(pdfUrl, clientInfo.phone);
+        toast.success("PDF sent to mobile successfully!");
 
     } catch (error) {
-      console.error("Error uploading checklist and PDF:", error);
-      toast.error("Error uploading checklist and PDF!");
+        console.error("Error uploading checklist and PDF:", error);
+        toast.error("Error uploading checklist and PDF!");
     }
 
     // Save the PDF locally (optional)
     // doc.save("checklist.pdf");
-  };
+};
+
+
+
+ 
 
   // Function to send the PDF to mobile via WhatsApp
   const handleSendPdfToMobile = async (pdfUrl, mobileNumber) => {
-    const storedTemplate = localStorage.getItem('messageTemplate');
-    const template = storedTemplate || `Hello! 📄
-  
-    We have generated a new PDF document for you. 
-  
-    📑 **Document Title**: Document Title Here
-    ✍️ **Description**: Brief description of what this PDF contains.
+    // Retrieve the stored template for Template 1 from localStorage
+    const storedTemplate1 = localStorage.getItem('messageTemplate1');
+    
+    // Fallback to the default Template 1 if nothing is stored
+    const template1 = storedTemplate1 || `Hello! 📄
+    
+    We have generated a new Checklist Document For you. 
+    
+    📑 **Document Title**: Checklist Document
+    ✍️ **Description**: Description of Checklist Document.
     🔗 **Download Link**: {pdfUrl}
-  
+    
     If you have any questions, feel free to reach out!
-  
+    
     Thank you! 😊`;
-
+  
     try {
-        const whatsappAuth = 'Basic ' + btoa(`${WHATSAPP_CONFIG.username}:${WHATSAPP_CONFIG.password}`);
-
-        // Use the message template function with the PDF URL
-        const message = MessageTemplate(pdfUrl, template);
-
-        const response = await axios.post(`${WHATSAPP_CONFIG.url}`, {
-            receiverMobileNo: mobileNumber,
-            message: [message]
-        }, {
-            headers: {
-                'Authorization': whatsappAuth,
-                'Content-Type': 'application/json',
-            }
-        });
-
-        toast.success("PDF sent to mobile successfully!");
+      const whatsappAuth = 'Basic ' + btoa(`${WHATSAPP_CONFIG.username}:${WHATSAPP_CONFIG.password}`);
+  
+      // Use the message template function with the PDF URL
+      const message = MessageTemplate(pdfUrl, template1);  // Replace {pdfUrl} with the actual URL
+  
+      const response = await axios.post(`${WHATSAPP_CONFIG.url}`, {
+        receiverMobileNo: mobileNumber,
+        message: [message],  // Send the final message as an array
+      }, {
+        headers: {
+          'Authorization': whatsappAuth,
+          'Content-Type': 'application/json',
+        },
+      });
+  
+      toast.success("PDF sent to mobile successfully!");
     } catch (error) {
-        toast.error("Error sending PDF to mobile!");
-        console.error("WhatsApp Error:", error);
+      toast.error("Error sending PDF to mobile!");
+      console.error("WhatsApp Error:", error);
     }
-};
+  };
+  
+  
+
+  
 
   const handleToggleSidebar = () => {
     setSidebarOpen((prev) => !prev);

@@ -175,20 +175,39 @@ const ServiceRequestDocPage = () => {
   };
 
   const handleSendPdfToMobile = async (pdfUrl, mobileNumber) => {
+    // Retrieve the stored template for Template 1 from localStorage
+    const storedTemplate1 = localStorage.getItem('messageTemplate1');
+    console.log('Stored Template 1:', storedTemplate1);
+  
+    // Use the stored template if it exists; otherwise, fallback to the default message
+    const template1 = storedTemplate1 !== null ? storedTemplate1 : `Hello! 📄
+    
+    We have generated a new PDF document for you. 
+    
+    📑 **Document Title**: Document Title Here
+    ✍️ **Description**: Brief description of what this PDF contains.
+    🔗 **Download Link**: {pdfUrl}
+    
+    If you have any questions, feel free to reach out!
+    
+    Thank you! 😊`;
+  
+    console.log('Using Template:', template1);
+  
     try {
       const whatsappAuth = 'Basic ' + btoa(`${WHATSAPP_CONFIG.username}:${WHATSAPP_CONFIG.password}`);
   
-      // Use the message template function
-      const message = MessageTemplate(pdfUrl);
+      // Use the message template function with the PDF URL
+      const message = MessageTemplate(pdfUrl, template1);  // Replace {pdfUrl} with the actual URL
   
       const response = await axios.post(`${WHATSAPP_CONFIG.url}`, {
         receiverMobileNo: mobileNumber,
-        message: [message]
+        message: [message],  // Send the final message as an array
       }, {
         headers: {
           'Authorization': whatsappAuth,
           'Content-Type': 'application/json',
-        }
+        },
       });
   
       toast.success("PDF sent to mobile successfully!");
@@ -197,6 +216,12 @@ const ServiceRequestDocPage = () => {
       console.error("WhatsApp Error:", error);
     }
   };
+  
+
+  
+  
+  
+  
 
   return (
     <Box sx={{ display: "flex" }}>

@@ -21,7 +21,7 @@ import { Download, Menu, Delete,Send } from "@mui/icons-material";
 import Sidebar from "./Sidebar";
 import axios from 'axios';
 import Footer from "../Footer";
-
+import './EngineerDetailsPage.css'
 const MainContent = styled("main")(({ theme }) => ({
   flexGrow: 1,
   padding: theme.spacing(3),
@@ -49,7 +49,7 @@ const Table = styled("table")(({ theme }) => ({
     padding: theme.spacing(1),
     // textAlign: "left",
     borderBottom: `1px solid ${theme.palette.divider}`,
-    fontSize: "1.1rem",
+    fontSize: "1rem",
     fontWeight: "550",
   },
   "& th": {
@@ -206,7 +206,7 @@ const ServiceRequestDocPage = () => {
       <MainContent>
         <Header />
         <ToolbarSpacer />
-        <Container sx={{ padding: 4, paddingTop: 8, flexGrow: 1 }} maxWidth="xl">
+        <Container sx={{ padding: 4, paddingTop: 0, flexGrow: 1 }} maxWidth="xl">
           <SectionTitle variant="h4">Service Record List</SectionTitle>
           <Card>
             <TextField
@@ -220,18 +220,18 @@ const ServiceRequestDocPage = () => {
             <Typography  variant="h4" sx={{ marginTop: 2, fontWeight: "bold" }}>
               Service Record
             </Typography>
-            <Paper sx={{ overflowX: "auto", mt: 2 }}>
+            <Paper sx={{ overflowX: "auto", mt: 2 ,maxHeight: '500px'}}>
               <Table>
                 <thead>
                   <tr>
-                    <th>SR No</th>
-                    <th>Invoice No</th>
-                    <th>Client Name</th>
-                    <th>Contact Person</th>
-                    <th>Mobile Number</th>
-                    <th>Document</th>
-                    <th>Actions</th>
-                    <th>Send</th>
+                    <th className="sticky-header">SR No</th>
+                    <th className="sticky-header">Invoice No</th>
+                    <th className="sticky-header">Client Name</th>
+                    <th className="sticky-header">Contact Person</th>
+                    <th className="sticky-header">Mobile Number</th>
+                    <th className="sticky-header">Document</th>
+                    <th className="sticky-header">Actions</th>
+                    <th className="sticky-header">Send</th>
                   </tr>
                 </thead>
                 <tbody>

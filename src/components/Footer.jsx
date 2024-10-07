@@ -17,11 +17,11 @@ const Footer = () => {
       }}
     >
       <Typography variant="body2">
-        &copy; {new Date().getFullYear()} Your Company Name. All rights reserved.
+        &copy; {new Date().getFullYear()} AEROLUBE ENGINEERS All rights reserved.
       </Typography>
       <Typography variant="body2">
-        <Link href="#" color="inherit" underline="hover">Privacy Policy</Link> | 
-        <Link href="#" color="inherit" underline="hover"> Terms of Service</Link>
+        {/* <Link href="#" color="inherit" underline="hover">Privacy Policy</Link> |  */}
+        <Link href="#" color="inherit" underline="hover"> Design and Developed By ❤️ @SmartITBox</Link>
       </Typography>
     </Box>
   );

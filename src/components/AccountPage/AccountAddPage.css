@@ -4,6 +4,7 @@
   background-color: #f4f7fa;
   padding: 20px;
   flex-wrap: wrap; /* Allow wrapping of items */
+  margin-top: 50px;
 }
 
 .appointment-container {

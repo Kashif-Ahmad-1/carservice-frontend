@@ -3,6 +3,27 @@ import { useNavigate } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "./AccountAddPage.css";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  Typography,
+  Container,
+  Button,
+  Divider,
+  TextField,
+  Box,
+  AppBar,
+  Toolbar,
+  TablePagination,
+  IconButton,
+} from '@mui/material';
+import { Add, Download, Menu } from '@mui/icons-material';
+import logo from './comp-logo.jpeg';
 import {API_BASE_URL,WHATSAPP_CONFIG} from './../../config';
 import Footer from "../Footer";
 function AppointmentPage() {
@@ -175,6 +196,24 @@ function AppointmentPage() {
     calculateExpectedServiceDate(installationDate, e.target.value);
   };
 
+  const Header = () => (
+    <AppBar position="fixed" sx={{ backgroundColor: 'gray',width: '100%' }}>
+      <Toolbar>
+        <IconButton edge="start" color="inherit"  sx={{ mr: 2 }}>
+          <Menu />
+        </IconButton>
+        <img
+        src={logo}
+        alt="Company Logo"
+        style={{ width: 40, height: 40, marginRight: 10 }} // Adjust size and margin as needed
+      />
+        <Typography variant="h6" sx={{ flexGrow: 1, fontWeight: 'bold' }}>
+        AEROLUBE ENGINEERS
+        </Typography>
+      </Toolbar>
+    </AppBar>
+  );
+
   const handleSubmit = async (event) => {
     event.preventDefault();
 
@@ -294,15 +333,19 @@ function AppointmentPage() {
   };
 
   return (
+    <>
+     <Header />
     <div className="appointment-page">
+    
       <div className="left-panel side-panel">
-        <h3>Engineers & Assigned Machines</h3>
+     
+        <h3>Engineers & Assigned Invoices</h3>
         {appointments.map((appointment, index) => (
            <React.Fragment key={appointment._id}>
          
             <h4>{appointment?.engineer?.name}</h4>
             <ul>
-             <li>{appointment.machineName}</li>
+             <li>{appointment.invoiceNumber}</li>
               
                 
               
@@ -554,10 +597,12 @@ function AppointmentPage() {
           ))}
         </ul>
       </div>
-      <Footer />
+     
       <ToastContainer />
       
     </div>
+    <Footer />
+    </>
   );
 }
 

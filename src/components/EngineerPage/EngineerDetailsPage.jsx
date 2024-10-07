@@ -59,7 +59,7 @@ const Header = ({ onToggleSidebar }) => (
 
 
 
-const headerColor = "#ff4d30"; // Single color code for headers
+
 
 function EngineerDetailsPage() {
   const { engineerId } = useParams();
@@ -173,22 +173,10 @@ function EngineerDetailsPage() {
     });
   };
 
-  const generateDocumentNumber = (lastDocNumber) => {
-    const docPrefix = "DOC:";
-    const lastNumber = parseInt(lastDocNumber.replace(docPrefix, ""), 10);
-    if (isNaN(lastNumber)) {
-      console.warn(
-        `Invalid document number format: ${lastDocNumber}. Starting from 1.`
-      );
-      return `${docPrefix}1`;
-    }
-    const nextNumber = lastNumber + 1;
-    return `${docPrefix}${nextNumber}`;
-  };
+
 
   const handleEditClick = (appointment) => {
-    const lastDocNumber = appointment.checklists.documentNumber || "";
-    const newDocumentNumber = generateDocumentNumber(lastDocNumber);
+
 
     navigate(`/checklist`, {
       state: {
@@ -199,7 +187,7 @@ function EngineerDetailsPage() {
         address: appointment.clientAddress,
         engineer: appointment.engineer,
         invoiceNo: appointment.invoiceNumber,
-        documentNumber: newDocumentNumber,
+        
       },
     });
   };
@@ -285,30 +273,29 @@ function EngineerDetailsPage() {
         flexDirection: "row",
         minHeight: "100vh",
         backgroundColor: "white",
+        overflowX: "hidden",
+       
       }}
     >
       {sidebarOpen && <Sidebar />}
-      <Box sx={{ flexGrow: 1 }}>
+      
+      <Box sx={{ flexGrow: 1,  }}>
       <Header onToggleSidebar={handleToggleSidebar} />
-      <Container sx={{ padding: 4, paddingTop: 8, flexGrow: 1 }} maxWidth="xl">
+      
+      <Container sx={{ padding: 4, paddingTop: 8, flexGrow: 1,margin: "20px" }} maxWidth="xl">
+     
           <Typography variant="h4" gutterBottom sx={{ fontWeight: "bold" }}>
             Client Details
           </Typography>
-          <Typography
-            variant="h6"
-            paragraph
-            sx={{ color: "#555", fontSize: "1rem" }}
-          >
-            Here you can find detailed information about the service
-            appointments.
-          </Typography>
-          <Divider sx={{ marginY: 2 }} />
+         
+         
 
           <Box
             sx={{
               display: "flex",
               justifyContent: "space-between",
               marginBottom: 2,
+             
             }}
           >
             <TextField
@@ -327,18 +314,9 @@ function EngineerDetailsPage() {
               }}
               sx={{ width: "300px" }}
             />
-            <FormControl variant="outlined" sx={{ minWidth: 120 }}>
-              <Select
-                value={filter}
-                onChange={(e) => setFilter(e.target.value)}
-                displayEmpty
-              >
-                <MenuItem value="all">All Invoices</MenuItem>
-                <MenuItem value="completed">Completed</MenuItem>
-              </Select>
-            </FormControl>
+         
           </Box>
-
+         
           <TableContainer
             component={Paper}
             elevation={2}
@@ -419,23 +397,27 @@ function EngineerDetailsPage() {
                       <TableCell sx={{ fontSize: "1.2rem", fontWeight: 700 }}>
                         {appointment.invoiceNumber}
                       </TableCell>
-                      <TableCell sx={{ fontSize: "1rem" }}>
+                      <TableCell sx={{ fontSize: "1.2rem" }}>
                         {appointment.clientName}
                       </TableCell>
-                      <TableCell sx={{ fontSize: "1rem" }}>
+                      <TableCell sx={{ fontSize: "1.2rem" }}>
                         {appointment.clientAddress}
                       </TableCell>
 
 
                      
                       <TableCell
-                       sx={{ fontSize: "1rem" }}
+                       sx={{ fontSize: "1.2rem" }}
                       >
                         {new Date(
                           appointment.expectedServiceDate
                         ).toLocaleDateString()}
                       </TableCell>
 
+                      
+                      
+
+                      {/* Additional columns visible only on larger screens */}
                       <TableCell sx={{
                           display: { xs: "none", md: "table-cell" },
                           fontSize: "1rem",
@@ -443,9 +425,7 @@ function EngineerDetailsPage() {
                         }}>
                         {appointment.mobileNo}
                       </TableCell>
-                      
 
-                      {/* Additional columns visible only on larger screens */}
                       <TableCell
                         sx={{
                           display: { xs: "none", md: "table-cell" },

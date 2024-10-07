@@ -14,7 +14,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import HomeIcon from '@mui/icons-material/Home';
 import LogoutIcon from '@mui/icons-material/Logout';
 import Swal from 'sweetalert2';
-import { FaFileInvoice } from 'react-icons/fa6';
+import { FaFileInvoice, FaWhatsapp } from 'react-icons/fa6';
 
 // Styled components
 const drawerWidth = 240;
@@ -106,6 +106,14 @@ const Sidebar = () => {
               <FaFileInvoice />
             </ListItemIcon>
             <ListItemText primary="Service Request" />
+          </ListItemStyled>
+
+
+          <ListItemStyled button component={Link} to="/templatemanager">
+            <ListItemIcon>
+              <FaWhatsapp />
+            </ListItemIcon>
+            <ListItemText primary="Whatsapp Template" />
           </ListItemStyled>
           {/* Add more sidebar items if needed */}
         </List>

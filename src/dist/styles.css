@@ -95,7 +95,8 @@ body {
 /* Firefox */
 * {
   scrollbar-width: thin;
-  scrollbar-color: #ff4d30 #ffffff;
+  /* scrollbar-color:  #ffffff #ffffff; */
+  scrollbar-color:   #ff4d30 #ffffff;
 }
 
 /* Chrome, Edge and Safari */

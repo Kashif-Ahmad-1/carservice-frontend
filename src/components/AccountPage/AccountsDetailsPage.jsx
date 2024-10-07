@@ -178,7 +178,7 @@ function AppointmentDetailsPage() {
   };
 
   const Header = () => (
-    <AppBar position="static" sx={{ backgroundColor: 'gray',width: '105%' }}>
+    <AppBar position="fixed" sx={{ backgroundColor: 'gray',width: '100%' }}>
       <Toolbar>
         <IconButton edge="start" color="inherit" onClick={toggleSidebar} sx={{ mr: 2 }}>
           <Menu />
@@ -198,9 +198,10 @@ function AppointmentDetailsPage() {
  
 
   return (
+    <>
     <div style={{ display: 'flex' }}>
       <AppointmentSidebar open={sidebarOpen} toggleSidebar={toggleSidebar} />
-      <Container sx={{ padding: 0, width: '100%', overflowX: 'auto', display: 'flex', flexDirection: 'column', minHeight: '100vh' }} maxWidth="xl">
+      <Container sx={{ padding: 0, width: '100%', overflowX: 'auto', display: 'flex', flexDirection: 'column', minHeight: '100vh',marginTop: "62px" }} maxWidth="xl">
         <Header />
         <ToastContainer />
         <Typography variant="h4" gutterBottom sx={{ marginTop: 2, fontWeight: 'bold' }}>
@@ -345,70 +346,70 @@ function AppointmentDetailsPage() {
                     <TableCell sx={{ fontSize: "1rem", fontWeight: "bold" }}>{page * rowsPerPage + index + 1}</TableCell>
                     <TableCell sx={{ fontSize: "1.2rem",
                           fontWeight: 700, }}>{appointment.invoiceNumber}</TableCell>
-                    <TableCell sx={{ fontSize: "1.2rem",
+                    <TableCell sx={{ fontSize: "1rem",
                           fontWeight: 700, }}>{appointment.clientName}</TableCell>
-                    <TableCell sx={{ fontSize: "1.2rem",
+                    <TableCell sx={{ fontSize: "1rem",
                           fontWeight: 700, }}>{appointment.clientAddress}</TableCell>
-                    <TableCell sx={{ fontSize: "1.2rem",
+                    <TableCell sx={{ fontSize: "1rem",
                           fontWeight: 700, }}>{appointment.contactPerson}</TableCell>
                     <TableCell sx={{
                           display: { xs: "none", md: "table-cell" },
-                          fontSize: "1.2rem",
+                          fontSize: "1rem",
                           fontWeight: 700,
                         }}>{appointment.mobileNo}</TableCell>
                     <TableCell sx={{
                           display: { xs: "none", md: "table-cell" },
-                          fontSize: "1.2rem",
+                          fontSize: "1rem",
                           fontWeight: 700,
                         }}>{new Date(appointment.appointmentDate).toLocaleDateString()}</TableCell>
                     <TableCell sx={{
                           display: { xs: "none", md: "table-cell" },
-                          fontSize: "1.2rem",
+                          fontSize: "1rem",
                           fontWeight: 700,
                         }}>{typeof appointment.appointmentAmount === 'number' ? `${appointment.appointmentAmount.toFixed(2)}` : 'N/A'}</TableCell>
                     <TableCell sx={{
                           display: { xs: "none", md: "table-cell" },
-                          fontSize: "1.2rem",
+                          fontSize: "1rem",
                           fontWeight: 700,
                         }}>{appointment.machineName}</TableCell>
                     <TableCell sx={{
                           display: { xs: "none", md: "table-cell" },
-                          fontSize: "1.2rem",
+                          fontSize: "1rem",
                           fontWeight: 700,
                         }}>{appointment.model}</TableCell>
                     <TableCell sx={{
                           display: { xs: "none", md: "table-cell" },
-                          fontSize: "1.2rem",
+                          fontSize: "1rem",
                           fontWeight: 700,
                         }}>{appointment.partNo}</TableCell>
                     <TableCell sx={{
                           display: { xs: "none", md: "table-cell" },
-                          fontSize: "1.2rem",
+                          fontSize: "1rem",
                           fontWeight: 700,
                         }}>{appointment.serialNo}</TableCell>
                     <TableCell sx={{
                           display: { xs: "none", md: "table-cell" },
-                          fontSize: "1.2rem",
+                          fontSize: "1rem",
                           fontWeight: 700,
                         }}>{new Date(appointment.installationDate).toLocaleDateString()}</TableCell>
                     <TableCell sx={{
                           display: { xs: "none", md: "table-cell" },
-                          fontSize: "1.2rem",
+                          fontSize: "1rem",
                           fontWeight: 700,
                         }}>{appointment.serviceFrequency}</TableCell>
                     <TableCell sx={{
                           display: { xs: "none", md: "table-cell" },
-                          fontSize: "1.2rem",
+                          fontSize: "1rem",
                           fontWeight: 700,
                         }}>{new Date(appointment.expectedServiceDate).toLocaleDateString()}</TableCell>
                     <TableCell sx={{
                           display: { xs: "none", md: "table-cell" },
-                          fontSize: "1.2rem",
+                          fontSize: "1rem",
                           fontWeight: 700,
                         }}>{appointment.engineer ? appointment.engineer.name : 'N/A'}</TableCell>
                     <TableCell sx={{
                           display: { xs: "none", md: "table-cell" },
-                          fontSize: "1.2rem",
+                          fontSize: "1rem",
                           fontWeight: 700,
                         }}>
                       {appointment.document ? (
@@ -606,10 +607,12 @@ function AppointmentDetailsPage() {
           onPageChange={handleChangePage}
           sx={{ marginTop: 2 }}
         />
-         <Footer />
+         
       </Container>
-     
+      
     </div>
+    <Footer />
+    </>
   );
   
 }
