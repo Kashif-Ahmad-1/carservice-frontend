@@ -49,7 +49,7 @@ const Table = styled("table")(({ theme }) => ({
     padding: theme.spacing(1),
     // textAlign: "left",
     borderBottom: `1px solid ${theme.palette.divider}`,
-    fontSize: "1.2rem",
+    fontSize: "1rem",
     fontWeight: "600",
   },
   "& th": {

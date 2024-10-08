@@ -73,7 +73,7 @@ function EngineerDetailsPage() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
-  const appointmentsPerPage = 10; // Number of appointments per page
+  const appointmentsPerPage = 10; 
   const [searchTerm, setSearchTerm] = useState("");
   const [filter, setFilter] = useState("all");
   const [nextServiceDates, setNextServiceDates] = useState({});
@@ -273,7 +273,7 @@ function EngineerDetailsPage() {
         flexDirection: "row",
         minHeight: "100vh",
         backgroundColor: "white",
-        overflowX: "hidden",
+        // overflowX: "auto",
        
       }}
     >
@@ -331,6 +331,7 @@ function EngineerDetailsPage() {
                     
                     "Client Address",
                     "Expected Service Date",
+                    
                   ].map((header) => (
                     <TableCell
                       key={header}
@@ -943,7 +944,7 @@ function EngineerDetailsPage() {
             </IconButton>
           </Box>
         </Container>
-        
+        <Footer />
       </Box>
 
       {/* Modal for Service History */}
@@ -992,9 +993,9 @@ function EngineerDetailsPage() {
           </Button>
         </Box>
       </Modal>
-      
+    
     </Box>
-    <Footer />
+    
     </>
   );
 }

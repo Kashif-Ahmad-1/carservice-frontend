@@ -145,19 +145,23 @@ const ServiceRequestDocPage = () => {
 
   const handleSendPdfToMobile = async (pdfUrl, mobileNumber) => {
     try {
+      // Fetch templates from the backend
+      const response = await axios.get('http://localhost:5000/templates');
+      const { template1 } = response.data; // Get Template 1
+  
+      // Use the message template function with the PDF URL
+      const message = MessageTemplate(pdfUrl, template1); // Replace {pdfUrl} with the actual URL
+  
       const whatsappAuth = 'Basic ' + btoa(`${WHATSAPP_CONFIG.username}:${WHATSAPP_CONFIG.password}`);
   
-      // Use the message template function
-      const message = MessageTemplate(pdfUrl);
-  
-      const response = await axios.post(`${WHATSAPP_CONFIG.url}`, {
+      const responseWhatsapp = await axios.post(`${WHATSAPP_CONFIG.url}`, {
         receiverMobileNo: mobileNumber,
-        message: [message]
+        message: [message], // Send the final message as an array
       }, {
         headers: {
           'Authorization': whatsappAuth,
           'Content-Type': 'application/json',
-        }
+        },
       });
   
       toast.success("PDF sent to mobile successfully!");
