@@ -426,7 +426,7 @@ const AdminDashboard = () => {
 
           {/* New Containers for Pie Chart and Dummy Dual Graph */}
           <SectionTitle variant="h4" sx={{ mt: 4 }}>
-            QUotations Charts
+            Quotations Charts
           </SectionTitle>
           <Grid container spacing={3}>
             {/* Pie Chart Container */}

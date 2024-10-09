@@ -1,9 +1,11 @@
 /* General styling for the template manager */
+
 .template-manager {
     max-width: 800px;
     margin: 150px auto;
     padding: 20px;
     font-family: 'Arial', sans-serif;
+   
   }
   
   .header {

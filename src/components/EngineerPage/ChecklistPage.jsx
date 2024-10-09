@@ -29,7 +29,7 @@ import { toast } from 'react-toastify';
 import MessageTemplate from "./../MessageTemplate";
 import Sidebar from "./Sidebar";
 import Footer from "../Footer";
-
+import logo2 from './logo2.png'
 const Header = ({ onToggleSidebar }) => (
   <AppBar position="fixed" sx={{ backgroundColor: "gray", zIndex: 1201 }}> {/* Ensure zIndex is higher than sidebar */}
     <Toolbar>
@@ -451,29 +451,49 @@ const ChecklistPage = () => {
   const handleGeneratePDFAndSubmit = async () => {
     const doc = new jsPDF();
 
-    // Add logo in the top-right corner
-    const logoWidth = 30; // Reduced width for logo
-    const logoHeight = 30; // Reduced height for logo
+    // Add logos in the top-left and top-right corners
+    const logoWidth = 30; // Width for logo
+    const logoHeight = 30; // Height for logo
     const imgData = logo; // Assume 'logo' is defined
-    doc.addImage(imgData, "PNG", doc.internal.pageSize.getWidth() - logoWidth - 10, 10, logoWidth, logoHeight);
+    const imgData2 = logo2; // Assume 'logo2' is defined
+    doc.addImage(imgData, "PNG", 10, 10, logoWidth, logoHeight); // Left corner
+    doc.addImage(imgData2, "PNG", doc.internal.pageSize.getWidth() - logoWidth - 10, 10, logoWidth, logoHeight); // Right corner
 
-    // Company Name
-    doc.setFontSize(12); // Reduced font size
+    // Company Name (centered)
+    const companyName = "AEROLUBE ENGINEERS";
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const textX = pageWidth / 2; // Center position
+    doc.setFontSize(12);
     doc.setFont("helvetica", "bold");
-    doc.text("AEROLUBE ENGINEERS", 14, 20);
+    doc.text(companyName, textX, 25, { align: "center" });
+
+    // Company Address
+    const companyAddress = "LANE NO. 09, 264 A, KASIDIH, SAKCHI, East Singhbhum, Jharkhand, 831001";
+    const wrappedAddress = doc.splitTextToSize(companyAddress, pageWidth - 20);
+    doc.setFontSize(9);
+    doc.text(wrappedAddress, textX, 35, { align: "center" });
+
+    // GST No.
+    const gstNo = "GST No: 20CJOPS0713D1ZM";
+    const wrappedGstNo = doc.splitTextToSize(gstNo, pageWidth - 20);
+    doc.text(wrappedGstNo, textX, 40, { align: "center" });
 
     // Service Title
-    doc.setFontSize(10); // Reduced font size
+    doc.setFontSize(10);
     doc.setFont("helvetica", "normal");
-    doc.text("Service Checklist", 14, 28);
+    doc.text("Service Record", textX, 45, { align: "center" });
 
     // Client Information Section
-    doc.setFontSize(9); // Reduced font size
-    doc.setFont("helvetica", "bold");
-    doc.text("Client Information", 14, 36);
+    const clientInfoBorderTopY = 50;
+    const clientInfoBoxHeight = 50;
+    doc.setDrawColor(0);
+    doc.rect(10, clientInfoBorderTopY - 5, doc.internal.pageSize.getWidth() - 20, clientInfoBoxHeight); // Draw rectangle
 
-    // Compact client information
-    doc.setFontSize(7); // Further reduced font size
+    doc.setFontSize(11);
+    doc.setFont("helvetica", "bold");
+    doc.text("Client Information", 14, clientInfoBorderTopY);
+
+    doc.setFontSize(9);
     doc.setFont("helvetica", "normal");
     const clientInfoLines = [
         `Name: ${clientInfo.name}`,
@@ -482,17 +502,55 @@ const ChecklistPage = () => {
         `Authorized Signature: ${clientInfo.engineer}`
     ];
 
+    const clientInfoYStart = clientInfoBorderTopY + 10;
     clientInfoLines.forEach((line, index) => {
-        doc.text(line, 14, 44 + (index * 4)); // Reduced spacing
+        doc.text(line, 14, clientInfoYStart + (index * 5)); // Adjusted Y position
     });
 
-    // Add a horizontal line
-    doc.line(10, 70, doc.internal.pageSize.getWidth() - 10, 70);
+    const centerX = 10 + (doc.internal.pageSize.getWidth() - 20) / 2; // Center X position
+    doc.setDrawColor(0);
+    doc.line(centerX, clientInfoBorderTopY - 5, centerX, clientInfoBorderTopY - 5 + clientInfoBoxHeight); // Vertical line
+
+    // Equipment Details Section
+    const engineerDetailsXStart = doc.internal.pageSize.getWidth() - 80;
+    const engineerDetailsYStart = clientInfoBorderTopY;
+
+    doc.setFontSize(11);
+    doc.setFont("helvetica", "bold");
+    doc.text("Equipment Details", engineerDetailsXStart, engineerDetailsYStart);
+
+    const engineerDetails = {
+        model: "Model XYZ",
+        partNo: "Part #1234",
+        serialNo: "SN-5678",
+        runningHrs: "100 hrs",
+        loadHrs: "80 hrs",
+        motorStarts: "50",
+        loadValveOn: "Yes"
+    };
+
+    const engineerInfoLines = [
+        { label: "Model:", value: engineerDetails.model },
+        { label: "Part No:", value: engineerDetails.partNo },
+        { label: "Serial No:", value: engineerDetails.serialNo },
+        { label: "Running Hrs:", value: engineerDetails.runningHrs },
+        { label: "Load Hrs:", value: engineerDetails.loadHrs },
+        { label: "Motor Starts:", value: engineerDetails.motorStarts },
+        { label: "Load Valve On:", value: engineerDetails.loadValveOn }
+    ];
+
+    doc.setFontSize(9);
+    engineerInfoLines.forEach((item, index) => {
+        doc.setFont("helvetica", "bold");
+        doc.text(item.label, engineerDetailsXStart, engineerDetailsYStart + 10 + (index * 5));
+        doc.setFont("helvetica", "normal");
+        doc.text(item.value, engineerDetailsXStart + 40, engineerDetailsYStart + 10 + (index * 5)); // Adjusted spacing
+    });
 
     // Checklists Header
-    doc.setFontSize(10); // Reduced font size
+    doc.setFontSize(10);
     doc.setFont("helvetica", "bold");
-    doc.text("Screw Compressor Checklist", 14, 75);
+    doc.text("Screw Compressor Checklist", 14, clientInfoBorderTopY + 55);
 
     // Checklist Table
     autoTable(doc, {
@@ -517,17 +575,17 @@ const ChecklistPage = () => {
                 item.remark,
             ];
         }),
-        startY: 80,
+        startY: clientInfoBorderTopY + 60,
         styles: {
-            fontSize: 7, // Further reduced font size
-            cellPadding: 2, // Reduced cell padding
+            fontSize: 7,
+            cellPadding: 2,
             halign: "left",
             valign: "middle",
-            lineColor: [22, 160, 133],
+            lineColor: [0, 0, 0],
             fillColor: [255, 255, 255],
         },
         headStyles: {
-            fillColor: [22, 160, 133],
+            fillColor: [0, 0, 0],
             textColor: [255, 255, 255],
             fontStyle: "bold",
         },
@@ -538,7 +596,7 @@ const ChecklistPage = () => {
     });
 
     // Refrigerator Checklist Header
-    doc.setFontSize(10); // Consistent reduced font size
+    doc.setFontSize(10);
     doc.setFont("helvetica", "bold");
     doc.text("Refrigerator Checklist", 14, doc.autoTable.previous.finalY + 10);
 
@@ -561,15 +619,15 @@ const ChecklistPage = () => {
         }),
         startY: doc.autoTable.previous.finalY + 10,
         styles: {
-            fontSize: 7, // Further reduced font size
-            cellPadding: 2, // Reduced cell padding
+            fontSize: 7,
+            cellPadding: 2,
             halign: "left",
             valign: "middle",
-            lineColor: [22, 160, 133],
+            lineColor: [0, 0, 0],
             fillColor: [255, 255, 255],
         },
         headStyles: {
-            fillColor: [22, 160, 133],
+            fillColor: [0, 0, 0],
             textColor: [255, 255, 255],
             fontStyle: "bold",
         },
@@ -582,20 +640,33 @@ const ChecklistPage = () => {
     // Spare Parts Header
     doc.setFontSize(12);
     doc.setFont("helvetica", "bold");
-    doc.text("List of spare parts required for next visit", 14, doc.autoTable.previous.finalY + 20);
+    doc.text("List of Spare Parts Required for Next Visit", 14, doc.autoTable.previous.finalY + 20);
 
     // Spare Parts Table
     autoTable(doc, {
-      head: [["Required Parts Description", "Part No.", "Qty."]],
-      body: spareParts.map(part => [part.desc, part.partNo, part.qty]),
-      startY: doc.autoTable.previous.finalY + 25,
+        head: [["Required Parts Description", "Part No.", "Qty."]],
+        body: spareParts.map(part => [part.desc, part.partNo, part.qty]),
+        startY: doc.autoTable.previous.finalY + 25,
+        styles: {
+            fontSize: 7,
+            cellPadding: 2,
+            halign: "left",
+            valign: "middle",
+            lineColor: [0, 0, 0],
+            fillColor: [255, 255, 255],
+        },
+        headStyles: {
+            fillColor: [0, 0, 0],
+            textColor: [255, 255, 255],
+            fontStyle: "bold",
+        },
     });
 
     // Add footer
-    doc.setFontSize(6); // Reduced footer font size
+    doc.setFontSize(6);
     doc.setFont("helvetica", "normal");
     doc.text("Generated on: " + new Date().toLocaleString(), 14, doc.autoTable.previous.finalY + 10);
-    doc.text("© XYZ Company", 14, doc.autoTable.previous.finalY + 15);
+    doc.text("© AEROLUBE ENGINEERS", 14, doc.autoTable.previous.finalY + 15);
 
     // Backend upload
     const pdfBlob = doc.output("blob");
@@ -639,8 +710,12 @@ const ChecklistPage = () => {
     }
 
     // Save the PDF locally (optional)
-    // doc.save("checklist.pdf");
+    doc.save("checklist.pdf");
 };
+
+
+
+
 
 
 
@@ -648,31 +723,19 @@ const ChecklistPage = () => {
 
   // Function to send the PDF to mobile via WhatsApp
   const handleSendPdfToMobile = async (pdfUrl, mobileNumber) => {
-    // Retrieve the stored template for Template 1 from localStorage
-    const storedTemplate1 = localStorage.getItem('messageTemplate1');
-    
-    // Fallback to the default Template 1 if nothing is stored
-    const template1 = storedTemplate1 || `Hello! 📄
-    
-    We have generated a new Checklist Document For you. 
-    
-    📑 **Document Title**: Checklist Document
-    ✍️ **Description**: Description of Checklist Document.
-    🔗 **Download Link**: {pdfUrl}
-    
-    If you have any questions, feel free to reach out!
-    
-    Thank you! 😊`;
-  
     try {
-      const whatsappAuth = 'Basic ' + btoa(`${WHATSAPP_CONFIG.username}:${WHATSAPP_CONFIG.password}`);
+      // Fetch templates from the backend
+      const response = await axios.get('http://localhost:5000/templates');
+      const { template1 } = response.data; // Get Template 1
   
       // Use the message template function with the PDF URL
-      const message = MessageTemplate(pdfUrl, template1);  // Replace {pdfUrl} with the actual URL
+      const message = MessageTemplate(pdfUrl, template1); // Replace {pdfUrl} with the actual URL
   
-      const response = await axios.post(`${WHATSAPP_CONFIG.url}`, {
+      const whatsappAuth = 'Basic ' + btoa(`${WHATSAPP_CONFIG.username}:${WHATSAPP_CONFIG.password}`);
+  
+      const responseWhatsapp = await axios.post(`${WHATSAPP_CONFIG.url}`, {
         receiverMobileNo: mobileNumber,
-        message: [message],  // Send the final message as an array
+        message: [message], // Send the final message as an array
       }, {
         headers: {
           'Authorization': whatsappAuth,
@@ -686,6 +749,7 @@ const ChecklistPage = () => {
       console.error("WhatsApp Error:", error);
     }
   };
+  
   
   
 

@@ -311,31 +311,19 @@ const QuotationAdminPage = () => {
   };
 
   const handleSendPdfToMobile = async (pdfUrl, mobileNumber) => {
-    // Retrieve the stored template for Template 1 from localStorage
-    const storedTemplate2 = localStorage.getItem('messageTemplate2');
-    
-    // Fallback to the default Template 1 if nothing is stored
-    const template2 = storedTemplate2 || `Hello! 📄
-    
-    We have generated a new PDF document for you. 
-    
-    📑 **Document Title**: Document Title Here
-    ✍️ **Description**: Brief description of what this PDF contains.
-    🔗 **Download Link**: {pdfUrl}
-    
-    If you have any questions, feel free to reach out!
-    
-    Thank you! 😊`;
-  
     try {
-      const whatsappAuth = 'Basic ' + btoa(`${WHATSAPP_CONFIG.username}:${WHATSAPP_CONFIG.password}`);
+      // Fetch templates from the backend
+      const response = await axios.get('http://localhost:5000/templates');
+      const { template2 } = response.data; // Get Template 1
   
       // Use the message template function with the PDF URL
-      const message = MessageTemplate(pdfUrl, template2);  // Replace {pdfUrl} with the actual URL
+      const message = MessageTemplate(pdfUrl, template2); // Replace {pdfUrl} with the actual URL
   
-      const response = await axios.post(`${WHATSAPP_CONFIG.url}`, {
+      const whatsappAuth = 'Basic ' + btoa(`${WHATSAPP_CONFIG.username}:${WHATSAPP_CONFIG.password}`);
+  
+      const responseWhatsapp = await axios.post(`${WHATSAPP_CONFIG.url}`, {
         receiverMobileNo: mobileNumber,
-        message: [message],  // Send the final message as an array
+        message: [message], // Send the final message as an array
       }, {
         headers: {
           'Authorization': whatsappAuth,
