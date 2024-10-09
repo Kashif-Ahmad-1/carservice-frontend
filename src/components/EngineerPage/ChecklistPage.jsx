@@ -455,7 +455,7 @@ const ChecklistPage = () => {
     const logoWidth = 30; // Width for logo
     const logoHeight = 30; // Height for logo
     const imgData = logo; // Assume 'logo' is defined
-    const imgData2 = logo2; // Assume 'logo' is defined
+    const imgData2 = logo2; // Assume 'logo2' is defined
     doc.addImage(imgData, "PNG", 10, 10, logoWidth, logoHeight); // Left corner
     doc.addImage(imgData2, "PNG", doc.internal.pageSize.getWidth() - logoWidth - 10, 10, logoWidth, logoHeight); // Right corner
 
@@ -478,22 +478,21 @@ const ChecklistPage = () => {
     const wrappedGstNo = doc.splitTextToSize(gstNo, pageWidth - 20);
     doc.text(wrappedGstNo, textX, 40, { align: "center" });
 
-     // Service Title
-     doc.setFontSize(10);
-     doc.setFont("helvetica", "normal");
-     doc.text("Service Record", textX, 45,{ align: "center" }); // Centered
-
-    // Add a margin before client information section
-    const clientInfoBorderTopY = 50; // Y position for client info border
-    doc.setDrawColor(0); // Set border color to black
-    doc.rect(10, clientInfoBorderTopY - 5, doc.internal.pageSize.getWidth() - 20, 50); // Draw rectangle
+    // Service Title
+    doc.setFontSize(10);
+    doc.setFont("helvetica", "normal");
+    doc.text("Service Record", textX, 45, { align: "center" });
 
     // Client Information Section
+    const clientInfoBorderTopY = 50;
+    const clientInfoBoxHeight = 50;
+    doc.setDrawColor(0);
+    doc.rect(10, clientInfoBorderTopY - 5, doc.internal.pageSize.getWidth() - 20, clientInfoBoxHeight); // Draw rectangle
+
     doc.setFontSize(11);
     doc.setFont("helvetica", "bold");
     doc.text("Client Information", 14, clientInfoBorderTopY);
 
-    // Compact client information
     doc.setFontSize(9);
     doc.setFont("helvetica", "normal");
     const clientInfoLines = [
@@ -503,13 +502,50 @@ const ChecklistPage = () => {
         `Authorized Signature: ${clientInfo.engineer}`
     ];
 
+    const clientInfoYStart = clientInfoBorderTopY + 10;
     clientInfoLines.forEach((line, index) => {
-        doc.text(line, 14, clientInfoBorderTopY + 10 + (index * 5)); // Increased spacing
+        doc.text(line, 14, clientInfoYStart + (index * 5)); // Adjusted Y position
     });
 
-    // Add a horizontal line below the client info
-    doc.setDrawColor(0); // Set color for the line to black
-    doc.line(10, clientInfoBorderTopY + 50, doc.internal.pageSize.getWidth() - 10, clientInfoBorderTopY + 50);
+    const centerX = 10 + (doc.internal.pageSize.getWidth() - 20) / 2; // Center X position
+    doc.setDrawColor(0);
+    doc.line(centerX, clientInfoBorderTopY - 5, centerX, clientInfoBorderTopY - 5 + clientInfoBoxHeight); // Vertical line
+
+    // Equipment Details Section
+    const engineerDetailsXStart = doc.internal.pageSize.getWidth() - 80;
+    const engineerDetailsYStart = clientInfoBorderTopY;
+
+    doc.setFontSize(11);
+    doc.setFont("helvetica", "bold");
+    doc.text("Equipment Details", engineerDetailsXStart, engineerDetailsYStart);
+
+    const engineerDetails = {
+        model: "Model XYZ",
+        partNo: "Part #1234",
+        serialNo: "SN-5678",
+        runningHrs: "100 hrs",
+        loadHrs: "80 hrs",
+        motorStarts: "50",
+        loadValveOn: "Yes"
+    };
+
+    const engineerInfoLines = [
+        { label: "Model:", value: engineerDetails.model },
+        { label: "Part No:", value: engineerDetails.partNo },
+        { label: "Serial No:", value: engineerDetails.serialNo },
+        { label: "Running Hrs:", value: engineerDetails.runningHrs },
+        { label: "Load Hrs:", value: engineerDetails.loadHrs },
+        { label: "Motor Starts:", value: engineerDetails.motorStarts },
+        { label: "Load Valve On:", value: engineerDetails.loadValveOn }
+    ];
+
+    doc.setFontSize(9);
+    engineerInfoLines.forEach((item, index) => {
+        doc.setFont("helvetica", "bold");
+        doc.text(item.label, engineerDetailsXStart, engineerDetailsYStart + 10 + (index * 5));
+        doc.setFont("helvetica", "normal");
+        doc.text(item.value, engineerDetailsXStart + 40, engineerDetailsYStart + 10 + (index * 5)); // Adjusted spacing
+    });
 
     // Checklists Header
     doc.setFontSize(10);
@@ -545,16 +581,16 @@ const ChecklistPage = () => {
             cellPadding: 2,
             halign: "left",
             valign: "middle",
-            lineColor: [0, 0, 0], // Black
-            fillColor: [255, 255, 255], // White
+            lineColor: [0, 0, 0],
+            fillColor: [255, 255, 255],
         },
         headStyles: {
-            fillColor: [0, 0, 0], // Black
-            textColor: [255, 255, 255], // White
+            fillColor: [0, 0, 0],
+            textColor: [255, 255, 255],
             fontStyle: "bold",
         },
         alternateRowStyles: {
-            fillColor: [240, 240, 240], // Light gray
+            fillColor: [240, 240, 240],
         },
         margin: { top: 10 },
     });
@@ -587,16 +623,16 @@ const ChecklistPage = () => {
             cellPadding: 2,
             halign: "left",
             valign: "middle",
-            lineColor: [0, 0, 0], // Black
-            fillColor: [255, 255, 255], // White
+            lineColor: [0, 0, 0],
+            fillColor: [255, 255, 255],
         },
         headStyles: {
-            fillColor: [0, 0, 0], // Black
-            textColor: [255, 255, 255], // White
+            fillColor: [0, 0, 0],
+            textColor: [255, 255, 255],
             fontStyle: "bold",
         },
         alternateRowStyles: {
-            fillColor: [240, 240, 240], // Light gray
+            fillColor: [240, 240, 240],
         },
         margin: { top: 10 },
     });
@@ -616,12 +652,12 @@ const ChecklistPage = () => {
             cellPadding: 2,
             halign: "left",
             valign: "middle",
-            lineColor: [0, 0, 0], // Black
-            fillColor: [255, 255, 255], // White
+            lineColor: [0, 0, 0],
+            fillColor: [255, 255, 255],
         },
         headStyles: {
-            fillColor: [0, 0, 0], // Black
-            textColor: [255, 255, 255], // White
+            fillColor: [0, 0, 0],
+            textColor: [255, 255, 255],
             fontStyle: "bold",
         },
     });
@@ -676,6 +712,7 @@ const ChecklistPage = () => {
     // Save the PDF locally (optional)
     doc.save("checklist.pdf");
 };
+
 
 
 

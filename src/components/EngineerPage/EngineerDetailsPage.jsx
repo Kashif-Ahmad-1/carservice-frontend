@@ -178,7 +178,7 @@ function EngineerDetailsPage() {
   const handleEditClick = (appointment) => {
 
 
-    navigate(`/checklist`, {
+    navigate(`/checklist3`, {
       state: {
         appointmentId: appointment._id,
         clientName: appointment.clientName,
