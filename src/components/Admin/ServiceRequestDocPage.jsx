@@ -175,37 +175,20 @@ const ServiceRequestDocPage = () => {
   };
 
   const handleSendPdfToMobile = async (pdfUrl, mobileNumber) => {
-    // Retrieve the stored template for Template 1 from localStorage
-    const storedTemplate1 = localStorage.getItem('messageTemplate1');
-    console.log('Stored Template 1:', storedTemplate1);
-  
-    // Use the stored template if it exists; otherwise, fallback to the default message
-    const template1 = storedTemplate1 !== null ? storedTemplate1 : `Hello! 📄
-    
-    We have generated a new PDF document for you. 
-    
-    📑 **Document Title**: Document Title Here
-    ✍️ **Description**: Brief description of what this PDF contains.
-    🔗 **Download Link**: {pdfUrl}
-    
-    If you have any questions, feel free to reach out!
-    
-    Thank you! 😊`;
-  
-    console.log('Using Template:', template1);
-  
     try {
-      const whatsappAuth = 'Basic ' + btoa(`${WHATSAPP_CONFIG.username}:${WHATSAPP_CONFIG.password}`);
+      // Fetch templates from the backend
+      const response = await axios.get(`${API_BASE_URL}/templates`); 
+      const { template1 } = response.data; 
   
       // Use the message template function with the PDF URL
-      const message = MessageTemplate(pdfUrl, template1);  // Replace {pdfUrl} with the actual URL
+      const message = MessageTemplate(pdfUrl, template1); // Replace {pdfUrl} with the actual URL
   
-      const response = await axios.post(`${WHATSAPP_CONFIG.url}`, {
+      const responseWhatsapp = await axios.post(WHATSAPP_CONFIG.url, {
         receiverMobileNo: mobileNumber,
-        message: [message],  // Send the final message as an array
+        message: [message], // Send the final message as an array
       }, {
         headers: {
-          'Authorization': whatsappAuth,
+          'x-api-key': WHATSAPP_CONFIG.apiKey, // Use the API key from the config
           'Content-Type': 'application/json',
         },
       });

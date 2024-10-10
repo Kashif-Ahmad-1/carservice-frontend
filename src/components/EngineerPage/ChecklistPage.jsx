@@ -714,13 +714,6 @@ const ChecklistPage = () => {
 };
 
 
-
-
-
-
-
- 
-
   // Function to send the PDF to mobile via WhatsApp
   const handleSendPdfToMobile = async (pdfUrl, mobileNumber) => {
     try {
@@ -750,11 +743,6 @@ const ChecklistPage = () => {
     }
   };
   
-  
-  
-
-  
-
   const handleToggleSidebar = () => {
     setSidebarOpen((prev) => !prev);
   };

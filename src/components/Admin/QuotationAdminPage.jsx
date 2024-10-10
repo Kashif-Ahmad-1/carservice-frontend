@@ -22,6 +22,7 @@ import { Download, Menu, Delete, Edit, Send } from "@mui/icons-material";
 import Navbar from "./Navbar";
 import Sidebar from "./Sidebar";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 const MainContent = styled("main")(({ theme }) => ({
   flexGrow: 1,
   padding: theme.spacing(3),
@@ -68,6 +69,7 @@ const QuotationAdminPage = () => {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [currentQuotation, setCurrentQuotation] = useState(null);
   const [expandedRows, setExpandedRows] = useState([]);
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     quotationNo: "",
     clientName: "",
@@ -287,19 +289,21 @@ const QuotationAdminPage = () => {
 
   const handleSendPdfToMobile = async (pdfUrl, mobileNumber) => {
     try {
-      const whatsappAuth = 'Basic ' + btoa(`${WHATSAPP_CONFIG.username}:${WHATSAPP_CONFIG.password}`);
+      // Fetch templates from the backend
+      const response = await axios.get(`${API_BASE_URL}/templates`); 
+      const { template2 } = response.data; 
   
-      // Use the message template function
-      const message = MessageTemplate(pdfUrl);
+      // Use the message template function with the PDF URL
+      const message = MessageTemplate(pdfUrl, template2); // Replace {pdfUrl} with the actual URL
   
-      const response = await axios.post(`${WHATSAPP_CONFIG.url}`, {
+      const responseWhatsapp = await axios.post(WHATSAPP_CONFIG.url, {
         receiverMobileNo: mobileNumber,
-        message: [message]
+        message: [message], // Send the final message as an array
       }, {
         headers: {
-          'Authorization': whatsappAuth,
+          'x-api-key': WHATSAPP_CONFIG.apiKey, // Use the API key from the config
           'Content-Type': 'application/json',
-        }
+        },
       });
   
       toast.success("PDF sent to mobile successfully!");
@@ -427,7 +431,7 @@ const QuotationAdminPage = () => {
                               <IconButton
                                 variant="contained"
                                 color="primary"
-                                onClick={() => openModal(quotation)}
+                                onClick={() => navigate(`/admin/quotations/edit/${quotation._id}`)}
                                 size="small"
                               >
                                 <Edit fontSize="small" />
