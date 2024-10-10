@@ -146,20 +146,18 @@ const ServiceRequestDocPage = () => {
   const handleSendPdfToMobile = async (pdfUrl, mobileNumber) => {
     try {
       // Fetch templates from the backend
-      const response = await axios.get('http://localhost:5000/templates');
-      const { template1 } = response.data; // Get Template 1
+      const response = await axios.get(`${API_BASE_URL}/templates`); 
+      const { template1 } = response.data; 
   
       // Use the message template function with the PDF URL
       const message = MessageTemplate(pdfUrl, template1); // Replace {pdfUrl} with the actual URL
   
-      const whatsappAuth = 'Basic ' + btoa(`${WHATSAPP_CONFIG.username}:${WHATSAPP_CONFIG.password}`);
-  
-      const responseWhatsapp = await axios.post(`${WHATSAPP_CONFIG.url}`, {
+      const responseWhatsapp = await axios.post(WHATSAPP_CONFIG.url, {
         receiverMobileNo: mobileNumber,
         message: [message], // Send the final message as an array
       }, {
         headers: {
-          'Authorization': whatsappAuth,
+          'x-api-key': WHATSAPP_CONFIG.apiKey, // Use the API key from the config
           'Content-Type': 'application/json',
         },
       });
@@ -170,6 +168,7 @@ const ServiceRequestDocPage = () => {
       console.error("WhatsApp Error:", error);
     }
   };
+  
   const filteredChecklists = checklists.filter((checklist) => {
     const lowerCaseTerm = searchTerm.toLowerCase();
     return (
@@ -204,10 +203,10 @@ const ServiceRequestDocPage = () => {
 
   return (
     <>
-    <Box sx={{ display: "flex" }}>
+    <Box sx={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
       <CssBaseline />
       {sidebarOpen && <Sidebar />}
-      <MainContent>
+      <MainContent sx={{ flex: 1 }}>
         <Header />
         <ToolbarSpacer />
         <Container sx={{ padding: 4, paddingTop: 0, flexGrow: 1 }} maxWidth="xl">

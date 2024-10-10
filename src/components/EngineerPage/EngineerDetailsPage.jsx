@@ -187,6 +187,10 @@ function EngineerDetailsPage() {
         address: appointment.clientAddress,
         engineer: appointment.engineer,
         invoiceNo: appointment.invoiceNumber,
+        machineName: appointment.machineName,
+        serialNo: appointment.serialNo,
+        partNo: appointment.partNo,
+        model: appointment.model
         
       },
     });

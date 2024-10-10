@@ -28,6 +28,8 @@ import QuotationAdminPage from "./components/Admin/QuotationAdminPage";
 import ReportPage from "./components/Admin/ReportPage";
 
 import TemplateManager from "./components/MessageTemplate/TemplateManager";
+import EditQuotation from "./components/EngineerPage/EditQuotation";
+import EditAdminQuotation from "./components/Admin/EditAdminQuotation";
 
 
 function App() {
@@ -66,6 +68,10 @@ function App() {
           <Route
             path="/admin-quotation-record"
             element={<PrivateRoute element={QuotationAdminPage} roles={["admin"]} />}
+          />
+          <Route
+            path="/admin/quotations/edit/:id"
+            element={<PrivateRoute element={EditAdminQuotation} roles={["admin"]} />}
           />
           <Route
             path="/report-page"
@@ -107,6 +113,12 @@ function App() {
             path="/quotation-list"
             element={<PrivateRoute element={QuotationPage} roles={["engineer"]} />}
           />
+
+
+          <Route
+            path="/quotations/edit/:id"
+            element={<PrivateRoute element={EditQuotation} roles={["engineer"]} />}
+          />
           <Route
             path="/servicerequestcheck-list"
             element={<PrivateRoute element={ServiceRequestDocPage} roles={["engineer"]} />}
@@ -122,6 +134,7 @@ function App() {
           <Route path="/reset/:token" element={<ResetPassword />} />
          
           <Route path="/templatemanager" element={<TemplateManager />} />
+         
           
          
           

@@ -13,38 +13,38 @@
   }
   
   .form-box {
-    display: flex;
-    flex-direction: column;
+    display: flex !important;
+    flex-direction: column !important;
   }
   
   .form-row {
-    display: flex;
-    flex-wrap: wrap;
-    margin-bottom: 10px;
+    display: flex !important;
+    flex-wrap: wrap !important;
+    margin-bottom: 10px !important;
   }
   
   .form-group {
-    flex: 1;
-    min-width: 120px;
-    margin-right: 8px;
+    flex: 1 !important;
+    min-width: 120px !important;
+    margin-right: 8px !important;
   }
   
   .form-group:last-child {
-    margin-right: 0;
+    margin-right: 0 !important;
   }
   
   label {
-    font-size: 12px;
-    display: block;
-    margin-bottom: 4px;
+    font-size: 12px !important;
+    display: block !important;
+    margin-bottom: 4px !important;
   }
   
   input {
-    padding: 6px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    width: 100%;
-    font-size: 12px;
+    padding: 6px !important;
+    border: 1px solid #ccc !important;
+    border-radius: 4px !important;
+    width: 100% !important;
+    font-size: 12px ; 
   }
   
   button {
