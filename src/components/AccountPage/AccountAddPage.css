@@ -61,7 +61,7 @@ h2 {
 
 
 label {
-  font-weight: bold;
+  font-weight: boldz;
   margin-bottom: 5px;
   color: #555;
 }
@@ -196,8 +196,9 @@ button {
   }
 
   .appointment-container {
+    margin-top: 959px;
     flex: 1 0 100%; /* Full width for the form on small screens */
-    margin: 0; /* Remove margins */
+    /* Remove margins */
     padding: 15px; /* Add some padding */
     box-shadow: none; /* Remove shadow for a flatter design */
   }
@@ -205,7 +206,7 @@ button {
   .form-row {
     display: flex; /* Change to flex for better stacking */
     flex-direction: column; /* Stack form fields */
-    gap: 15px; /* Add gap between fields */
+    gap: 0px; /* Add gap between fields */
   }
 
   .form-group {

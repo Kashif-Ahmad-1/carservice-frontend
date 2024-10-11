@@ -351,6 +351,7 @@ const QuotationAdminPage = () => {
 
   return (
     <>
+    {/*  */}
    <Box sx={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
       <CssBaseline />
       {sidebarOpen && <Sidebar />}
@@ -562,7 +563,7 @@ const QuotationAdminPage = () => {
                 display: "flex",
                 justifyContent: "space-between",
                 mt: 2,
-                flexWrap: { xs: "wrap", md: "nowrap" },
+                flexWrap: { xs: "nowrap", md: "nowrap" },
               }}
             >
               <Button

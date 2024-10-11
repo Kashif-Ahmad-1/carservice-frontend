@@ -347,70 +347,70 @@ function AppointmentDetailsPage() {
                     <TableCell sx={{ fontSize: "1.2rem",
                           fontWeight: 700, }}>{appointment.invoiceNumber}</TableCell>
                     <TableCell sx={{ fontSize: "1rem",
-                          fontWeight: 700, }}>{appointment.clientName}</TableCell>
+                           }}>{appointment.clientName}</TableCell>
                     <TableCell sx={{ fontSize: "1rem",
-                          fontWeight: 700, }}>{appointment.clientAddress}</TableCell>
+                          }}>{appointment.clientAddress}</TableCell>
                     <TableCell sx={{ fontSize: "1rem",
-                          fontWeight: 700, }}>{appointment.contactPerson}</TableCell>
+                           }}>{appointment.contactPerson}</TableCell>
                     <TableCell sx={{
                           display: { xs: "none", md: "table-cell" },
                           fontSize: "1rem",
-                          fontWeight: 700,
+                          
                         }}>{appointment.mobileNo}</TableCell>
                     <TableCell sx={{
                           display: { xs: "none", md: "table-cell" },
                           fontSize: "1rem",
-                          fontWeight: 700,
+                          
                         }}>{new Date(appointment.appointmentDate).toLocaleDateString()}</TableCell>
                     <TableCell sx={{
                           display: { xs: "none", md: "table-cell" },
                           fontSize: "1rem",
-                          fontWeight: 700,
+                          
                         }}>{typeof appointment.appointmentAmount === 'number' ? `${appointment.appointmentAmount.toFixed(2)}` : 'N/A'}</TableCell>
                     <TableCell sx={{
                           display: { xs: "none", md: "table-cell" },
                           fontSize: "1rem",
-                          fontWeight: 700,
+                          
                         }}>{appointment.machineName}</TableCell>
                     <TableCell sx={{
                           display: { xs: "none", md: "table-cell" },
                           fontSize: "1rem",
-                          fontWeight: 700,
+                          
                         }}>{appointment.model}</TableCell>
                     <TableCell sx={{
                           display: { xs: "none", md: "table-cell" },
                           fontSize: "1rem",
-                          fontWeight: 700,
+                          
                         }}>{appointment.partNo}</TableCell>
                     <TableCell sx={{
                           display: { xs: "none", md: "table-cell" },
                           fontSize: "1rem",
-                          fontWeight: 700,
+                          
                         }}>{appointment.serialNo}</TableCell>
                     <TableCell sx={{
                           display: { xs: "none", md: "table-cell" },
                           fontSize: "1rem",
-                          fontWeight: 700,
+                          
                         }}>{new Date(appointment.installationDate).toLocaleDateString()}</TableCell>
                     <TableCell sx={{
                           display: { xs: "none", md: "table-cell" },
                           fontSize: "1rem",
-                          fontWeight: 700,
+                          
                         }}>{appointment.serviceFrequency}</TableCell>
                     <TableCell sx={{
                           display: { xs: "none", md: "table-cell" },
                           fontSize: "1rem",
-                          fontWeight: 700,
+                          
                         }}>{new Date(appointment.expectedServiceDate).toLocaleDateString()}</TableCell>
                     <TableCell sx={{
                           display: { xs: "none", md: "table-cell" },
                           fontSize: "1rem",
-                          fontWeight: 700,
+                          
                         }}>{appointment.engineer ? appointment.engineer.name : 'N/A'}</TableCell>
                     <TableCell sx={{
                           display: { xs: "none", md: "table-cell" },
                           fontSize: "1rem",
-                          fontWeight: 700,
+                          
                         }}>
                       {appointment.document ? (
                         <Button variant="outlined" color="primary" onClick={() => handleDownloadPDF(appointment)}>

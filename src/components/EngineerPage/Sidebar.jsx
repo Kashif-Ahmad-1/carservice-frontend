@@ -109,12 +109,12 @@ const Sidebar = () => {
           </ListItemStyled>
 
 
-          <ListItemStyled button component={Link} to="/templatemanager">
+          {/* <ListItemStyled button component={Link} to="/templatemanager">
             <ListItemIcon>
               <FaWhatsapp />
             </ListItemIcon>
             <ListItemText primary="Whatsapp Template" />
-          </ListItemStyled>
+          </ListItemStyled> */}
           {/* Add more sidebar items if needed */}
         </List>
       </div>

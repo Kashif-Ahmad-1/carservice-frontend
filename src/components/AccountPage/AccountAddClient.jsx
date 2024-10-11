@@ -601,7 +601,7 @@ function AppointmentPage() {
       <ToastContainer />
       
     </div>
-    <Footer />
+    {/* <Footer /> */}
     </>
   );
 }

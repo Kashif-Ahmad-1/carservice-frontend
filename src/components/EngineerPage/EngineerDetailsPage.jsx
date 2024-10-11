@@ -286,7 +286,7 @@ function EngineerDetailsPage() {
       <Box sx={{ flexGrow: 1,  }}>
       <Header onToggleSidebar={handleToggleSidebar} />
       
-      <Container sx={{ padding: 4, paddingTop: 8, flexGrow: 1,margin: "20px" }} maxWidth="xl">
+      <Container sx={{ padding: 0, width: '100%', overflowX: 'auto', display: 'flex', flexDirection: 'column', minHeight: '100vh',marginTop: "70px" }} maxWidth="xl">
      
           <Typography variant="h4" gutterBottom sx={{ fontWeight: "bold" }}>
             Client Details

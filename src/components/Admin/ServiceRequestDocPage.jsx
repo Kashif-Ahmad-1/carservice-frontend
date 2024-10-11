@@ -212,7 +212,7 @@ const ServiceRequestDocPage = () => {
       <Navbar onMenuClick={handleDrawerToggle} />
       <Sidebar open={drawerOpen} onClose={handleDrawerToggle} />
       <MainContent>
-        {/* <Header /> */}
+       
         <ToolbarSpacer />
         <Container>
           <SectionTitle variant="h4">Search By Type</SectionTitle>
