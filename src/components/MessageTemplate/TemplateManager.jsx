@@ -10,22 +10,13 @@ import {
   Link
 } from "@mui/material";
 import Menu from '@mui/icons-material/Menu';
-import Sidebar from "./../EngineerPage/Sidebar";
 
+import {API_BASE_URL,WHATSAPP_CONFIG} from "./../../config";
 import axios from 'axios';
-import './TemplateManager.css'
-const Header = ({ onToggleSidebar }) => (
-  <AppBar position="fixed" sx={{ backgroundColor: "gray", zIndex: 1201 }}>
-    <Toolbar>
-      <Button onClick={onToggleSidebar} sx={{ color: 'white' }}>
-        <Menu sx={{ fontSize: 30 }} />
-      </Button>
-      <Typography variant="h6" sx={{ flexGrow: 1, fontWeight: "bold" }}>
-        AEROLUBE ENGINEERS
-      </Typography>
-    </Toolbar>
-  </AppBar>
-);
+import './TemplateManager.css';
+import Navbar from '../Admin/Navbar';
+import Sidebar from '../Admin/Sidebar';
+
 
 
 const Footer = () => {
@@ -56,16 +47,17 @@ const TemplateManager = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [selectedTemplate, setSelectedTemplate] = useState('template1');
   const [messageTemplate, setMessageTemplate] = useState('');
+  const [drawerOpen, setDrawerOpen] = useState(false);
   const [templates, setTemplates] = useState({ template1: '', template2: '' });
 
   const handleToggleSidebar = () => {
-    setSidebarOpen((prev) => !prev);
+    setDrawerOpen((prev) => !prev);
   };
 
   useEffect(() => {
     // Fetch templates from backend
     const fetchTemplates = async () => {
-      const response = await axios.get('http://localhost:5000/templates');
+      const response = await axios.get(`${API_BASE_URL}/templates`);
       setTemplates(response.data);
       setMessageTemplate(response.data.template1);
     };
@@ -84,14 +76,14 @@ const TemplateManager = () => {
       template2: selectedTemplate === 'template2' ? messageTemplate : templates.template2,
     };
 
-    await axios.post('http://localhost:5000/templates', updatedTemplates);
+    await axios.post(`${API_BASE_URL}/templates`, updatedTemplates);
     toast.success("Template saved!");
   };
 
   return (
     <>
-      {sidebarOpen && <Sidebar />}
-      <Header onToggleSidebar={handleToggleSidebar} />
+      <Sidebar open={drawerOpen} onClose={handleToggleSidebar} />
+      <Navbar onMenuClick={handleToggleSidebar} />
      
       <div className="template-manager">
         <h1 className="header">Manage Message Template</h1>

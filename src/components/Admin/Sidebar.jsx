@@ -21,6 +21,7 @@ import BusinessIcon from '@mui/icons-material/Business';
 import SettingsIcon from '@mui/icons-material/Settings';
 
 import Swal from 'sweetalert2';
+import { AdminPanelSettings, Iron, MonetizationOn, RoomService, WhatsApp } from '@mui/icons-material';
 
 // Styled components
 const drawerWidth = 240;
@@ -116,7 +117,7 @@ const Sidebar = ({ open, onClose }) => {
 
           <ListItemStyled button component={Link} to="/admin-list">
             <ListItemIcon>
-              <BusinessIcon  />
+              <AdminPanelSettings  />
             </ListItemIcon>
             <ListItemText primary="Admin List" />
           </ListItemStyled>
@@ -139,7 +140,7 @@ const Sidebar = ({ open, onClose }) => {
 
           <ListItemStyled button component={Link} to="/admin-service-record">
             <ListItemIcon>
-              <SettingsIcon   />
+              <RoomService   />
             </ListItemIcon>
             <ListItemText primary="Service Record" />
           </ListItemStyled>
@@ -147,18 +148,18 @@ const Sidebar = ({ open, onClose }) => {
 
           <ListItemStyled button component={Link} to="/admin-quotation-record">
             <ListItemIcon>
-              <SettingsIcon   />
+              <MonetizationOn   />
             </ListItemIcon>
             <ListItemText primary="Quotation Record" />
           </ListItemStyled>
 
           <Divider />
-          {/* <ListItemStyled button component={Link} to="/service-request">
+          <ListItemStyled button component={Link} to="/templatemanager">
             <ListItemIcon>
-              <AssignmentIcon />
+              <WhatsApp />
             </ListItemIcon>
-            <ListItemText primary="Service Requests" />
-          </ListItemStyled> */}
+            <ListItemText primary="Whatsapp Templates" />
+          </ListItemStyled>
           <ListItemStyled button component={Link} to="/report-page">
             <ListItemIcon>
               <AssessmentIcon />

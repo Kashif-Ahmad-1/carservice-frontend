@@ -676,17 +676,23 @@ const handleSendPdfToMobile = async (pdfUrl, mobileNumber) => {
       >
         <div style={{ flex: 1 }}>
           <p style={{ margin: 0 }}>
-            Technician's Signature: ____________________________
+            Technician's Signature: 
+            <br />
+            <input type="text" style={{ width: '100px', border: 'none', borderBottom: '1px solid #000', margin: '0 5px' }} />
           </p>
         </div>
         <div style={{ flex: 1, textAlign: "center" }}>
           <p style={{ margin: 0 }}>
-            Customer's Signature: ____________________________
+            Customer's Signature: 
+            <br />
+            <input type="text" style={{ width: '100px', border: 'none', borderBottom: '1px solid #000', margin: '0 5px' }} />
           </p>
         </div>
         <div style={{ flex: 1, textAlign: "right" }}>
           <p style={{ margin: 0 }}>
-            Signee's Name (in block letters): ____________________________
+            Signee's Name
+            <br />
+            <input type="text" style={{ width: '100px', border: 'none', borderBottom: '1px solid #000', margin: '0 5px' }} />
           </p>
         </div>
       </div>

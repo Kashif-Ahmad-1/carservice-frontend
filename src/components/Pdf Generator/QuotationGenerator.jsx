@@ -304,7 +304,7 @@ const QuotationGenerator = () => {
    
          // Send the PDF URL to WhatsApp
          console.log("Sending PDF to mobile:", pdfUrl, "to", clientInfo.phone); // Debugging line
-        //  await handleSendPdfToMobile(pdfUrl, clientInfo.phone);
+         await handleSendPdfToMobile(pdfUrl, clientInfo.phone);
          toast.success("PDF sent to mobile successfully!");
   } catch (error) {
     console.error("Error uploading checklist and PDF:", error);

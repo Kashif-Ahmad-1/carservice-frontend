@@ -288,7 +288,7 @@ const ServiceRequestDocPage = () => {
                 </tbody>
               </Table>
             </Paper>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 2, flexWrap: 'wrap' }}>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 2, flexWrap: 'nowrap' }}>
               <Button
                 variant="contained"
                 onClick={handlePreviousPage}
