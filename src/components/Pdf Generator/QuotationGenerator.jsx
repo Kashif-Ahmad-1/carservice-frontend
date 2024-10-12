@@ -285,6 +285,7 @@ const QuotationGenerator = () => {
     appointmentId, 
     quotationNo: formData.quotationNo,
     items: formData.items,
+    invoiceNo: formData.invoiceNumber,
     quotationAmount: formData.quotationAmount 
   }));
 
@@ -298,8 +299,8 @@ const QuotationGenerator = () => {
     });
     console.log("Quotation and PDF uploaded successfully", response.data);
 
-    const pdfUrl = response.data.quotation.pdfPath; // Get pdfPath from the first checklist object
-    console.log("Extracted PDF URL:", pdfUrl); // Log the extracted URL
+    const pdfUrl = response.data.quotation.pdfPath; 
+    console.log("Extracted PDF URL:", pdfUrl); 
    
    
          // Send the PDF URL to WhatsApp
@@ -307,9 +308,9 @@ const QuotationGenerator = () => {
          await handleSendPdfToMobile(pdfUrl, clientInfo.phone);
          toast.success("PDF sent to mobile successfully!");
   } catch (error) {
-    console.error("Error uploading checklist and PDF:", error);
+    console.error("Error uploading quotation and PDF:", error);
   }
-  doc.save("quotation.pdf");
+  // doc.save("quotation.pdf");
 };
 
 

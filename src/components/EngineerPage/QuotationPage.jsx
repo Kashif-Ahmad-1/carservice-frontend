@@ -52,7 +52,7 @@ const Table = styled("table")(({ theme }) => ({
     // textAlign: "left",
     borderBottom: `1px solid ${theme.palette.divider}`,
     fontSize: "1rem", // Smaller font for mobile
-    fontWeight: "550",
+    fontWeight: "400",
   },
   "& th": {
     backgroundColor: theme.palette.grey[200],
@@ -68,7 +68,7 @@ const QuotationAdminPage = () => {
   const itemsPerPage = 20; // Items per page
   const [searchTerm, setSearchTerm] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
-  const [drawerOpen, setDrawerOpen] = useState(false);
+  
   const [currentQuotation, setCurrentQuotation] = useState(null);
   const [expandedRows, setExpandedRows] = useState([]);
   const [formData, setFormData] = useState({
@@ -85,10 +85,7 @@ const QuotationAdminPage = () => {
   };
 
   // Function to handle drawer toggle
-  const handleDrawerToggle = () => {
-    setDrawerOpen((prev) => !prev);
-  };
-
+ 
    // Header Component
    const Header = () => (
     <AppBar position="fixed" sx={{ backgroundColor: 'gray', zIndex: 1201 }}>
@@ -219,6 +216,8 @@ const QuotationAdminPage = () => {
           status: formData.status,
         }),
       });
+
+      
 
       if (!response.ok) {
         throw new Error("Failed to save quotation");
@@ -526,7 +525,7 @@ const QuotationAdminPage = () => {
                                 <Button
                                   variant="contained"
                                   color="primary"
-                                  onClick={() => openModal(quotation)}
+                                  onClick={() => navigate(`/quotations/edit/${quotation._id}`)}
                                   size="small"
                                   sx={{ mb: 1 }} // Adds margin-bottom for spacing
                                 >

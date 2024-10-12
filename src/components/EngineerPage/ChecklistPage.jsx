@@ -1,365 +1,31 @@
-import React, { useState, useEffect } from "react";
+import React, { useState,useEffect } from "react";
+import logo2 from "./logo2.png";
+import logo from "./comp-logo.jpeg";
+import { itemNames, RefrigeratoritemNames } from './itemNames.jsx';
 import { useLocation } from "react-router-dom";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Checkbox,
-  TextField,
-  Paper,
-  Typography,
-  Button,
-  Box,
-  Grid,
-  AppBar,
-  Toolbar,
-
-} from "@mui/material";
-
-import Menu from '@mui/icons-material/Menu';
+import jsPDF from "jspdf";
+import axios from "axios";
+import html2canvas from "html2canvas";
+import html2pdf from "html2pdf.js";
 import {API_BASE_URL,WHATSAPP_CONFIG} from './../../config';
-import { jsPDF } from "jspdf";
-import autoTable from "jspdf-autotable";
-import axios from "axios"; // Import axios for API calls
-import logo from './comp-logo.jpeg';
-import { toast } from 'react-toastify';
 import MessageTemplate from "./../MessageTemplate";
-import Sidebar from "./Sidebar";
-import Footer from "../Footer";
-import logo2 from './logo2.png'
-const Header = ({ onToggleSidebar }) => (
-  <AppBar position="fixed" sx={{ backgroundColor: "gray", zIndex: 1201 }}> {/* Ensure zIndex is higher than sidebar */}
-    <Toolbar>
-    <Button onClick={onToggleSidebar} sx={{ color: 'white' }}>
-  <Menu sx={{ fontSize: 30 }} />
-</Button>
-      <img
-        src={logo}
-        alt="Company Logo"
-        style={{ width: 40, height: 40, marginRight: 10 }}
-      />
-      <Typography variant="h6" sx={{ flexGrow: 1, fontWeight: "bold" }}>
-        AEROLUBE ENGINEERS
-      </Typography>
-    </Toolbar>
-  </AppBar>
-);
-
-
-
+import { toast, ToastContainer } from "react-toastify";
 const ChecklistPage = () => {
-  const initialChecklist = [
-    {
-      srNo: 1,
-      task: "Make safe as instructed in the service manual",
-      done: false,
-      remark: "",
-      inputs: {},
-    },
-    {
-      srNo: 2,
-      task: "Carry out repair (after obtaining authorization, if needed)",
-      done: false,
-      remark: "",
-      inputs: {},
-    },
-    {
-      srNo: 3,
-      task: "Check abnormality in Ambient air like Bad odor / Heavy dust",
-      done: false,
-      remark: "",
-      inputs: {},
-    },
-    {
-      srNo: 4,
-      task: "Check control cabinet / cooler filter mats, clean / replace if necessary",
-      done: false,
-      remark: "",
-      inputs: {},
-    },
-    {
-      srNo: 5,
-      task: "Check / clean cooler, check fan blades and guarding",
-      done: false,
-      remark: "",
-      inputs: {},
-    },
-    {
-      srNo: 6,
-      task: "Check coupling / belt tension, tight if necessary",
-      done: false,
-      remark: "",
-      inputs: {},
-    },
-    {
-      srNo: 7,
-      task: "Check / change oil separator cartridge",
-      done: false,
-      remark: "",
-      inputs: {},
-    },
-    {
-      srNo: 8,
-      task: "Check oil separator cartridge, diff. pressure",
-      done: false,
-      remark: "",
-      inputs: {},
-    },
-    {
-      srNo: 9,
-      task: "Check / change the Air filter",
-      done: false,
-      remark: "",
-      inputs: {},
-    },
-    {
-      srNo: 10,
-      task: "Check Air filter cap, Suction hose for any leak or crack / damage",
-      done: false,
-      remark: "",
-      inputs: {},
-    },
-    {
-      srNo: 11,
-      task: "Check / change the Oil filter",
-      done: false,
-      remark: "",
-      inputs: {},
-    },
-    { 
-      srNo: 12, 
-      task: "Check / change the Oil", 
-      done: false, 
-      remark: "", 
-      inputs: {} 
-    },
-    {
-      srNo: 13,
-      task: "Check / change the Valve kits",
-      done: false,
-      remark: "",
-      inputs: {},
-    },
-    {
-      srNo: 14,
-      task: "Check motor bearing lubrication, regrease if necessary",
-      done: false,
-      remark: "",
-      inputs: {},
-    },
-    {
-      srNo: 15,
-      task: "Check electrical connection and tight if necessary",
-      done: false,
-      remark: "",
-      inputs: {},
-    },
-    {
-      srNo: 16,
-      task: "Check motor overcurrent relays and protection switches",
-      done: false,
-      remark: "",
-      inputs: {},
-    },
-    {
-      srNo: 17,
-      task: "Check door and guard interlocks and emergency stop function",
-      done: false,
-      remark: "",
-      inputs: {},
-    },
-    {
-      srNo: 18,
-      task: "Check all sensor connections and tight if necessary",
-      done: false,
-      remark: "",
-      inputs: {},
-    },
-    {
-      srNo: 19,
-      task: "Check and register if any safety device bypassed",
-      done: false,
-      remark: "",
-      inputs: {},
-    },
-    {
-      srNo: 20,
-      task: "Check Control voltage; L1 <TextField> V, Logo Power Output <TextField> V DC.",
-      done: false,
-      remark: "",
-      inputs: {},
-    },
-    {
-      srNo: 21,
-      task: "Check line voltage: L1 <TextField> V, L2 <TextField> V, L3 <TextField> V <TextField>",
-      done: false,
-      remark: "",
-      inputs: {},
-    },
-    {
-      srNo: 22,
-      task: "Check current consumption: Line U1 <TextField> A, V1 <TextField> A, W1 <TextField> A ……..",
-      done: false,
-      remark: "",
-      inputs: {},
-    },
-    {
-      srNo: 23,
-      task: "Check Fan motor current Fan 1 U1 <TextField> A, V1 <TextField> A, W1 <TextField> A",
-      done: false,
-      remark: "",
-      inputs: {},
-    },
-    {
-      srNo: 24,
-      task: "Check Fan motor current Fan 2 U1 <TextField> A, V1 <TextField> A, W1 <TextField> A",
-      done: false,
-      remark: "",
-      inputs: {},
-    },
-    {
-      srNo: 25,
-      task: "Room temp: <TextField> C, Airend discharge temp.: <TextField> C <TextField>",
-      done: false,
-      remark: "",
-      inputs: {},
-    },
-    {
-      srNo: 26,
-      task: "Pressure Setting: SP <TextField> bar, SD <TextField> bar",
-      done: false,
-      remark: "",
-      inputs: {},
-    },
-    {
-      srNo: 27,
-      task: "Check for any Air / Oil leakages in the compressor<TextField>",
-      done: false,
-      remark: "",
-      inputs: {},
-    },
-    {
-      srNo: 28,
-      task: "Check and maintain ZK filter Eco drain Valve <TextField>",
-      done: false,
-      remark: "",
-      inputs: {},
-    },
-    {
-      srNo: 29,
-      task: "Test run, check conditions: start, idle, load and shut-down <TextField>",
-      done: false,
-      remark: "",
-      inputs: {},
-    },
-  ];
-  
+    const [remarksData, setRemarksData] = useState(itemNames || []);
+    const [refrigeratorData, setRefrigeratorData] = useState(RefrigeratoritemNames || []);
 
-  const initialRefrigeratorList = [
-    { srNo: 1, task: "Check refrigerant levels", done: false, remark: "", inputs: {} },
-    {
-      srNo: 2,
-      task: "Inspect evaporator and condenser coils",
-      done: false,
-      remark: "",
-      inputs: {},
-    },
-    {
-      srNo: 3,
-      task: "Check door seals for damage",
-      done: false,
-      remark: "",
-      inputs: {},
-    },
-    {
-      srNo: 4,
-      task: "Clean drain pan and ensure proper drainage",
-      done: false,
-      remark: "",
-      inputs: {},
-    },
-    {
-      srNo: 5,
-      task: "Verify thermostat operation",
-      done: false,
-      remark: "",
-      inputs: {},
-    },
-    {
-      srNo: 6,
-      task: "Check / clean Air dryer condenser",
-      done: false,
-      remark: "",
-      inputs: {},
-    },
-    {
-      srNo: 7,
-      task: "Check condenser fan motor direction",
-      done: false,
-      remark: "",
-      inputs: {},
-    },
-    {
-      srNo: 8,
-      task: "Check condensate drain function",
-      done: false,
-      remark: "",
-      inputs: {},
-    },
-    {
-      srNo: 9,
-      task: "Check refrigerant circuit and Air circuit for leaks",
-      done: false,
-      remark: "",
-      input: {},
-      inputs: {},
-    },
-    {
-      srNo: 10,
-      task: "Check compressed air temperature: Inlet <TextField> °C | Outlet <TextField> °C",
-      done: false,
-      remark: "",
-      inputs: {},
-    },
-    {
-      srNo: 11,
-      task: "Check current consumption: Line U1 <TextField> A, V1 <TextField> A, W1 <TextField> A",
-      done: false,
-      remark: "",
-      input: {},
-      inputs: {},
-    },
-    {
-      srNo: 12,
-      task: "Check Auto On/Off operation; Switching On <TextField> C, Switching Off <TextField> C",
-      done: false,
-      remark: "",
-      inputs: {},
-    },
-    {
-      srNo: 13,
-      task: "Pressure dew point [ ] blue [ ] green [ ] red <TextField> °F/C",
-      done: false,
-      remark: "",
-      inputs: {},
-    },
-    {
-      srNo: 14,
-      task: "Check / Replace Air treatment filter cartridge",
-      done: false,
-      remark: "",
-      inputs: {},
-    },
-  ];
-  
 
-  const [checklist, setChecklist] = useState(initialChecklist);
-  const [refrigeratorList, setRefrigeratorList] = useState(
-    initialRefrigeratorList
-  );
+
+  const [spareParts, setSpareParts] = useState([
+    {
+      description: '',
+      partNo: '',
+      qty: '',
+      otherDetails: ''
+    }
+  ]);
+  
+ 
   const [clientInfo, setClientInfo] = useState({
     name: "",
     contactPerson: "",
@@ -367,12 +33,13 @@ const ChecklistPage = () => {
     address: "",
     engineer: ""
   });
+
   const [authorizedSignature, setAuthorizedSignature] = useState("");
   const [appointmentId, setAppointmentId] = useState("");
-  const [spareParts, setSpareParts] = useState([{ desc: "", partNo: "", qty: "" }]);
+
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const location = useLocation();
-  const { invoiceNo } = location.state || {};
+  const { invoiceNo,machineName,serialNo,partNo ,model} = location.state || {};
   const [template, setTemplate] = useState('');
   const [documentNumber, setDocumentNumber] = useState(0);
 
@@ -391,19 +58,8 @@ const ChecklistPage = () => {
 
       fetchData();
   }, []);
-  
- 
 
-  const handleSparePartChange = (index, event) => {
-    const newSpareParts = [...spareParts];
-    newSpareParts[index][event.target.name] = event.target.value;
-    setSpareParts(newSpareParts);
-  };
 
-  const handleAddSparePart = () => {
-    setSpareParts([...spareParts, { desc: "", partNo: "", qty: "" }]);
-  };
- 
   useEffect(() => {
     
     if (location.state) {
@@ -420,271 +76,82 @@ const ChecklistPage = () => {
     }
   }, [location.state]);
 
- 
-
-  const handleCheckboxChange = (index, type) => {
-    const newList =
-      type === "checklist" ? [...checklist] : [...refrigeratorList];
-    newList[index].done = !newList[index].done;
-    type === "checklist" ? setChecklist(newList) : setRefrigeratorList(newList);
+  const addSparePart = () => {
+    setSpareParts([
+      ...spareParts,
+      { description: '', partNo: '', qty: '', otherDetails: '' }
+    ]);
+  };
+  const handleCheckboxChange = (index) => {
+    const updatedRemarks = remarksData.map((item, i) =>
+      i === index ? { ...item, done: !item.done } : item
+    );
+    setRemarksData(updatedRemarks);
   };
 
-  const handleRemarkChange = (index, type, event) => {
-    const newList =
-      type === "checklist" ? [...checklist] : [...refrigeratorList];
-    newList[index].remark = event.target.value;
-    type === "checklist" ? setChecklist(newList) : setRefrigeratorList(newList);
+  const handleRemarkChange = (index, value) => {
+    const updatedRemarks = remarksData.map((item, i) =>
+      i === index ? { ...item, remark: value } : item
+    );
+    setRemarksData(updatedRemarks);
   };
 
-  const handleInputChange = (index, type, inputName, event) => {
-    const newList =
-      type === "checklist" ? [...checklist] : [...refrigeratorList];
-    newList[index].inputs[inputName] = event.target.value;
-    type === "checklist" ? setChecklist(newList) : setRefrigeratorList(newList);
+  const handleCheckboxChangeRef = (index) => {
+    const updatedRemarks = refrigeratorData.map((item, i) =>
+      i === index ? { ...item, done: !item.done } : item
+    );
+    setRefrigeratorData(updatedRemarks);
   };
 
-  const handleClientInfoChange = (e) => {
-    const { name, value } = e.target;
-    setClientInfo({ ...clientInfo, [name]: value });
+  const handleRemarkChangeRef = (index, value) => {
+    const updatedRemarks = refrigeratorData.map((item, i) =>
+      i === index ? { ...item, remark: value } : item
+    );
+    setRefrigeratorData(updatedRemarks);
   };
 
-  const handleGeneratePDFAndSubmit = async () => {
-    const doc = new jsPDF();
+  const handleInputChange = (index, field, value) => {
+    const newSpareParts = [...spareParts];
+    newSpareParts[index][field] = value;
+    setSpareParts(newSpareParts);
+  };
 
-    // Add logos in the top-left and top-right corners
-    const logoWidth = 30; // Width for logo
-    const logoHeight = 30; // Height for logo
-    const imgData = logo; // Assume 'logo' is defined
-    const imgData2 = logo2; // Assume 'logo2' is defined
-    doc.addImage(imgData, "PNG", 10, 10, logoWidth, logoHeight); // Left corner
-    doc.addImage(imgData2, "PNG", doc.internal.pageSize.getWidth() - logoWidth - 10, 10, logoWidth, logoHeight); // Right corner
 
-    // Company Name (centered)
-    const companyName = "AEROLUBE ENGINEERS";
-    const pageWidth = doc.internal.pageSize.getWidth();
-    const textX = pageWidth / 2; // Center position
-    doc.setFontSize(12);
-    doc.setFont("helvetica", "bold");
-    doc.text(companyName, textX, 25, { align: "center" });
+  const handlePrint = async () => {
+    const input = document.getElementById("checklist-content");
 
-    // Company Address
-    const companyAddress = "LANE NO. 09, 264 A, KASIDIH, SAKCHI, East Singhbhum, Jharkhand, 831001";
-    const wrappedAddress = doc.splitTextToSize(companyAddress, pageWidth - 20);
-    doc.setFontSize(9);
-    doc.text(wrappedAddress, textX, 35, { align: "center" });
-
-    // GST No.
-    const gstNo = "GST No: 20CJOPS0713D1ZM";
-    const wrappedGstNo = doc.splitTextToSize(gstNo, pageWidth - 20);
-    doc.text(wrappedGstNo, textX, 40, { align: "center" });
-
-    // Service Title
-    doc.setFontSize(10);
-    doc.setFont("helvetica", "normal");
-    doc.text("Service Record", textX, 45, { align: "center" });
-
-    // Client Information Section
-    const clientInfoBorderTopY = 50;
-    const clientInfoBoxHeight = 50;
-    doc.setDrawColor(0);
-    doc.rect(10, clientInfoBorderTopY - 5, doc.internal.pageSize.getWidth() - 20, clientInfoBoxHeight); // Draw rectangle
-
-    doc.setFontSize(11);
-    doc.setFont("helvetica", "bold");
-    doc.text("Client Information", 14, clientInfoBorderTopY);
-
-    doc.setFontSize(9);
-    doc.setFont("helvetica", "normal");
-    const clientInfoLines = [
-        `Name: ${clientInfo.name}`,
-        `Contact: ${clientInfo.contactPerson} | Phone: ${clientInfo.phone}`,
-        `Address: ${clientInfo.address}`,
-        `Authorized Signature: ${clientInfo.engineer}`
-    ];
-
-    const clientInfoYStart = clientInfoBorderTopY + 10;
-    clientInfoLines.forEach((line, index) => {
-        doc.text(line, 14, clientInfoYStart + (index * 5)); // Adjusted Y position
-    });
-
-    const centerX = 10 + (doc.internal.pageSize.getWidth() - 20) / 2; // Center X position
-    doc.setDrawColor(0);
-    doc.line(centerX, clientInfoBorderTopY - 5, centerX, clientInfoBorderTopY - 5 + clientInfoBoxHeight); // Vertical line
-
-    // Equipment Details Section
-    const engineerDetailsXStart = doc.internal.pageSize.getWidth() - 80;
-    const engineerDetailsYStart = clientInfoBorderTopY;
-
-    doc.setFontSize(11);
-    doc.setFont("helvetica", "bold");
-    doc.text("Equipment Details", engineerDetailsXStart, engineerDetailsYStart);
-
-    const engineerDetails = {
-        model: "Model XYZ",
-        partNo: "Part #1234",
-        serialNo: "SN-5678",
-        runningHrs: "100 hrs",
-        loadHrs: "80 hrs",
-        motorStarts: "50",
-        loadValveOn: "Yes"
+    const printButton = document.getElementById("print-button");
+    const printButton2 = document.getElementById("print-button2");
+    if (printButton) {
+        printButton.style.display = "none";
+    }
+    if (printButton2) {
+        printButton2.style.display = "none";
+    }
+    // Configure the pdf options with optimizations
+    const options = {
+        margin:       0.1,  // Reduce margins
+        filename:     'checklist.pdf',
+        image:        { type: 'jpeg', quality: 1 }, // Lower quality for smaller size
+        html2canvas:  { scale: 1.3 }, // Adjust scale for balance between quality and size
+        jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
     };
 
-    const engineerInfoLines = [
-        { label: "Model:", value: engineerDetails.model },
-        { label: "Part No:", value: engineerDetails.partNo },
-        { label: "Serial No:", value: engineerDetails.serialNo },
-        { label: "Running Hrs:", value: engineerDetails.runningHrs },
-        { label: "Load Hrs:", value: engineerDetails.loadHrs },
-        { label: "Motor Starts:", value: engineerDetails.motorStarts },
-        { label: "Load Valve On:", value: engineerDetails.loadValveOn }
-    ];
-
-    doc.setFontSize(9);
-    engineerInfoLines.forEach((item, index) => {
-        doc.setFont("helvetica", "bold");
-        doc.text(item.label, engineerDetailsXStart, engineerDetailsYStart + 10 + (index * 5));
-        doc.setFont("helvetica", "normal");
-        doc.text(item.value, engineerDetailsXStart + 40, engineerDetailsYStart + 10 + (index * 5)); // Adjusted spacing
-    });
-
-    // Checklists Header
-    doc.setFontSize(10);
-    doc.setFont("helvetica", "bold");
-    doc.text("Screw Compressor Checklist", 14, clientInfoBorderTopY + 55);
-
-    // Checklist Table
-    autoTable(doc, {
-        head: [["Sr No", "Task", "Done", "Remark"]],
-        body: checklist.map((item) => {
-            const inputs = Object.values(item.inputs || {});
-            let inputIndex = 0;
-
-            const taskWithInputs = item.task.replace(/<TextField>/g, () => {
-                if (inputIndex < inputs.length) {
-                    const inputValue = inputs[inputIndex++];
-                    doc.setFont("helvetica", "bold");
-                    return inputValue;
-                }
-                return "";
-            });
-            doc.setFont("helvetica", "normal");
-            return [
-                item.srNo,
-                taskWithInputs || "No task provided",
-                item.done ? "Yes" : "No",
-                item.remark,
-            ];
-        }),
-        startY: clientInfoBorderTopY + 60,
-        styles: {
-            fontSize: 7,
-            cellPadding: 2,
-            halign: "left",
-            valign: "middle",
-            lineColor: [0, 0, 0],
-            fillColor: [255, 255, 255],
-        },
-        headStyles: {
-            fillColor: [0, 0, 0],
-            textColor: [255, 255, 255],
-            fontStyle: "bold",
-        },
-        alternateRowStyles: {
-            fillColor: [240, 240, 240],
-        },
-        margin: { top: 10 },
-    });
-
-    // Refrigerator Checklist Header
-    doc.setFontSize(10);
-    doc.setFont("helvetica", "bold");
-    doc.text("Refrigerator Checklist", 14, doc.autoTable.previous.finalY + 10);
-
-    // Refrigerator Checklist Table
-    autoTable(doc, {
-        head: [["Sr No", "Task", "Done", "Remark"]],
-        body: refrigeratorList.map((item) => {
-            const inputs = Object.values(item.inputs || {});
-            let inputIndex = 0;
-
-            const taskWithInputs = item.task.replace(/<TextField>/g, () => {
-                return inputIndex < inputs.length ? inputs[inputIndex++] : "";
-            });
-            return [
-                item.srNo,
-                taskWithInputs || "No task provided",
-                item.done ? "Yes" : "No",
-                item.remark,
-            ];
-        }),
-        startY: doc.autoTable.previous.finalY + 10,
-        styles: {
-            fontSize: 7,
-            cellPadding: 2,
-            halign: "left",
-            valign: "middle",
-            lineColor: [0, 0, 0],
-            fillColor: [255, 255, 255],
-        },
-        headStyles: {
-            fillColor: [0, 0, 0],
-            textColor: [255, 255, 255],
-            fontStyle: "bold",
-        },
-        alternateRowStyles: {
-            fillColor: [240, 240, 240],
-        },
-        margin: { top: 10 },
-    });
-
-    // Spare Parts Header
-    doc.setFontSize(12);
-    doc.setFont("helvetica", "bold");
-    doc.text("List of Spare Parts Required for Next Visit", 14, doc.autoTable.previous.finalY + 20);
-
-    // Spare Parts Table
-    autoTable(doc, {
-        head: [["Required Parts Description", "Part No.", "Qty."]],
-        body: spareParts.map(part => [part.desc, part.partNo, part.qty]),
-        startY: doc.autoTable.previous.finalY + 25,
-        styles: {
-            fontSize: 7,
-            cellPadding: 2,
-            halign: "left",
-            valign: "middle",
-            lineColor: [0, 0, 0],
-            fillColor: [255, 255, 255],
-        },
-        headStyles: {
-            fillColor: [0, 0, 0],
-            textColor: [255, 255, 255],
-            fontStyle: "bold",
-        },
-    });
-
-    // Add footer
-    doc.setFontSize(6);
-    doc.setFont("helvetica", "normal");
-    doc.text("Generated on: " + new Date().toLocaleString(), 14, doc.autoTable.previous.finalY + 10);
-    doc.text("© AEROLUBE ENGINEERS", 14, doc.autoTable.previous.finalY + 15);
-
-    // Backend upload
-    const pdfBlob = doc.output("blob");
-    const pdfFile = new File([pdfBlob], "checklist.pdf", { type: "application/pdf" });
-
-    // Prepare FormData to send to backend
-    const formData = new FormData();
-    formData.append("pdf", pdfFile);
-    formData.append("checklistData", JSON.stringify({
-        clientInfo,
-        appointmentId,
-        checklist,
-        invoiceNo,
-        refrigeratorList,
-        documentNumber
-    }));
-
     try {
+        // Generate the PDF
+        const pdf = await html2pdf().from(input).set(options).output('blob');
+
+        // Prepare PDF for upload
+        const pdfFile = new File([pdf], "checklist.pdf", { type: "application/pdf" });
+        const formData = new FormData();
+        formData.append("pdf", pdfFile);
+        formData.append("checklistData", JSON.stringify({
+            clientInfo,
+            appointmentId,
+            invoiceNo,
+            documentNumber,
+        }));
+
         // Send the checklist data and PDF to the backend
         const token = localStorage.getItem("token");
         const response = await axios.post(`${API_BASE_URL}/api/checklist`, formData, {
@@ -695,416 +162,1175 @@ const ChecklistPage = () => {
         });
 
         console.log("Checklist and PDF uploaded successfully", response.data);
-
-        const pdfUrl = response.data.checklist.pdfPath; // Get pdfPath from the first checklist object
+        toast.success("Checklist uploaded successfully")
+        const pdfUrl = response.data.checklist.pdfPath; // Get pdfPath from the response
         console.log("Extracted PDF URL:", pdfUrl); // Log the extracted URL
-
-        // Send the PDF URL to WhatsApp
-        console.log("Sending PDF to mobile:", pdfUrl, "to", clientInfo.phone); // Debugging line
-        await handleSendPdfToMobile(pdfUrl, clientInfo.phone);
-        toast.success("PDF sent to mobile successfully!");
+        await handleSendPdfToMobile(pdfUrl,clientInfo.phone)
 
     } catch (error) {
-        console.error("Error uploading checklist and PDF:", error);
-        toast.error("Error uploading checklist and PDF!");
+        console.error('Error generating or uploading PDF:', error);
+        alert('Failed to upload PDF');
+    }finally {
+        // Show the print button again after PDF generation
+        if (printButton) {
+            printButton.style.display = "block";
+        }
+        if (printButton2) {
+            printButton2.style.display = "block";
+        }
     }
+};
 
-    // Save the PDF locally (optional)
-    doc.save("checklist.pdf");
+const handleSendPdfToMobile = async (pdfUrl, mobileNumber) => {
+  try {
+    // Fetch templates from the backend
+    const response = await axios.get(`${API_BASE_URL}/templates`); 
+    const { template1 } = response.data; 
+
+    // Use the message template function with the PDF URL
+    const message = MessageTemplate(pdfUrl, template1); // Replace {pdfUrl} with the actual URL
+
+    const responseWhatsapp = await axios.post(WHATSAPP_CONFIG.url, {
+      receiverMobileNo: mobileNumber,
+      message: [message], // Send the final message as an array
+    }, {
+      headers: {
+        'x-api-key': WHATSAPP_CONFIG.apiKey, // Use the API key from the config
+        'Content-Type': 'application/json',
+      },
+    });
+
+    toast.success("PDF sent to mobile successfully!");
+  } catch (error) {
+    toast.error("Error sending PDF to mobile!");
+    console.error("WhatsApp Error:", error);
+  }
 };
 
 
-  // Function to send the PDF to mobile via WhatsApp
-  const handleSendPdfToMobile = async (pdfUrl, mobileNumber) => {
-    try {
-      // Fetch templates from the backend
-      const response = await axios.get('http://localhost:5000/templates');
-      const { template1 } = response.data; // Get Template 1
-  
-      // Use the message template function with the PDF URL
-      const message = MessageTemplate(pdfUrl, template1); // Replace {pdfUrl} with the actual URL
-  
-      const whatsappAuth = 'Basic ' + btoa(`${WHATSAPP_CONFIG.username}:${WHATSAPP_CONFIG.password}`);
-  
-      const responseWhatsapp = await axios.post(`${WHATSAPP_CONFIG.url}`, {
-        receiverMobileNo: mobileNumber,
-        message: [message], // Send the final message as an array
-      }, {
-        headers: {
-          'Authorization': whatsappAuth,
-          'Content-Type': 'application/json',
-        },
-      });
-  
-      toast.success("PDF sent to mobile successfully!");
-    } catch (error) {
-      toast.error("Error sending PDF to mobile!");
-      console.error("WhatsApp Error:", error);
-    }
-  };
-  
-  const handleToggleSidebar = () => {
-    setSidebarOpen((prev) => !prev);
-  };
   return (
-    <>
-    {sidebarOpen && <Sidebar />}
-      <Header onToggleSidebar={handleToggleSidebar} />
-    <TableContainer
-      component={Paper}
-      style={{ margin: "80px auto", maxWidth: "900px", padding: "20px" }}
+    <div id="checklist-content">
+    
+  
+    <div
+      style={{
+        fontFamily: "Arial, sans-serif",
+        margin: "0 auto",
+        padding: "20px",
+        border: "2px solid black",
+        borderRadius: "3px",
+        fontSize: "10px",
+        maxWidth: "210mm", // A4 width
+        minHeight: "297mm", // A4 height
+        boxSizing: "border-box",
+      }}
     >
-        
-      <Typography
-        variant="h4"
-        align="center"
-        sx={{ marginBottom: "10px", fontSize: "20px" }}
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          marginBottom: "10px",
+        }}
       >
-        Service Checklist
-      </Typography>
-      <Box sx={{ marginBottom: "10px", padding: "0 10px" }}>
-        <Typography variant="h4" sx={{ marginBottom: "5px", fontSize: "16px" }}>
-          Client Information : <strong>Doc Number {documentNumber}</strong>
-        </Typography>
-        <Grid container spacing={1}>
-          <Grid item xs={12} md={3}>
-            <TextField
-              label="Client Name"
-              variant="outlined"
-              fullWidth
-              margin="normal"
-              size="small"
-              name="name"
-              value={clientInfo.name}
-              onChange={handleClientInfoChange}
-              InputProps={{
-                readOnly: true,
-                style: { backgroundColor: "#f5f5f5" }, // Light grey background
-              }}
-            />
-          </Grid>
-          <Grid item xs={12} md={3}>
-            <TextField
-              label="Contact Person"
-              variant="outlined"
-              fullWidth
-              margin="normal"
-              size="small"
-              name="contactPerson" // Fixed the name to "contactPerson"
-              value={clientInfo.contactPerson}
-              onChange={handleClientInfoChange}
-              InputProps={{
-                readOnly: true,
-                style: { backgroundColor: "#f5f5f5" },
-              }}
-            />
-          </Grid>
-
-
-          <Grid item xs={12} md={3}>
-            <TextField
-              label="Invoice number"
-              variant="outlined"
-              fullWidth
-              margin="normal"
-              size="small"
-              name="invoiceNo" 
-              value={invoiceNo}
-              onChange={handleClientInfoChange}
-              InputProps={{
-                readOnly: true,
-                style: { backgroundColor: "#f5f5f5" },
-              }}
-            />
-          </Grid>
-
-
-          <Grid item xs={12} md={3}>
-            <TextField
-              label="Mobile"
-              variant="outlined"
-              fullWidth
-              margin="normal"
-              size="small"
-              name="phone"
-              value={clientInfo.phone}
-              onChange={handleClientInfoChange}
-              InputProps={{
-                readOnly: true,
-                style: { backgroundColor: "#f5f5f5" },
-              }}
-            />
-          </Grid>
-          <Grid item xs={12} md={3}>
-            <TextField
-              label="Address"
-              variant="outlined"
-              fullWidth
-              margin="normal"
-              size="small"
-              name="address"
-              value={clientInfo.address}
-              onChange={handleClientInfoChange}
-              InputProps={{
-                readOnly: true,
-                style: { backgroundColor: "#f5f5f5" },
-              }}
-            />
-          </Grid>
-        </Grid>
-      </Box>
-
-      {/* Screw Compressor Checklist */}
-      <Table size="small">
-        <TableHead>
-          <TableRow>
-            <TableCell
-              sx={{
-                fontSize: "14px",
-                fontWeight: "bold",
-                backgroundColor: "#f5f5f5",
-              }}
-            >
-              Sr No
-            </TableCell>
-            <TableCell
-              sx={{
-                fontSize: "14px",
-                fontWeight: "bold",
-                backgroundColor: "#f5f5f5",
-              }}
-            >
-              Task
-            </TableCell>
-            <TableCell
-              align="center"
-              sx={{
-                fontSize: "14px",
-                fontWeight: "bold",
-                backgroundColor: "#f5f5f5",
-              }}
-            >
-              Done
-            </TableCell>
-            <TableCell
-              align="center"
-              sx={{
-                fontSize: "14px",
-                fontWeight: "bold",
-                backgroundColor: "#f5f5f5",
-              }}
-            >
-              Remark
-            </TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {checklist.map((item, index) => (
-            <TableRow key={index} hover>
-                <TableCell align="center">
-                {item.srNo}
-              </TableCell>
-              <TableCell sx={{ fontSize: "12px" }}>
-                {item.task.split("<TextField>").map((part, i) => (
-                  <span key={i}>
-                    {part}
-                    {i < item.task.split("<TextField>").length - 1 && (
-                      <TextField
-                        variant="outlined"
-                        size="small"
-                        sx={{
-                          width: "60px",
-                          marginLeft: "4px",
-                          marginRight: "4px",
-                        }}
-                        onChange={(e) =>
-                          handleInputChange(index, "checklist", `input${i}`, e)
-                        }
-                      />
-                    )}
-                  </span>
-                ))}
-              </TableCell>
-              <TableCell align="center">
-                <Checkbox
-                  checked={item.done}
-                  onChange={() => handleCheckboxChange(index, "checklist")}
-                  color="primary"
-                />
-              </TableCell>
-              <TableCell align="center">
-                <TextField
-                  value={item.remark}
-                  onChange={(e) => handleRemarkChange(index, "checklist", e)}
-                  variant="outlined"
-                  size="small"
-                  fullWidth
-                  sx={{ fontSize: "12px" }}
-                />
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-
-      {/* Refrigerator Checklist */}
-      <Typography
-        variant="h4"
-        align="center"
-        sx={{ marginTop: "20px", marginBottom: "10px", fontSize: "20px" }}
-      >
-        Refrigerator Checklist
-      </Typography>
-      <Table size="small">
-        <TableHead>
-          <TableRow>
-            <TableCell
-              sx={{
-                fontSize: "14px",
-                fontWeight: "bold",
-                backgroundColor: "#f5f5f5",
-              }}
-            >
-              Sr No
-            </TableCell>
-            <TableCell
-              sx={{
-                fontSize: "14px",
-                fontWeight: "bold",
-                backgroundColor: "#f5f5f5",
-              }}
-            >
-              Task
-            </TableCell>
-            <TableCell
-              align="center"
-              sx={{
-                fontSize: "14px",
-                fontWeight: "bold",
-                backgroundColor: "#f5f5f5",
-              }}
-            >
-              Done
-            </TableCell>
-            <TableCell
-              align="center"
-              sx={{
-                fontSize: "14px",
-                fontWeight: "bold",
-                backgroundColor: "#f5f5f5",
-              }}
-            >
-              Remark
-            </TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {refrigeratorList.map((item, index) => (
-            <TableRow key={index} hover>
-              <TableCell align="center">
-                {item.srNo}
-              </TableCell>
-              <TableCell sx={{ fontSize: "12px" }}>
-                {item.task.split("<TextField>").map((part, i) => (
-                  <span key={i}>
-                    {part}
-                    {i < item.task.split("<TextField>").length - 1 && (
-                      <TextField
-                        variant="outlined"
-                        size="small"
-                        sx={{
-                          width: "60px",
-                          marginLeft: "4px",
-                          marginRight: "4px",
-                        }}
-                        onChange={(e) =>
-                          handleInputChange(
-                            index,
-                            "refrigerator",
-                            `input${i}`,
-                            e
-                          )
-                        }
-                      />
-                    )}
-                  </span>
-                ))}
-              </TableCell>
-              <TableCell align="center">
-                <Checkbox
-                  checked={item.done}
-                  onChange={() => handleCheckboxChange(index, "refrigerator")}
-                  color="primary"
-                />
-              </TableCell>
-              <TableCell align="center">
-                <TextField
-                  value={item.remark}
-                  onChange={(e) => handleRemarkChange(index, "refrigerator", e)}
-                  variant="outlined"
-                  size="small"
-                  fullWidth
-                  sx={{ fontSize: "12px" }}
-                />
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-
-
-{/* Spare Part */}
-
-      <Box sx={{ marginBottom: "10px", padding: "20px 10px" }}>
-        <Typography variant="h6" sx={{ marginBottom: "5px", fontSize: "16px",fontWeight:"Bold" }}>
-        List of spare parts required for next visit
-        </Typography>
-        {spareParts.map((part, index) => (
-          <Grid container spacing={1} key={index} sx={{ marginBottom: 1 }}>
-            <Grid item xs={12} md={4}>
-              <TextField label="Description" variant="outlined" fullWidth name="desc" value={part.desc} onChange={(e) => handleSparePartChange(index, e)} />
-            </Grid>
-            <Grid item xs={12} md={4}>
-              <TextField label="Part No." variant="outlined" fullWidth name="partNo" value={part.partNo} onChange={(e) => handleSparePartChange(index, e)} />
-            </Grid>
-            <Grid item xs={12} md={2}>
-              <TextField label="Qty" variant="outlined" fullWidth name="qty" value={part.qty} onChange={(e) => handleSparePartChange(index, e)} />
-            </Grid>
-          </Grid>
-        ))}
-        <Button variant="outlined" onClick={handleAddSparePart}>Add Spare Part</Button>
-      </Box>
-
-
-
-      <Box
-        sx={{ marginTop: "20px", display: "flex", justifyContent: "flex-end" }}
-      >
-        <TextField
-          label="Authorized Signature"
-          variant="outlined"
-          size="small"
-          value={clientInfo.engineer}
-          InputProps={{
-            readOnly: true,
-            style: { backgroundColor: "#f5f5f5" }, // Light grey background
-          }}
-          onChange={(e) => setAuthorizedSignature(e.target.value)}
-          sx={{ marginRight: "10px" }}
+        <img
+          src={logo}
+          alt="Left Logo"
+          style={{ width: "100px", height: "auto", marginRight: "5px" }}
         />
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={handleGeneratePDFAndSubmit}
+        <div style={{ textAlign: "center", flexGrow: 1 }}>
+          <h1 style={{ margin: 0, fontSize: "14px" }}>AEROLUBE ENGINEERS</h1>
+          <p style={{ margin: "1px 0", fontSize: "10px" }}>
+            LANE NO 9, KASIDIH, SAKCHI, JAMSHEDPUR - 831001
+          </p>
+          <p style={{ margin: "1px 0", fontSize: "10px" }}>
+            E-MAIL: aerolube13@gmail.com
+          </p>
+          <p style={{ margin: "1px 0", fontSize: "10px" }}>
+            HELPLINE: 09916823833
+          </p>
+        </div>
+        <img
+          src={logo2}
+          alt="Right Logo"
+          style={{ width: "100px", height: "auto", marginLeft: "5px" }}
+        />
+      </div>
+
+
+      <div style={{ borderTop: "1px solid black", paddingTop: "10px" }}>
+        <h2 style={{ fontSize: "12px" }}>Field Service Report</h2>
+        <p>Service Report No: <strong>{documentNumber}</strong></p>
+        <br />
+        <p>Date: <strong>{new Date().toLocaleDateString()}</strong></p>
+      </div>
+
+      <div style={{ borderTop: "1px solid black", paddingTop: "10px" }}>
+        <h3 style={{ fontSize: "10px" }}>Equipment Details</h3>
+        <div
+          style={{
+            width: "100%",
+            borderCollapse: "collapse",
+            fontSize: "10px",
+          }}
         >
-          Submit and Generate PDF
-        </Button>
-      </Box>
-      
-    </TableContainer>
-   <Footer />
-    </>
+          <div
+            style={{
+              display: "flex",
+              border: "1px solid black",
+              backgroundColor: "#f5f5f5",
+            }}
+          >
+            <div
+              style={{ border: "1px solid black", padding: "3px", width: "50%" }}
+            >
+              Customer Name
+            </div>
+            <div
+              style={{ border: "1px solid black", padding: "3px", width: "30%" }}
+            >
+              Equipment Details
+              <br />
+              
+                     {machineName}
+            </div>
+            <div
+              style={{ border: "1px solid black", padding: "3px", width: "10%" }}
+            >
+              Compressor
+            </div>
+            <div
+              style={{ border: "1px solid black", padding: "3px", width: "10%" }}
+            >
+              Air Dryer
+            </div>
+            <div
+              style={{ border: "1px solid black", padding: "3px", width: "10%" }}
+            >
+              Filter / Eco Drain
+            </div>
+          </div>
+          <div style={{ display: "flex" }}>
+            <div
+              style={{ border: "1px solid black", padding: "3px", width: "50%" }}
+            >
+               Invoice Number: <strong>{invoiceNo}</strong>
+              <br />
+              <br />
+                Name: <strong>{clientInfo.name}</strong>
+             
+              <br />
+              Contact Person.: <strong>{clientInfo.contactPerson}</strong>
+             
+              <br />
+              Phone No.: <strong>{clientInfo.phone}</strong>
+             
+              <br />
+              Address: <strong>{clientInfo.address}</strong>
+            </div>
+            <div
+              style={{ border: "1px solid black", padding: "3px", width: "30%" }}
+            >
+                          
+              Model: <strong>{model}</strong>
+              <br />
+              Part No.: <strong>{partNo}</strong>
+              <br />
+              Serial No.: <strong>{serialNo}</strong>
+              <br />
+              Running Hrs.: <input type="text" style={{ width: '100px', border: 'none', borderBottom: '1px solid #000', margin: '0 3px',height: '10px' }} />
+              <br />
+              Load Hrs.: <input type="text" style={{ width: '100px', border: 'none', borderBottom: '1px solid #000', margin: '0 3px',height: '10px' }} />
+              <br />
+              Motor start: <input type="text" style={{ width: '100px', border: 'none', borderBottom: '1px solid #000', margin: '0 3px',height: '10px' }} />
+              <br />
+              Load Valve on: <input type="text" style={{ width: '100px', border: 'none', borderBottom: '1px solid #000', margin: '0 3px',height: '10px' }} />
+              <br />
+            </div>
+            <div
+  style={{
+    border: "1px solid black",
+    padding: "3px",
+    width: "10%",
+    height: "100px", // Adjust height as needed
+    overflow: "hidden", // Prevent overflow from displaying
+    whiteSpace: "pre-wrap", // Preserve whitespace and allow wrapping
+    cursor: "text", // Indicate that it's editable
+  }}
+  contentEditable
+  suppressContentEditableWarning
+>
+  
+</div>
+
+<div
+  style={{
+    border: "1px solid black",
+    padding: "3px",
+    width: "10%",
+    height: "100px", // Adjust height as needed
+    overflow: "hidden", // Prevent overflow from displaying
+    whiteSpace: "pre-wrap", // Preserve whitespace and allow wrapping
+    cursor: "text", // Indicate that it's editable
+  }}
+  contentEditable
+  suppressContentEditableWarning
+>
+  
+</div>
+<div
+  style={{
+    border: "1px solid black",
+    padding: "3px",
+    width: "10%",
+    height: "100px", // Adjust height as needed
+    overflow: "hidden", // Prevent overflow from displaying
+    whiteSpace: "pre-wrap", // Preserve whitespace and allow wrapping
+    cursor: "text", // Indicate that it's editable
+  }}
+  contentEditable
+  suppressContentEditableWarning
+>
+  
+</div>
+          </div>
+        </div>
+      </div>
+
+
+      <div style={{ borderTop: "1px solid #000", paddingTop: "5px" }}>
+  <h3 style={{ fontSize: "10px", margin: "0" }}>Remarks</h3>
+
+  <div style={{ display: "flex", borderBottom: "1px solid #ccc", backgroundColor: "#f5f5f5", fontSize: "9px" }}>
+    <div style={{ flex: "5", padding: "2px" }}>Item</div>
+    <div style={{ flex: "1", padding: "2px" }}>Done</div>
+    <div style={{ flex: "4", padding: "2px" }}>Remark</div>
+  </div>
+
+  {remarksData.map((item, index) => (
+    <div key={index} style={{ display: "flex", borderBottom: "1px solid #ccc" }}>
+      <div style={{ flex: "5", padding: "2px" }} dangerouslySetInnerHTML={{ __html: item.description }} />
+      <div style={{ flex: "1", padding: "2px" }}>
+        <input
+          type="checkbox"
+          checked={item.done}
+          onChange={() => handleCheckboxChange(index)}
+          style={{ transform: "scale(0.9)", margin: "0" }} // Smaller checkbox
+        />
+      </div>
+      <div style={{ flex: "4", padding: "2px" }}>
+        <input
+          type="text"
+          value={item.remark}
+          onChange={(e) => handleRemarkChange(index, e.target.value)}
+          style={{ width: "100%", fontSize: "9px", padding: "1px", margin: "0" }} // Reduced font size and padding
+        />
+      </div>
+    </div>
+  ))}
+
+  {/* Refrigerator List Section */}
+  <div style={{ marginTop: "10px", borderTop: "1px solid #000", paddingTop: "5px" }}>
+    <h3 style={{ fontSize: "10px", margin: "0" }}>Refrigerator List</h3>
+
+    <div style={{ display: "flex", borderBottom: "1px solid #ccc", backgroundColor: "#f5f5f5", fontSize: "9px" }}>
+        <div style={{ flex: "5", padding: "2px" }}>Item</div>
+        <div style={{ flex: "1", padding: "2px" }}>Done</div>
+        <div style={{ flex: "4", padding: "2px" }}>Remark</div>
+    </div>
+
+    {refrigeratorData.map((item, index) => (
+        <div key={index} style={{ display: "flex", borderBottom: "1px solid #ccc" }}>
+            <div style={{ flex: "5", padding: "2px" }} dangerouslySetInnerHTML={{ __html: item.description }} />
+            <div style={{ flex: "1", padding: "2px" }}>
+                <input
+                    type="checkbox"
+                    checked={item.done}
+                    onChange={() => handleCheckboxChangeRef(index)}
+                    style={{ transform: "scale(0.9)", margin: "0" }} // Smaller checkbox
+                />
+            </div>
+            <div style={{ flex: "4", padding: "2px" }}>
+                <input
+                    type="text"
+                    value={item.remark}
+                    onChange={(e) => handleRemarkChangeRef(index, e.target.value)}
+                    style={{ width: "100%", fontSize: "9px", padding: "1px", margin: "0" }} // Reduced font size and padding
+                />
+            </div>
+        </div>
+    ))}
+</div>
+</div>
+
+
+
+
+
+
+      <div style={{ borderTop: "1px solid #000", paddingTop: "10px" }}>
+  <h3 style={{ fontSize: "10px" }}>
+    Guidelines For Performance Improvement:
+  </h3>
+  <input type="text" style={{ width: "100%", border: "none", borderBottom: "1px solid #000", outline: "none" }}  />
+</div>
+
+<div style={{ borderTop: "2px solid #000", paddingTop: "10px" }}>
+  <h3 style={{ fontSize: "10px" }}>Customer Remark:</h3>
+  <input type="text" style={{ width: "100%", border: "none", borderBottom: "1px solid #000", outline: "none" }}  />
+</div>
+
+
+      {/* <div style={{ borderTop: "1px solid #000", paddingTop: "10px" }}>
+        <h3 style={{ fontSize: "10px" }}>Consumed Parts Description</h3>
+        <table
+          style={{
+            width: "100%",
+            borderCollapse: "collapse",
+            marginTop: "5px",
+            fontSize: "10px",
+          }}
+        >
+          <thead>
+            <tr>
+              <th
+                style={{
+                  border: "1px solid #ccc",
+                  padding: "5px",
+                  backgroundColor: "#f5f5f5",
+                  fontSize: "10px",
+                }}
+              >
+                Description
+              </th>
+              <th
+                style={{
+                  border: "1px solid #ccc",
+                  padding: "5px",
+                  backgroundColor: "#f5f5f5",
+                  fontSize: "10px",
+                }}
+              >
+                Part No.
+              </th>
+              <th
+                style={{
+                  border: "1px solid #ccc",
+                  padding: "5px",
+                  backgroundColor: "#f5f5f5",
+                  fontSize: "10px",
+                }}
+              >
+                Qty.
+              </th>
+              <th
+                style={{
+                  border: "1px solid #ccc",
+                  padding: "5px",
+                  backgroundColor: "#f5f5f5",
+                  fontSize: "10px",
+                }}
+              >
+                Other Used Parts Details
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td style={{ border: "1px solid #ccc", padding: "5px" }}>
+                ________________________________________________________
+              </td>
+              <td style={{ border: "1px solid #ccc", padding: "5px" }}>
+                ____________
+              </td>
+              <td style={{ border: "1px solid #ccc", padding: "5px" }}>____</td>
+              <td style={{ border: "1px solid #ccc", padding: "5px" }}>
+                ________________________________________________________
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div> */}
+
+      <div style={{ borderTop: "1px solid #000", paddingTop: "10px" }}>
+    <h3 style={{ fontSize: "10px" }}>Work Timings</h3>
+    <div style={{ display: 'flex', justifyContent: 'normal', marginBottom: '5px' }}>
+        <span>Start of work: <input type="text" style={{ width: '40px', border: 'none', borderBottom: '1px solid #000', margin: '0 5px' }} />:</span>
+        <span><input type="text" style={{ width: '40px', border: 'none', borderBottom: '1px solid #000', margin: '0 5px' }} /></span>
+       
+        <span>End of work: <input type="text" style={{ width: '40px', border: 'none', borderBottom: '1px solid #000', margin: '0 5px' }} />:</span>
+        <span><input type="text" style={{ width: '40px', border: 'none', borderBottom: '1px solid #000', margin: '0 5px' }} /></span>
+        <span>Date: <input type="text" style={{ width: '100px', border: 'none', borderBottom: '1px solid #000', margin: '0 5px' }} /></span>
+    </div>
+    <div style={{ display: 'flex', justifyContent: 'normal', marginBottom: '5px' }}>
+        <span>Technician Name: <input type="text" style={{ width: '150px', border: 'none', borderBottom: '1px solid #000', margin: '0 5px' }} /></span>
+        <span>Contact Person Name: <input type="text" style={{ width: '150px', border: 'none', borderBottom: '1px solid #000', margin: '0 5px' }} /></span>
+    </div>
+    <div style={{ display: 'flex', justifyContent: 'normal' }}>
+        <span>Mobile No.: <input type="text" style={{ width: '150px', border: 'none', borderBottom: '1px solid #000', margin: '0 5px' }} /></span>
+        <span>E-mail: <input type="text" style={{ width: '200px', border: 'none', borderBottom: '1px solid #000', margin: '0 5px' }} /></span>
+    </div>
+</div>
+
+
+<div style={{ borderTop: "1px solid #000", paddingTop: "10px" }}>
+      <h3 style={{ fontSize: "10px", display: 'inline' }}>
+        List of Spare Parts Required for Next Visit
+      </h3>
+      <span id="print-button2">
+      <button
+        onClick={addSparePart}
+        style={{
+          fontSize: "10px",
+          marginLeft: "10px",
+          cursor: "pointer",
+          backgroundColor: "green",
+          border: "1px solid #ccc",
+          borderRadius: "4px",
+          padding: "2px 5px",
+          color: 'yellow',
+          height: "20px",
+          width: '20px'
+        }}
+      >
+        
+        +
+      </button>
+      </span>
+      <table
+        style={{
+          width: "100%",
+          borderCollapse: "collapse",
+          marginTop: "5px",
+          fontSize: "10px",
+        }}
+      >
+        <thead>
+          <tr>
+            <th style={{ border: "1px solid #ccc", padding: "5px", backgroundColor: "#f5f5f5" }}>
+              Description
+            </th>
+            <th style={{ border: "1px solid #ccc", padding: "5px", backgroundColor: "#f5f5f5" }}>
+              Part No.
+            </th>
+            <th style={{ border: "1px solid #ccc", padding: "5px", backgroundColor: "#f5f5f5" }}>
+              Qty.
+            </th>
+            <th style={{ border: "1px solid #ccc", padding: "5px", backgroundColor: "#f5f5f5" }}>
+              Other Required Parts Details
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          {spareParts.map((part, index) => (
+            <tr key={index}>
+              <td style={{ border: "1px solid #ccc", padding: "5px" }}>
+                <input
+                  type="text"
+                  value={part.description}
+                  onChange={(e) => handleInputChange(index, 'description', e.target.value)}
+                  style={{ width: "100%" }}
+                />
+              </td>
+              <td style={{ border: "1px solid #ccc", padding: "5px" }}>
+                <input
+                  type="text"
+                  value={part.partNo}
+                  onChange={(e) => handleInputChange(index, 'partNo', e.target.value)}
+                  style={{ width: "100%" }}
+                />
+              </td>
+              <td style={{ border: "1px solid #ccc", padding: "5px" }}>
+                <input
+                  type="number"
+                  value={part.qty}
+                  onChange={(e) => handleInputChange(index, 'qty', e.target.value)}
+                  style={{ width: "100%" }}
+                />
+              </td>
+              <td style={{ border: "1px solid #ccc", padding: "5px" }}>
+                <input
+                  type="text"
+                  value={part.otherDetails}
+                  onChange={(e) => handleInputChange(index, 'otherDetails', e.target.value)}
+                  style={{ width: "100%" }}
+                />
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+
+      <div style={{ borderTop: "1px solid #000", paddingTop: "10px" }}>
+        <h3 style={{ fontSize: "10px" }}>Final Remarks</h3>
+        <p>Work done: Yes / No &nbsp; Work accepted: Yes / No</p>
+      </div>
+
+      <div
+        style={{
+          borderTop: "1px solid #000",
+          paddingTop: "10px",
+          display: "flex",
+          justifyContent: "space-between",
+        }}
+      >
+        <div style={{ flex: 1 }}>
+          <p style={{ margin: 0 }}>
+            Technician's Signature: 
+            <br />
+            <input type="text" style={{ width: '100px', border: 'none', borderBottom: '1px solid #000', margin: '0 5px' }} />
+          </p>
+        </div>
+        <div style={{ flex: 1, textAlign: "center" }}>
+          <p style={{ margin: 0 }}>
+            Customer's Signature: 
+            <br />
+            <input type="text" style={{ width: '100px', border: 'none', borderBottom: '1px solid #000', margin: '0 5px' }} />
+          </p>
+        </div>
+        <div style={{ flex: 1, textAlign: "right" }}>
+          <p style={{ margin: 0 }}>
+            Signee's Name
+            <br />
+            <input type="text" style={{ width: '100px', border: 'none', borderBottom: '1px solid #000', margin: '0 5px' }} />
+          </p>
+        </div>
+      </div>
+
+      <div id="print-button" style={{ marginBottom: "10px" }}>
+        <button
+          onClick={handlePrint}
+          style={{
+            padding: "5px 10px",
+            fontSize: "10px",
+            cursor: "pointer",
+            border: "1px solid #000",
+            backgroundColor: "#f0f0f0",
+            borderRadius: "3px",
+            color: "black"
+          }}
+        >
+          Print
+        </button>
+      </div>
+
+    </div>
+    <ToastContainer />
+    </div>
   );
 };
 
 export default ChecklistPage;
+
+
+
+
+// import React, { useState,useEffect } from "react";
+// import logo2 from "./logo2.png";
+// import logo from "./comp-logo.jpeg";
+// import { itemNames, RefrigeratoritemNames } from './itemNames.jsx';
+// import { useLocation } from "react-router-dom";
+// import jsPDF from "jspdf";
+// import axios from "axios";
+// import html2canvas from "html2canvas";
+// import html2pdf from "html2pdf.js";
+// import {API_BASE_URL,WHATSAPP_CONFIG} from './../../config';
+// const ChecklistPage3 = () => {
+//     const [remarksData, setRemarksData] = useState(itemNames || []);
+//     const [refrigeratorData, setRefrigeratorData] = useState(RefrigeratoritemNames || []);
+
+
+
+//   const [spareParts, setSpareParts] = useState([
+//     {
+//       description: '',
+//       partNo: '',
+//       qty: '',
+//       otherDetails: ''
+//     }
+//   ]);
+  
+ 
+//   const [clientInfo, setClientInfo] = useState({
+//     name: "",
+//     contactPerson: "",
+//     phone: "",
+//     address: "",
+//     engineer: ""
+//   });
+
+//   const [authorizedSignature, setAuthorizedSignature] = useState("");
+//   const [appointmentId, setAppointmentId] = useState("");
+
+//   const [sidebarOpen, setSidebarOpen] = useState(false);
+//   const location = useLocation();
+//   const { invoiceNo } = location.state || {};
+//   const [template, setTemplate] = useState('');
+//   const [documentNumber, setDocumentNumber] = useState(0);
+
+
+//   useEffect(() => {
+    
+//     if (location.state) {
+//       setClientInfo({
+//         name: location.state.clientName || "",
+//         contactPerson: location.state.contactPerson || "",
+//         phone: location.state.phone || "",
+//         address: location.state.address || "",
+//         engineer: location.state.engineer.name || "",
+        
+//       });
+//       setAppointmentId(location.state.appointmentId); // Store appointment ID
+//       console.log(appointmentId)
+//     }
+//   }, [location.state]);
+
+//   const addSparePart = () => {
+//     setSpareParts([
+//       ...spareParts,
+//       { description: '', partNo: '', qty: '', otherDetails: '' }
+//     ]);
+//   };
+//   const handleCheckboxChange = (index) => {
+//     const updatedRemarks = remarksData.map((item, i) =>
+//       i === index ? { ...item, done: !item.done } : item
+//     );
+//     setRemarksData(updatedRemarks);
+//   };
+
+//   const handleRemarkChange = (index, value) => {
+//     const updatedRemarks = remarksData.map((item, i) =>
+//       i === index ? { ...item, remark: value } : item
+//     );
+//     setRemarksData(updatedRemarks);
+//   };
+//   const handleInputChange = (index, field, value) => {
+//     const newSpareParts = [...spareParts];
+//     newSpareParts[index][field] = value;
+//     setSpareParts(newSpareParts);
+//   };
+
+//   const handlePrint = async () => {
+//     const input = document.getElementById("checklist-content");
+
+//     const printButton = document.getElementById("print-button");
+//     if (printButton) {
+//         printButton.style.display = "none";
+//     }
+//     // Configure the pdf options with optimizations
+//     const options = {
+//         margin:       0.3,  // Reduce margins
+//         filename:     'checklist.pdf',
+//         image:        { type: 'jpeg', quality: 1 }, // Lower quality for smaller size
+//         html2canvas:  { scale: 1.3 }, // Adjust scale for balance between quality and size
+//         jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
+//     };
+
+//     try {
+//         // Generate the PDF
+//         const pdf = await html2pdf().from(input).set(options).output('blob');
+
+//         // Prepare PDF for upload
+//         const pdfFile = new File([pdf], "checklist.pdf", { type: "application/pdf" });
+//         const formData = new FormData();
+//         formData.append("pdf", pdfFile);
+//         formData.append("checklistData", JSON.stringify({
+//             clientInfo,
+//             appointmentId,
+//             invoiceNo,
+//             documentNumber,
+//         }));
+
+//         // Send the checklist data and PDF to the backend
+//         const token = localStorage.getItem("token");
+//         const response = await axios.post(`${API_BASE_URL}/api/checklist`, formData, {
+//             headers: {
+//                 Authorization: `Bearer ${token}`,
+//                 "Content-Type": "multipart/form-data",
+//             },
+//         });
+
+//         console.log("Checklist and PDF uploaded successfully", response.data);
+//         const pdfUrl = response.data.checklist.pdfPath; // Get pdfPath from the response
+//         console.log("Extracted PDF URL:", pdfUrl); // Log the extracted URL
+
+//     } catch (error) {
+//         console.error('Error generating or uploading PDF:', error);
+//         alert('Failed to upload PDF');
+//     }finally {
+//         // Show the print button again after PDF generation
+//         if (printButton) {
+//             printButton.style.display = "block";
+//         }
+//     }
+// };
+
+
+
+
+//   return (
+//     <div id="checklist-content">
+    
+  
+//     <div
+//       style={{
+//         fontFamily: "Arial, sans-serif",
+//         margin: "0 auto",
+//         padding: "20px",
+//         border: "2px solid black",
+//         borderRadius: "3px",
+//         fontSize: "10px",
+//         maxWidth: "210mm", // A4 width
+//         minHeight: "297mm", // A4 height
+//         boxSizing: "border-box",
+//       }}
+//     >
+//       <div
+//         style={{
+//           display: "flex",
+//           alignItems: "center",
+//           justifyContent: "space-between",
+//           marginBottom: "10px",
+//         }}
+//       >
+//         <img
+//           src={logo}
+//           alt="Left Logo"
+//           style={{ width: "100px", height: "auto", marginRight: "5px" }}
+//         />
+//         <div style={{ textAlign: "center", flexGrow: 1 }}>
+//           <h1 style={{ margin: 0, fontSize: "14px" }}>AEROLUBE ENGINEERS</h1>
+//           <p style={{ margin: "1px 0", fontSize: "10px" }}>
+//             LANE NO 9, KASIDIH, SAKCHI, JAMSHEDPUR - 831001
+//           </p>
+//           <p style={{ margin: "1px 0", fontSize: "10px" }}>
+//             E-MAIL: aerolube13@gmail.com
+//           </p>
+//           <p style={{ margin: "1px 0", fontSize: "10px" }}>
+//             HELPLINE: 09916823833
+//           </p>
+//         </div>
+//         <img
+//           src={logo2}
+//           alt="Right Logo"
+//           style={{ width: "100px", height: "auto", marginLeft: "5px" }}
+//         />
+//       </div>
+
+
+
+//       <div id="print-button" style={{ marginBottom: "10px" }}>
+//         <button
+//           onClick={handlePrint}
+//           style={{
+//             padding: "5px 10px",
+//             fontSize: "10px",
+//             cursor: "pointer",
+//             border: "1px solid #000",
+//             backgroundColor: "#f0f0f0",
+//             borderRadius: "3px",
+//             color: "black"
+//           }}
+//         >
+//           Print
+//         </button>
+//       </div>
+
+
+
+
+//       <div style={{ borderTop: "1px solid #000", paddingTop: "10px" }}>
+//         <h2 style={{ fontSize: "12px" }}>Field Service Report</h2>
+//         <p>Service Report No: ________</p>
+//         <p>Date: ________</p>
+//       </div>
+
+//       <div style={{ borderTop: "1px solid #000", paddingTop: "10px" }}>
+//         <h3 style={{ fontSize: "10px" }}>Equipment Details</h3>
+//         <div
+//           style={{
+//             width: "100%",
+//             borderCollapse: "collapse",
+//             fontSize: "10px",
+//           }}
+//         >
+//           <div
+//             style={{
+//               display: "flex",
+//               border: "1px solid #ccc",
+//               backgroundColor: "#f5f5f5",
+//             }}
+//           >
+//             <div
+//               style={{ border: "1px solid #ccc", padding: "3px", width: "50%" }}
+//             >
+//               Customer Name
+//             </div>
+//             <div
+//               style={{ border: "1px solid #ccc", padding: "3px", width: "30%" }}
+//             >
+//               Equipment Details
+//             </div>
+//             <div
+//               style={{ border: "1px solid #ccc", padding: "3px", width: "10%" }}
+//             >
+//               Compressor
+//             </div>
+//             <div
+//               style={{ border: "1px solid #ccc", padding: "3px", width: "10%" }}
+//             >
+//               Air Dryer
+//             </div>
+//             <div
+//               style={{ border: "1px solid #ccc", padding: "3px", width: "10%" }}
+//             >
+//               Filter / Eco Drain
+//             </div>
+//           </div>
+//           <div style={{ display: "flex" }}>
+//             <div
+//               style={{ border: "1px solid #ccc", padding: "3px", width: "50%" }}
+//             >
+//                 Name: _________
+//               <br />
+//               <br />
+//               Contact Person.: _________
+//               <br />
+//               <br />
+//               Phone No.: _________
+//               <br />
+//               <br />
+//               Address: _________
+//             </div>
+//             <div
+//               style={{ border: "1px solid #ccc", padding: "3px", width: "30%" }}
+//             >
+//               Model: _________
+//               <br />
+//               Part No.: _________
+//               <br />
+//               Serial No.: _________
+//               <br />
+//               Running Hrs.: _________
+//               <br />
+//               Load Hrs.: _________
+//               <br />
+//               Motor start: _________
+//               <br />
+//               Load Valve on: _________
+//               <br />
+//             </div>
+//             <div
+//               style={{ border: "1px solid #ccc", padding: "3px", width: "10%" }}
+//             >
+//               <span></span>
+//             </div>
+//             <div
+//               style={{ border: "1px solid #ccc", padding: "3px", width: "10%" }}
+//             >
+//               <span></span>
+//             </div>
+//             <div
+//               style={{ border: "1px solid #ccc", padding: "3px", width: "10%" }}
+//             >
+//               <span></span>
+//             </div>
+//           </div>
+//         </div>
+//       </div>
+
+
+//       <div style={{ borderTop: "1px solid #000", paddingTop: "5px" }}>
+//   <h3 style={{ fontSize: "10px", margin: "0" }}>Remarks</h3>
+
+//   <div style={{ display: "flex", borderBottom: "1px solid #ccc", backgroundColor: "#f5f5f5", fontSize: "9px" }}>
+//     <div style={{ flex: "4", padding: "2px" }}>Item</div>
+//     <div style={{ flex: "1", padding: "2px" }}>Done</div>
+//     <div style={{ flex: "5", padding: "2px" }}>Remark</div>
+//   </div>
+
+//   {remarksData.map((item, index) => (
+//     <div key={index} style={{ display: "flex", borderBottom: "1px solid #ccc" }}>
+//       <div style={{ flex: "4", padding: "2px" }}>{item.description}</div>
+//       <div style={{ flex: "1", padding: "2px" }}>
+//         <input
+//           type="checkbox"
+//           checked={item.done}
+//           onChange={() => handleCheckboxChange(index)}
+//           style={{ transform: "scale(0.9)", margin: "0" }} // Smaller checkbox
+//         />
+//       </div>
+//       <div style={{ flex: "5", padding: "2px" }}>
+//         <input
+//           type="text"
+//           value={item.remark}
+//           onChange={(e) => handleRemarkChange(index, e.target.value)}
+//           style={{ width: "100%", fontSize: "9px", padding: "1px", margin: "0" }} // Reduced font size and padding
+//         />
+//       </div>
+//     </div>
+//   ))}
+
+//   {/* Refrigerator List Section */}
+//   <div style={{ marginTop: "10px", borderTop: "1px solid #000", paddingTop: "5px" }}>
+//     <h3 style={{ fontSize: "10px", margin: "0" }}>Refrigerator List</h3>
+
+//     <div style={{ display: "flex", borderBottom: "1px solid #ccc", backgroundColor: "#f5f5f5", fontSize: "9px" }}>
+//       <div style={{ flex: "4", padding: "2px" }}>Item</div>
+//       <div style={{ flex: "1", padding: "2px" }}>Done</div>
+//       <div style={{ flex: "5", padding: "2px" }}>Remark</div>
+//     </div>
+
+//     {RefrigeratoritemNames.map((item, index) => (
+//       <div key={index} style={{ display: "flex", borderBottom: "1px solid #ccc" }}>
+//         <div style={{ flex: "4", padding: "2px" }}>{item.description}</div>
+//         <div style={{ flex: "1", padding: "2px" }}>
+//           <input
+//             type="checkbox"
+//             checked={item.done}
+//             onChange={() => handleCheckboxChange(index, 'refrigerator')}
+//             style={{ transform: "scale(0.9)", margin: "0" }} // Smaller checkbox
+//           />
+//         </div>
+//         <div style={{ flex: "5", padding: "2px" }}>
+//           <input
+//             type="text"
+//             value={item.remark}
+//             onChange={(e) => handleRemarkChange(index, e.target.value, 'refrigerator')}
+//             style={{ width: "100%", fontSize: "9px", padding: "1px", margin: "0" }} // Reduced font size and padding
+//           />
+//         </div>
+//       </div>
+//     ))}
+//   </div>
+// </div>
+
+
+
+
+
+
+//       <div style={{ borderTop: "1px solid #000", paddingTop: "10px" }}>
+//   <h3 style={{ fontSize: "10px" }}>
+//     Guidelines For Performance Improvement:
+//   </h3>
+//   <input type="text" style={{ width: "100%", border: "none", borderBottom: "1px solid #000", outline: "none" }}  />
+// </div>
+
+// <div style={{ borderTop: "2px solid #000", paddingTop: "10px" }}>
+//   <h3 style={{ fontSize: "10px" }}>Customer Remark:</h3>
+//   <input type="text" style={{ width: "100%", border: "none", borderBottom: "1px solid #000", outline: "none" }}  />
+// </div>
+
+
+//       <div style={{ borderTop: "1px solid #000", paddingTop: "10px" }}>
+//         <h3 style={{ fontSize: "10px" }}>Consumed Parts Description</h3>
+//         <table
+//           style={{
+//             width: "100%",
+//             borderCollapse: "collapse",
+//             marginTop: "5px",
+//             fontSize: "10px",
+//           }}
+//         >
+//           <thead>
+//             <tr>
+//               <th
+//                 style={{
+//                   border: "1px solid #ccc",
+//                   padding: "5px",
+//                   backgroundColor: "#f5f5f5",
+//                   fontSize: "10px",
+//                 }}
+//               >
+//                 Description
+//               </th>
+//               <th
+//                 style={{
+//                   border: "1px solid #ccc",
+//                   padding: "5px",
+//                   backgroundColor: "#f5f5f5",
+//                   fontSize: "10px",
+//                 }}
+//               >
+//                 Part No.
+//               </th>
+//               <th
+//                 style={{
+//                   border: "1px solid #ccc",
+//                   padding: "5px",
+//                   backgroundColor: "#f5f5f5",
+//                   fontSize: "10px",
+//                 }}
+//               >
+//                 Qty.
+//               </th>
+//               <th
+//                 style={{
+//                   border: "1px solid #ccc",
+//                   padding: "5px",
+//                   backgroundColor: "#f5f5f5",
+//                   fontSize: "10px",
+//                 }}
+//               >
+//                 Other Used Parts Details
+//               </th>
+//             </tr>
+//           </thead>
+//           <tbody>
+//             <tr>
+//               <td style={{ border: "1px solid #ccc", padding: "5px" }}>
+//                 ________________________________________________________
+//               </td>
+//               <td style={{ border: "1px solid #ccc", padding: "5px" }}>
+//                 ____________
+//               </td>
+//               <td style={{ border: "1px solid #ccc", padding: "5px" }}>____</td>
+//               <td style={{ border: "1px solid #ccc", padding: "5px" }}>
+//                 ________________________________________________________
+//               </td>
+//             </tr>
+//           </tbody>
+//         </table>
+//       </div>
+
+//       <div style={{ borderTop: "1px solid #000", paddingTop: "10px" }}>
+//     <h3 style={{ fontSize: "10px" }}>Work Timings</h3>
+//     <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '5px' }}>
+//         <span>Start of work: <input type="text" style={{ width: '80px', border: 'none', borderBottom: '1px solid #000', margin: '0 5px' }} />:</span>
+//         <span><input type="text" style={{ width: '80px', border: 'none', borderBottom: '1px solid #000', margin: '0 5px' }} /></span>
+//         <span>End of work: <input type="text" style={{ width: '80px', border: 'none', borderBottom: '1px solid #000', margin: '0 5px' }} />:</span>
+//         <span><input type="text" style={{ width: '80px', border: 'none', borderBottom: '1px solid #000', margin: '0 5px' }} /></span>
+//         <span>Date: <input type="text" style={{ width: '100px', border: 'none', borderBottom: '1px solid #000', margin: '0 5px' }} /></span>
+//     </div>
+//     <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '5px' }}>
+//         <span>Technician Name: <input type="text" style={{ width: '200px', border: 'none', borderBottom: '1px solid #000', margin: '0 5px' }} /></span>
+//         <span>Contact Person Name: <input type="text" style={{ width: '200px', border: 'none', borderBottom: '1px solid #000', margin: '0 5px' }} /></span>
+//     </div>
+//     <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+//         <span>Mobile No.: <input type="text" style={{ width: '150px', border: 'none', borderBottom: '1px solid #000', margin: '0 5px' }} /></span>
+//         <span>E-mail: <input type="text" style={{ width: '200px', border: 'none', borderBottom: '1px solid #000', margin: '0 5px' }} /></span>
+//     </div>
+// </div>
+
+
+// <div style={{ borderTop: "1px solid #000", paddingTop: "10px" }}>
+//       <h3 style={{ fontSize: "10px", display: 'inline' }}>
+//         List of Spare Parts Required for Next Visit
+//       </h3>
+//       <button
+//         onClick={addSparePart}
+//         style={{
+//           fontSize: "10px",
+//           marginLeft: "10px",
+//           cursor: "pointer",
+//           backgroundColor: "#f5f5f5",
+//           border: "1px solid #ccc",
+//           borderRadius: "4px",
+//           padding: "2px 5px",
+//           color: 'black'
+//         }}
+//       >
+//         +
+//       </button>
+//       <table
+//         style={{
+//           width: "100%",
+//           borderCollapse: "collapse",
+//           marginTop: "5px",
+//           fontSize: "10px",
+//         }}
+//       >
+//         <thead>
+//           <tr>
+//             <th style={{ border: "1px solid #ccc", padding: "5px", backgroundColor: "#f5f5f5" }}>
+//               Description
+//             </th>
+//             <th style={{ border: "1px solid #ccc", padding: "5px", backgroundColor: "#f5f5f5" }}>
+//               Part No.
+//             </th>
+//             <th style={{ border: "1px solid #ccc", padding: "5px", backgroundColor: "#f5f5f5" }}>
+//               Qty.
+//             </th>
+//             <th style={{ border: "1px solid #ccc", padding: "5px", backgroundColor: "#f5f5f5" }}>
+//               Other Required Parts Details
+//             </th>
+//           </tr>
+//         </thead>
+//         <tbody>
+//           {spareParts.map((part, index) => (
+//             <tr key={index}>
+//               <td style={{ border: "1px solid #ccc", padding: "5px" }}>
+//                 <input
+//                   type="text"
+//                   value={part.description}
+//                   onChange={(e) => handleInputChange(index, 'description', e.target.value)}
+//                   style={{ width: "100%" }}
+//                 />
+//               </td>
+//               <td style={{ border: "1px solid #ccc", padding: "5px" }}>
+//                 <input
+//                   type="text"
+//                   value={part.partNo}
+//                   onChange={(e) => handleInputChange(index, 'partNo', e.target.value)}
+//                   style={{ width: "100%" }}
+//                 />
+//               </td>
+//               <td style={{ border: "1px solid #ccc", padding: "5px" }}>
+//                 <input
+//                   type="number"
+//                   value={part.qty}
+//                   onChange={(e) => handleInputChange(index, 'qty', e.target.value)}
+//                   style={{ width: "100%" }}
+//                 />
+//               </td>
+//               <td style={{ border: "1px solid #ccc", padding: "5px" }}>
+//                 <input
+//                   type="text"
+//                   value={part.otherDetails}
+//                   onChange={(e) => handleInputChange(index, 'otherDetails', e.target.value)}
+//                   style={{ width: "100%" }}
+//                 />
+//               </td>
+//             </tr>
+//           ))}
+//         </tbody>
+//       </table>
+//     </div>
+
+//       <div style={{ borderTop: "1px solid #000", paddingTop: "10px" }}>
+//         <h3 style={{ fontSize: "10px" }}>Final Remarks</h3>
+//         <p>Work done: Yes / No &nbsp; Work accepted: Yes / No</p>
+//       </div>
+
+//       <div
+//         style={{
+//           borderTop: "1px solid #000",
+//           paddingTop: "10px",
+//           display: "flex",
+//           justifyContent: "space-between",
+//         }}
+//       >
+//         <div style={{ flex: 1 }}>
+//           <p style={{ margin: 0 }}>
+//             Technician's Signature: ____________________________
+//           </p>
+//         </div>
+//         <div style={{ flex: 1, textAlign: "center" }}>
+//           <p style={{ margin: 0 }}>
+//             Customer's Signature: ____________________________
+//           </p>
+//         </div>
+//         <div style={{ flex: 1, textAlign: "right" }}>
+//           <p style={{ margin: 0 }}>
+//             Signee's Name (in block letters): ____________________________
+//           </p>
+//         </div>
+//       </div>
+//     </div>
+//     </div>
+//   );
+// };
+
+// export default ChecklistPage3;
