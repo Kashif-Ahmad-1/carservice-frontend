@@ -178,7 +178,7 @@ function EngineerDetailsPage() {
   const handleEditClick = (appointment) => {
 
 
-    navigate(`/checklist3`, {
+    navigate(`/checklist`, {
       state: {
         appointmentId: appointment._id,
         clientName: appointment.clientName,
@@ -219,7 +219,7 @@ function EngineerDetailsPage() {
   };
 
   const handleQuotation = (appointment) => {
-    navigate(`/pdfcheck`, {
+    navigate(`/quotation-generate`, {
       state: {
         appointmentId: appointment._id,
         clientName: appointment.clientName,

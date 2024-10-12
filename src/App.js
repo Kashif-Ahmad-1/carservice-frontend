@@ -10,8 +10,7 @@ import Login from "./components/Authentication/Login";
 import AccountantPage from './components/Admin/AccountantPage';
 import EngineerPage from './components/Admin/EngineerPage';
 import ChecklistPage from "./components/EngineerPage/ChecklistPage";
-import ChecklistPage2 from "./components/EngineerPage/ChecklistPage2";
-import ChecklistPage3 from "./components/EngineerPage/ChecklistPage3";
+
 import QuotationGenerator from "./components/Pdf Generator/QuotationGenerator";
 import { AuthProvider } from "./Store/AuthContext";
 import PrivateRoute from "./PrivateRoute"; // Import PrivateRoute component
@@ -97,16 +96,10 @@ function App() {
             path="/checklist"
             element={<PrivateRoute element={ChecklistPage} roles={["engineer"]} />}
           />
+          
+          
           <Route
-            path="/checklist2"
-            element={<PrivateRoute element={ChecklistPage2} roles={["engineer"]} />}
-          />
-          <Route
-            path="/checklist3"
-            element={<PrivateRoute element={ChecklistPage3}  />}
-          />
-          <Route
-            path="/pdfcheck"
+            path="/quotation-generate"
             element={<PrivateRoute element={QuotationGenerator} roles={["engineer"]} />}
           />
           <Route
