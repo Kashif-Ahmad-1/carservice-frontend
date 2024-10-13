@@ -2,9 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import {
-  AppBar,
-  Toolbar,
-  Button,
+ 
   Typography,
   Box,
   Link
@@ -55,14 +53,20 @@ const TemplateManager = () => {
   };
 
   useEffect(() => {
-    // Fetch templates from backend
     const fetchTemplates = async () => {
-      const response = await axios.get(`${API_BASE_URL}/templates`);
-      setTemplates(response.data);
-      setMessageTemplate(response.data.template1);
+      try {
+        const response = await axios.get(`${API_BASE_URL}/api/templates`);
+        console.log("API Response:", response.data); // Check the response here
+        setTemplates(response.data);
+        setMessageTemplate(response.data.template1);
+      } catch (error) {
+        console.error("Error fetching templates:", error);
+        toast.error("Failed to fetch templates!");
+      }
     };
     fetchTemplates();
   }, []);
+  
 
   const handleTemplateChange = (e) => {
     const newTemplate = e.target.value;
@@ -75,10 +79,11 @@ const TemplateManager = () => {
       template1: selectedTemplate === 'template1' ? messageTemplate : templates.template1,
       template2: selectedTemplate === 'template2' ? messageTemplate : templates.template2,
     };
-
-    await axios.post(`${API_BASE_URL}/templates`, updatedTemplates);
+  
+    await axios.post(`${API_BASE_URL}/api/templates`, updatedTemplates);
     toast.success("Template saved!");
   };
+  
 
   return (
     <>

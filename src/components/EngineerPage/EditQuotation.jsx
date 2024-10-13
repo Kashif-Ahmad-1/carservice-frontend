@@ -341,7 +341,7 @@ const handleSubmit = async (e) => {
 const handleSendPdfToMobile = async (pdfUrl, mobileNumber) => {
   try {
     // Fetch templates from the backend
-    const response = await axios.get(`${API_BASE_URL}/templates`); 
+    const response = await axios.get(`${API_BASE_URL}/api/templates`); 
     const { template2 } = response.data; 
 
     // Use the message template function with the PDF URL
